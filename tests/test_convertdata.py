@@ -2,9 +2,9 @@ import pytest
 import os
 import shutil
 import numpy as np
-import thunderfish.dataloader as dl
-import thunderfish.datawriter as dw
-import thunderfish.convertdata as cd
+import thunderlab.dataloader as dl
+import thunderlab.datawriter as dw
+import thunderlab.convertdata as cd
 
 
 def write_data_file(filename, channels=2, samplerate = 44100):

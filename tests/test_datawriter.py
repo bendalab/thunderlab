@@ -1,7 +1,7 @@
 import pytest
 import os
 import numpy as np
-import thunderfish.datawriter as dw
+import thunderlab.datawriter as dw
 
 
 def test_formats():

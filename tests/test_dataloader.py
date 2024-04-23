@@ -2,8 +2,8 @@ import pytest
 import os
 import sys
 import numpy as np
-import thunderfish.datawriter as dw
-import thunderfish.dataloader as dl
+import thunderlab.datawriter as dw
+import thunderlab.dataloader as dl
 
 
 relacs_path = 'test_relacs'

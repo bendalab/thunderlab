@@ -2,7 +2,7 @@ import pytest
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-from thunderfish.voronoi import Voronoi, main
+from thunderlab.voronoi import Voronoi, main
 
 
 def test_voronoi_dimensions():

@@ -1335,7 +1335,7 @@ class DataLoader(AudioLoader):
     Usage:
     ------
     ```
-    import thunderfish.dataloader as dl
+    import thunderlab.dataloader as dl
     with dl.DataLoader(file_path, 60.0, 10.0) as data:
         # do something with the content of the file:
         x = data[0:10000,0]
@@ -1931,7 +1931,7 @@ def main(*cargs):
     """
     import argparse
     parser = argparse.ArgumentParser(description=
-                                     'Checking thunderfish.dataloader module.')
+                                     'Checking thunderlab.dataloader module.')
     parser.add_argument('-p', dest='plot', action='store_true',
                         help='plot loaded data')
     parser.add_argument('file', nargs=1, default='', type=str,

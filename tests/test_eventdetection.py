@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-import thunderfish.eventdetection as ed
+import thunderlab.eventdetection as ed
 
 
 def test_detect_peaks():

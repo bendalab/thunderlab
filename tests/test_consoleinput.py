@@ -2,7 +2,7 @@ import pytest
 import os
 import sys
 from io import StringIO
-import thunderfish.consoleinput as ci
+import thunderlab.consoleinput as ci
 
 
 def test_read():

@@ -2,8 +2,8 @@ import pytest
 import os
 import sys
 import numpy as np
-from thunderfish.configfile import ConfigFile
-import thunderfish.tabledata as td
+from thunderlab.configfile import ConfigFile
+import thunderlab.tabledata as td
 
 def setup_table(nanvalue=True):
     df = td.TableData()

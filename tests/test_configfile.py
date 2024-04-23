@@ -1,28 +1,28 @@
 import pytest
-import thunderfish.configfile as cf
-import thunderfish.bestwindow as bw
+import thunderlab.configfile as cf
+import thunderlab.tabledata as td
 import os
 
 
 def test_config_file():
     cfg = cf.ConfigFile()
-    bw.add_clip_config(cfg)
-    bw.add_best_window_config(cfg)
+    td.add_write_table_config(cfg)
 
-    bwa = bw.best_window_args(cfg)
+    wta = td.write_table_args(cfg)
 
     cfgfile = 'test.cfg'
     cfgdifffile = 'testdiff.cfg'
 
     # manipulate some values:
     cfg2 = cf.ConfigFile(cfg)
-    cfg2.set('windowSize', 100.0)
-    cfg2.set('weightCVAmplitude', 20.0)
-    cfg2.set('clipBins', 300)
+    cfg2.set('fileUnitStyle', 'header')
+    cfg2.set('fileSections', '10')
+    cfg2.set('fileCenterColumns', True)
     cfg3 = cf.ConfigFile(cfg2)
 
-    assert 'windowSize' in cfg2, '__contains__'
-    assert len(cfg2['windowSize']) == 4, '__getitem__'
+    assert 'fileUnitStyle' in cfg2, '__contains__'
+    assert len(cfg2['fileUnitStyle']) == 4, '__getitem__'
+    assert cfg2['fileUnitStyle'][0] == 'header', '__getitem__'
 
     with pytest.raises(IndexError):
         cfg2.set('xyz', 20)

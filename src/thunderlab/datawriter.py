@@ -1124,7 +1124,7 @@ def write_data(filepath, data, samplerate, amax=1.0, unit=None,
     -------
     ```
     import numpy as np
-    from thunderfish.datawriter import write_data
+    from thunderlab.datawriter import write_data
     
     samplerate = 28000.0
     freq = 800.0
@@ -1193,7 +1193,7 @@ def main(*cargs):
     """
     import argparse
     parser = argparse.ArgumentParser(description=
-                                     'Checking thunderfish.datawriter module.')
+                                     'Checking thunderlab.datawriter module.')
     parser.add_argument('-c', dest='channels', default=2, type=int,
                         help='number of channels to be written')
     parser.add_argument('-f', dest='format', default=None, type=str,

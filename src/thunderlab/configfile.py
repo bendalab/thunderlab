@@ -154,7 +154,7 @@ class ConfigFile(object):
             If key does not exist.
         """
         if not key in self.cfg:
-            raise IndexError('Key %s does not exist' % key)
+            raise IndexError(f'Key {key} does not exist')
         self.cfg[key][0] = value
 
 
@@ -315,13 +315,13 @@ class ConfigFile(object):
 
             
     def load(self, filename):
-        """Set values of configuration to values from key-value pairs read in
-        from file.
+        """Set values of configuration to values from key-value pairs read in from file.
 
         Parameters
         ----------
         filename: string
             Name of the file from which to read the configuration.
+
         """
         with open(filename, 'r') as f:
             for line in f:
@@ -341,19 +341,24 @@ class ConfigFile(object):
                     if len(vals) > 1:
                         unit = vals[1]
                     if unit != cv[1]:
-                        print('unit for %s is %s but should be %s'
-                              % (key, unit, cv[1]))
+                        print(f'unit for {key} is {unit} but should be {cv[1]}')
                     if type(cv[0]) == bool:
                         cv[0] = (vals[0].lower() == 'true'
                                  or vals[0].lower() == 'yes')
                     else:
-                        cv[0] = type(cv[0])(vals[0])
+                        try:
+                            cv[0] = type(cv[0])(vals[0])
+                        except ValueError:
+                            cv[0] = vals[0]
                 else:
                     if type(cv[0]) == bool:
                         self.cfg[key] = (vals[0].lower() == 'true'
                                          or vals[0].lower() == 'yes')
                     else:
-                        self.cfg[key] = type(cv)(vals[0])
+                        try:
+                            self.cfg[key] = type(cv)(vals[0])
+                        except ValueError:
+                            self.cfg[key] = vals[0]
 
                         
     def load_files(self, cfgfile, filepath, maxlevel=3, verbose=0):
@@ -376,7 +381,7 @@ class ConfigFile(object):
         # load configuration from the current directory:
         if os.path.isfile(cfgfile):
             if verbose > 0:
-                print('load configuration %s' % cfgfile)
+                print(f'load configuration {cfgfile}')
             self.load(cfgfile)
 
         # load configuration files from higher directories:
@@ -391,7 +396,7 @@ class ConfigFile(object):
             path = os.path.join(*(dirs[:-k] + [cfgfile]))
             if os.path.isfile(path):
                 if verbose > 0:
-                    print('load configuration %s' % path)
+                    print('load configuration {path}')
                 self.load(path)
 
 

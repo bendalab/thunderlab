@@ -158,7 +158,7 @@ class Voronoi(object):
     
     Calculate the Voronoi diagram:
     ```
-    from thunderfish.voronoi import Voronoi
+    from thunderlab.voronoi import Voronoi
     vor = Voronoi(points)
     ```
     

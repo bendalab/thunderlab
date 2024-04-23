@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
-import thunderfish.powerspectrum as ps
-from thunderfish.configfile import ConfigFile
+import thunderlab.powerspectrum as ps
+from thunderlab.configfile import ConfigFile
 import matplotlib.pyplot as plt
 
         

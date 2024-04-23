@@ -50,18 +50,18 @@ Look into the modules for more information.
 
 ### Input/output
 
-- [`configfile`](https://bendalab.github.io/thunderfish/api/configfile.html): Configuration file with help texts for analysis parameter.
-- [`consoleinput`](https://bendalab.github.io/thunderfish/api/consoleinput.html): User input from console.
-- [`dataloader`](https://bendalab.github.io/thunderfish/api/dataloader.html): Load time-series data from files.
-- [`datawriter`](https://bendalab.github.io/thunderfish/api/datawriter.html): Write time-series data to files.
-- [`tabledata`](https://bendalab.github.io/thunderfish/api/tabledata.html): Read and write tables with a rich hierarchical header including units and formats.
+- [`configfile`](https://bendalab.github.io/thunderlab/api/configfile.html): Configuration file with help texts for analysis parameter.
+- [`consoleinput`](https://bendalab.github.io/thunderlab/api/consoleinput.html): User input from console.
+- [`dataloader`](https://bendalab.github.io/thunderlab/api/dataloader.html): Load time-series data from files.
+- [`datawriter`](https://bendalab.github.io/thunderlab/api/datawriter.html): Write time-series data to files.
+- [`tabledata`](https://bendalab.github.io/thunderlab/api/tabledata.html): Read and write tables with a rich hierarchical header including units and formats.
 
 ### Basic data analysis
 
-- [`eventdetection`](https://bendalab.github.io/thunderfish/api/eventdetection.html): Detect and hande peaks and troughs as well as threshold crossings in data arrays.
-- [`powerspectrum`](https://bendalab.github.io/thunderfish/api/powerspectrum.html): Compute and plot powerspectra and spectrograms for a given minimum frequency resolution.
-- [`voronoi`](https://bendalab.github.io/thunderfish/api/voronoi.html): Analyse Voronoi diagrams based on scipy.spatial.
-- [`multivariateexplorer`](https://bendalab.github.io/thunderfish/api/multivariateexplorer.html): Simple GUI for viewing and exploring multivariate data.
+- [`eventdetection`](https://bendalab.github.io/thunderlab/api/eventdetection.html): Detect and hande peaks and troughs as well as threshold crossings in data arrays.
+- [`powerspectrum`](https://bendalab.github.io/thunderlab/api/powerspectrum.html): Compute and plot powerspectra and spectrograms for a given minimum frequency resolution.
+- [`voronoi`](https://bendalab.github.io/thunderlab/api/voronoi.html): Analyse Voronoi diagrams based on scipy.spatial.
+- [`multivariateexplorer`](https://bendalab.github.io/thunderlab/api/multivariateexplorer.html): Simple GUI for viewing and exploring multivariate data.
 
 
 ## Used by

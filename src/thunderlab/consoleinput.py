@@ -130,7 +130,7 @@ def main():
     
     # save_inputs('test.txt')
     ## you then can call the script like this:
-    ## python -m thunderfish.consoleinput < test.txt
+    ## python -m src.thunderlab.consoleinput < test.txt
             
             
 if __name__ == '__main__':
