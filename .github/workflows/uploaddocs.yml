@@ -1,0 +1,67 @@
+name: tests
+on: [push]
+
+jobs:
+  tests-build-doc:
+    if: github.repository == 'bendalab/thunderlab'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout thunderlab
+        uses: actions/checkout@v4
+        
+      - name: Setup python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y libblas-dev liblapack-dev gfortran libsndfile1 libsndfile1-dev libffi-dev python3-dev python3-tk
+          python -m pip install --upgrade pip
+          pip install pytest pytest-cov
+          pip install pdoc3
+          pip install mkdocs
+          pip install genbadge[coverage]
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: pytest -v --cov-report xml --cov-report html:cover --cov-report term --cov thunderlab tests/
+        shell: bash
+
+      - name: Build documentation
+        run: ./build-docs.sh
+        shell: bash
+
+      - name: Commit files
+        run: |
+          cd site
+          git config --global init.defaultBranch main
+          git init
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add -A
+          git add -f coverage.svg
+          git add -f cover/*.*
+          git commit -m 'deploy'
+
+      - name: Push to github pages
+        uses: ad-m/github-push-action@master
+        # https://github.com/ad-m/github-push-action
+        with:
+          github_token: ${{ secrets.THUNDERLAB_DOCU }}
+          branch: gh-pages
+          force: true
+          directory: site
+
+        # Personal Access Token (PAT):
+        # - Generate it on your user's
+        #   Settings->Developer settings->personal access tokens
+        #   Set 90 days, click repo.
+        # - Make it known on the repositories
+        #   Settings->Secrets and variables->Actions->Repository secrets
+        #   under the name THUNDERLAB_DOCU.
+
+        # NOTE:
+        # the github.io/project page is the gh-pages branch of that project,
+        # NOT the gh-pages branch of the bendalab.github.io repository!!!
