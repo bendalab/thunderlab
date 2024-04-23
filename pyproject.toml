@@ -6,7 +6,6 @@ build-backend = "setuptools.build_meta"
 name = "thunderlab"
 dynamic = ["version"]
 dependencies = [
-  "scikit-learn",
   "scipy",
   "numpy",
   "matplotlib",
