@@ -1,5 +1,7 @@
 numpy
 scipy
+scikit-learn
+numba
 matplotlib
 pandas
 audioio
