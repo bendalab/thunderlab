@@ -45,16 +45,15 @@ The ThunderLab package provides the following software:
 
 ## Algorithms
 
-The following modules provide the algorithms for analyzing EOD recordings.
-Look into the modules for more information.
+Click on the modules for more information.
 
 ### Input/output
 
-- [`configfile`](https://bendalab.github.io/thunderlab/api/configfile.html): Configuration file with help texts for analysis parameter.
-- [`consoleinput`](https://bendalab.github.io/thunderlab/api/consoleinput.html): User input from console.
 - [`dataloader`](https://bendalab.github.io/thunderlab/api/dataloader.html): Load time-series data from files.
 - [`datawriter`](https://bendalab.github.io/thunderlab/api/datawriter.html): Write time-series data to files.
 - [`tabledata`](https://bendalab.github.io/thunderlab/api/tabledata.html): Read and write tables with a rich hierarchical header including units and formats.
+- [`configfile`](https://bendalab.github.io/thunderlab/api/configfile.html): Configuration file with help texts for analysis parameter.
+- [`consoleinput`](https://bendalab.github.io/thunderlab/api/consoleinput.html): User input from console.
 
 ### Basic data analysis
 
