@@ -1,4 +1,4 @@
-__version__='1.0.0'
+__version__='1.1.0'
 """Current version of the thunderlab package."""
 
 __year__ = '2024'

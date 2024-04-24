@@ -1255,14 +1255,16 @@ def categorize(data):
     return cats, cdata
         
 
-def main():
+def main(*cargs):
     # parse command line:
     parser = argparse.ArgumentParser(add_help=True,
         description='View and explore multivariate data.',
         epilog='version %s by Benda-Lab (2019-%s)' % (__version__, __year__))
     parser.add_argument('file', nargs='?', default='', type=str,
                         help='a file containing a table of data (csv file or similar)')
-    args = parser.parse_args()
+    if len(cargs) == 0:
+        cargs = None
+    args = parser.parse_args(cargs)
     if args.file:
         # load data:
         data = TableData(args.file)
@@ -1297,4 +1299,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(*sys.argv[1:])
