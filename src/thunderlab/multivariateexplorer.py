@@ -274,10 +274,13 @@ class MultivariateExplorer(object):
         self.color_map = plt.get_cmap(color_map if color_map else 'jet')
 
         
-    def show(self):
+    def show(self, ioff=True):
         """Show interactive scatter plots for exploration.
         """
-        plt.ioff()
+        if ioff:
+            plt.ioff()
+        else:
+            plt.ion()
         plt.rcParams['toolbar'] = 'None'
         plt.rcParams['keymap.quit'] = 'ctrl+w, alt+q, q'
         self.fig = plt.figure(facecolor='white')
