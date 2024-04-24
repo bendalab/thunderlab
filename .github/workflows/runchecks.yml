@@ -31,7 +31,7 @@ jobs:
 
       - name: Build and install
         run: python -m build
-	run: pip install .
+        run: pip install .
         shell: bash
 
       - name: Build documentation
