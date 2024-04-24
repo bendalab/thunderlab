@@ -20,6 +20,7 @@ jobs:
           sudo apt install -y libblas-dev liblapack-dev gfortran libsndfile1 libsndfile1-dev libffi-dev python3-dev python3-tk
           python -m pip install --upgrade pip
           pip install pytest pytest-cov
+          pip install build
           pip install pdoc3
           pip install mkdocs
           pip install genbadge[coverage]
@@ -27,6 +28,11 @@ jobs:
 
       - name: Run tests
         run: pytest -v --cov-report xml --cov-report html:cover --cov-report term --cov thunderlab tests/
+        shell: bash
+
+      - name: Build and install
+        run: python -m build
+	run: pip install .
         shell: bash
 
       - name: Build documentation

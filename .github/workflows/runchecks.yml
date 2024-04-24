@@ -29,6 +29,11 @@ jobs:
         run: pytest -v --cov-report xml --cov-report html:cover --cov-report term --cov thunderlab tests/
         shell: bash
 
+      - name: Build and install
+        run: python -m build
+	run: pip install .
+        shell: bash
+
       - name: Build documentation
         run: ./build-docs.sh
         shell: bash
