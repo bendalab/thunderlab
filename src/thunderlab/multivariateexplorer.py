@@ -4,6 +4,7 @@
 - `categorize()`: convert categorial string data into integer categories.
 """
 
+import sys
 import numpy as np
 from sklearn import decomposition
 from sklearn import preprocessing
