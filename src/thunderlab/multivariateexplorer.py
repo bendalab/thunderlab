@@ -387,7 +387,7 @@ class MultivariateExplorer(object):
             if np.abs(np.min(pca.components_[k])) > np.max(pca.components_[k]):
                 pca.components_[k] *= -1.0
         pca_data = pca.transform(self.raw_data)
-        pca_labels = [('%s%d (%.1f%%)' if v > 0.01 else '%s%d (%.2f%%)') % (pca_label, k+1, 100.0*v)
+        pca_labels = [f'{pca_label}{k+1} ' + (f'({100*v:.1f}%)' if v > 0.01 else (f'{100*v:.2f}%'))
                            for k, v in enumerate(pca.explained_variance_ratio_)]
         if np.min(pca.explained_variance_ratio_) >= 0.01:
             pca_maxcols = pca_data.shape[1]
@@ -1103,7 +1103,7 @@ class MultivariateExplorer(object):
                 self.fig.canvas.draw()
             elif event.key in 'pP':
                 self.all_maxcols[self.show_mode] = self.maxcols
-                if event.key == 'p':
+                if event.key == 'P':
                     self.show_mode += 1
                     if self.show_mode >= len(self.all_data):
                         self.show_mode = 0
@@ -1124,9 +1124,9 @@ class MultivariateExplorer(object):
                 self.maxcols = self.all_maxcols[self.show_mode]
                 self.zoom_stack = []
                 self.fig.canvas.manager.set_window_title(self.title + ': ' + self.all_titles[self.show_mode])
-                for ax in self.hist_ax[:self.maxcols]:
+                for ax in self.hist_ax:
                     self._plot_hist(ax, False, False)
-                for ax in self.scatter_ax[:self.maxcols]:
+                for ax in self.scatter_ax:
                     self._plot_scatter(ax, False, False)
                 self._update_layout()
             elif event.key in 'l':
