@@ -457,7 +457,8 @@ class MultivariateExplorer(object):
             self.color_values = self.all_data[self.color_set_index][:,self.color_index]
             self.color_label = self.all_labels[self.color_set_index][self.color_index]
         self.color_vmin, self.color_vmax, self.color_ticks = \
-          self.fix_scatter_plot(self.cbax, self.color_values, self.color_label, 'c')
+          self.fix_scatter_plot(self.cbax, self.color_values,
+                                self.color_label, 'c')
         if self.color_ticks is None:
             if self.color_set_index == 0 and \
                self.categories[self.color_index] is not None:
@@ -552,9 +553,9 @@ class MultivariateExplorer(object):
             ax.clear()
             ax.relim()
             ax.autoscale(True)
-            a = ax.scatter(self.data[:,c], self.data[:,r], c=self.color_values,
-                           cmap=self.color_map, vmin=self.color_vmin, vmax=self.color_vmax,
-                           s=50, edgecolors='none', zorder=10)
+            a = ax.scatter(self.data[:,c], self.data[:,r], s=50,
+                           edgecolors='white', linewidths=0.5, zorder=10)
+            a.set_facecolor(self.data_colors)
             pr = pearsonr(self.data[:,c], self.data[:,r])
             if pr.statistic < 0:
                 ax.text(0.95, 0.95, f'r={pr.statistic:.2f}, p={pr.pvalue:.3f}',
@@ -562,11 +563,16 @@ class MultivariateExplorer(object):
             else:
                 ax.text(0.05, 0.95, f'r={pr.statistic:.2f}, p={pr.pvalue:.3f}',
                         transform=ax.transAxes)
+            # color bar:
             if cax is not None:
+                a = ax.scatter(self.data[:, c], self.data[:, r],
+                               c=self.color_values, cmap=self.color_map)
                 self.fig.colorbar(a, cax=cax, ticks=self.color_ticks)
+                a.remove()
                 cax.set_ylabel(self.color_label)
                 self.color_vmin, self.color_vmax, self.color_ticks = \
-                  self.fix_scatter_plot(self.cbax, self.color_values, self.color_label, 'c')
+                  self.fix_scatter_plot(self.cbax, self.color_values,
+                                        self.color_label, 'c')
                 if self.color_ticks is None:
                     if self.color_set_index == 0 and \
                        self.categories[self.color_index] is not None:
@@ -583,9 +589,11 @@ class MultivariateExplorer(object):
             ax.clear()
             ax.hist2d(self.data[:,c], self.data[:,r], self.hist_nbins,
                       range=axrange, cmap=plt.get_cmap('Greys'))
+        # selected data:
         a = ax.scatter(self.data[self.mark_data, c],
-                       self.data[self.mark_data, r],
-                       c=self.data_colors[self.mark_data], s=80, zorder=11)
+                       self.data[self.mark_data, r], s=100,
+                       edgecolors='black', linewidths=0.5, zorder=11)
+        a.set_facecolor(self.data_colors[self.mark_data])
         self.scatter_artists[idx] = a
         if self.categories[c] is not None:
             ax.set_xticks(np.arange(len(self.categories[c])))
@@ -653,11 +661,12 @@ class MultivariateExplorer(object):
         self.magnified_on = False
         c = 0
         r = 1
-        ax.scatter(self.data[:, c], self.data[:, r], c=self.data_colors,
-                   s=50, edgecolors='none')
+        a = ax.scatter(self.data[:, c], self.data[:, r],
+                       s=50, edgecolors='none')
+        a.set_facecolor(self.data_colors)
         a = ax.scatter(self.data[self.mark_data, c],
-                       self.data[self.mark_data, r],
-                       c=self.data_colors[self.mark_data], s=80)
+                       self.data[self.mark_data, r], s=80)
+        a.set_facecolor(self.data_colors[self.mark_data])
         ax.set_xlabel(self.labels[c])
         ax.set_ylabel(self.labels[r])
         self.fix_scatter_plot(ax, self.data[:, c], self.labels[c], 'x')
@@ -871,9 +880,12 @@ class MultivariateExplorer(object):
         # update scatter plots:
         for artist, (c, r) in zip(self.scatter_artists, self.scatter_indices):
             if artist is not None:
-                artist.set_offsets(list(zip(self.data[self.mark_data, c],
-                                            self.data[self.mark_data, r])))
-                artist.set_facecolors(self.data_colors[self.mark_data])
+                if len(self.mark_data) == 0:
+                    artist.set_offsets(np.zeros((0, 2)))
+                else:
+                    artist.set_offsets(list(zip(self.data[self.mark_data, c],
+                                                self.data[self.mark_data, r])))
+                    artist.set_facecolors(self.data_colors[self.mark_data])
         # waveform plots:
         if len(self.wave_ax) > 0:
             axdi = 0
@@ -1017,11 +1029,8 @@ class MultivariateExplorer(object):
                             self.compute_pca(self.color_set_index>1, True)
                     self._set_color_column()
                 for ax in self.scatter_ax:
-                    if len(ax.collections) > 0:
-                        idx = self.scatter_ax.index(ax)
-                        c, r = self.scatter_indices[idx]
-                        ax.collections[0].set_facecolors(self.data_colors)
-                for a, (c, r) in zip(self.scatter_artists, self.scatter_indices):
+                    ax.collections[0].set_facecolors(self.data_colors)
+                for a in self.scatter_artists:
                     if a is not None:
                         a.set_facecolors(self.data_colors[self.mark_data])
                 for ax in self.wave_ax:
