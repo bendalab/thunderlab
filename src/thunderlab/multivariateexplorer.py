@@ -313,7 +313,8 @@ class MultivariateExplorer(object):
             axx = None
             xi = 0
             for k, has_xticks in enumerate(self.wave_has_xticks):
-                ax = self.fig.add_subplot(1, len(self.wave_has_xticks), 1+k, sharex=axx)
+                ax = self.fig.add_subplot(1, len(self.wave_has_xticks),
+                                          1+k, sharex=axx)
                 self.wave_ax.append(ax)
                 if has_xticks:
                     if xi >= len(self.wave_xlabels):
@@ -488,10 +489,13 @@ class MultivariateExplorer(object):
         x = self.data[:,c]
         ax.hist(x, self.hist_nbins)
         ax.set_xlabel(self.labels[c])
-        if self.categories[c] is not None:
-            ax.set_xticks(np.arange(len(self.categories[c])))
-            ax.set_xticklabels(self.categories[c])
-        self.fix_scatter_plot(ax, self.data[:,c], self.labels[c], 'x')
+        ax.xaxis.set_major_locator(plt.AutoLocator())
+        ax.xaxis.set_major_formatter(plt.ScalarFormatter())
+        if self.show_mode == 0:
+            if self.categories[c] is not None:
+                ax.set_xticks(np.arange(len(self.categories[c])))
+                ax.set_xticklabels(self.categories[c])
+            self.fix_scatter_plot(ax, self.data[:,c], self.labels[c], 'x')
         if magnifiedax:
             ax.text(0.05, 0.95, f'n={len(self.data)}',
                     transform=ax.transAxes)
@@ -504,16 +508,24 @@ class MultivariateExplorer(object):
                         transform=ax.transAxes)
                 ax.set_ylabel('count')
             else:
-                plt.setp(ax.get_yticklabels(), visible=False)
+                ax.yaxis.set_major_formatter(plt.NullFormatter())
         if keep_lims:
             ax.set_xlim(*ax_xlim)
             ax.set_ylim(*ax_ylim)
         try:
-            selector = widgets.RectangleSelector(ax, self._on_select, useblit=True, button=1,
-                                                 props=dict(facecolor='gray', edgecolor='gray', alpha=0.2, fill=True),
-                                                 state_modifier_keys=dict(move='', clear='', square='', center=''))
+            selector = \
+                widgets.RectangleSelector(ax, self._on_select,
+                                          useblit=True, button=1,
+                                          props=dict(facecolor='gray',
+                                                     edgecolor='gray',
+                                                     alpha=0.2,
+                                                     fill=True),
+                                          state_modifier_keys=dict(move='',
+                                                                   clear='', square='',
+                                                                   center=''))
         except TypeError:
-            selector = widgets.RectangleSelector(ax, self._on_select, useblit=True, button=1)
+            selector = widgets.RectangleSelector(ax, self._on_select,
+                                                 useblit=True, button=1)
         if in_hist:
             self.hist_selector[idx] = selector
         else:
@@ -522,25 +534,24 @@ class MultivariateExplorer(object):
         if magnifiedax:
             bbox = ax.get_tightbbox(self.fig.canvas.get_renderer())
             if bbox is not None:
-                self.magnified_backdrop = patches.Rectangle((bbox.x0, bbox.y0),
-                                                            bbox.width, bbox.height,
-                                                            transform=None, clip_on=False,
-                                                            facecolor='white', edgecolor='none', zorder=-5)
+                self.magnified_backdrop = \
+                    patches.Rectangle((bbox.x0, bbox.y0), bbox.width,
+                                      bbox.height, transform=None,
+                                      clip_on=False, facecolor='white',
+                                      edgecolor='none', zorder=-5)
                 ax.add_patch(self.magnified_backdrop)
 
                         
     def _init_hist_plots(self):
         """Initial plots of the histograms."""
         n = self.data.shape[1]
-        yax = None
         self.hist_ax = []
         for r in range(n):
-            ax = self.fig.add_subplot(n, n, (n-1)*n+r+1, sharey=yax)
+            ax = self.fig.add_subplot(n, n, (n-1)*n+r+1)
             self.hist_ax.append(ax)
             self.hist_indices.append(r)
             self.hist_selector.append(None)
             self._plot_hist(ax, False, False)
-            yax = ax
 
                         
     def _plot_scatter(self, ax, magnifiedax, keep_lims, cax=None):
@@ -556,12 +567,12 @@ class MultivariateExplorer(object):
             a = ax.scatter(self.data[:,c], self.data[:,r], s=50,
                            edgecolors='white', linewidths=0.5, zorder=10)
             a.set_facecolor(self.data_colors)
-            pr = pearsonr(self.data[:,c], self.data[:,r])
-            if pr.statistic < 0:
-                ax.text(0.95, 0.95, f'r={pr.statistic:.2f}, p={pr.pvalue:.3f}',
+            pr, pp = pearsonr(self.data[:,c], self.data[:,r])
+            if pr < 0:
+                ax.text(0.95, 0.95, f'r={pr:.2f}, p={pp:.3f}',
                         transform=ax.transAxes, ha='right')
             else:
-                ax.text(0.05, 0.95, f'r={pr.statistic:.2f}, p={pr.pvalue:.3f}',
+                ax.text(0.05, 0.95, f'r={pr:.2f}, p={pp:.3f}',
                         transform=ax.transAxes)
             # color bar:
             if cax is not None:
@@ -583,8 +594,9 @@ class MultivariateExplorer(object):
                         cax.set_yticklabels(self.extra_categories)
         else: # histogram
             ax.autoscale(True)
-            self.fix_scatter_plot(ax, self.data[:,c], self.labels[c], 'x')
-            self.fix_scatter_plot(ax, self.data[:,r], self.labels[r], 'y')
+            if self.show_mode == 0:
+                self.fix_scatter_plot(ax, self.data[:,c], self.labels[c], 'x')
+                self.fix_scatter_plot(ax, self.data[:,r], self.labels[r], 'y')
             axrange = [ax.get_xlim(), ax.get_ylim()]
             ax.clear()
             ax.hist2d(self.data[:,c], self.data[:,r], self.hist_nbins,
@@ -595,12 +607,17 @@ class MultivariateExplorer(object):
                        edgecolors='black', linewidths=0.5, zorder=11)
         a.set_facecolor(self.data_colors[self.mark_data])
         self.scatter_artists[idx] = a
-        if self.categories[c] is not None:
-            ax.set_xticks(np.arange(len(self.categories[c])))
-            ax.set_xticklabels(self.categories[c])
-        if self.categories[r] is not None:
-            ax.set_yticks(np.arange(len(self.categories[r])))
-            ax.set_yticklabels(self.categories[r])
+        ax.xaxis.set_major_locator(plt.AutoLocator())
+        ax.yaxis.set_major_locator(plt.AutoLocator())
+        ax.xaxis.set_major_formatter(plt.ScalarFormatter())
+        ax.yaxis.set_major_formatter(plt.ScalarFormatter())
+        if self.show_mode == 0:
+            if self.categories[c] is not None:
+                ax.set_xticks(np.arange(len(self.categories[c])))
+                ax.set_xticklabels(self.categories[c])
+            if self.categories[r] is not None:
+                ax.set_yticks(np.arange(len(self.categories[r])))
+                ax.set_yticklabels(self.categories[r])
         if magnifiedax:
             ax.set_xlabel(self.labels[c])
             ax.set_ylabel(self.labels[r])
@@ -610,27 +627,36 @@ class MultivariateExplorer(object):
         else:
             if c == 0:
                 ax.set_ylabel(self.labels[r])
-        self.fix_scatter_plot(ax, self.data[:, c], self.labels[c], 'x')
-        self.fix_scatter_plot(ax, self.data[:, r], self.labels[r], 'y')
+        if self.show_mode == 0:
+            self.fix_scatter_plot(ax, self.data[:, c], self.labels[c], 'x')
+            self.fix_scatter_plot(ax, self.data[:, r], self.labels[r], 'y')
         if not magnifiedax:
-            plt.setp(ax.get_xticklabels(), visible=False)
+            ax.xaxis.set_major_formatter(plt.NullFormatter())
             if c > 0:
-                plt.setp(ax.get_yticklabels(), visible=False)
+                ax.yaxis.set_major_formatter(plt.NullFormatter())
         if keep_lims:
             ax.set_xlim(*ax_xlim)
             ax.set_ylim(*ax_ylim)
         if magnifiedax:
             bbox = ax.get_tightbbox(self.fig.canvas.get_renderer())
             if bbox is not None:
-                self.magnified_backdrop = patches.Rectangle((bbox.x0, bbox.y0),
-                                                            bbox.width, bbox.height,
-                                                            transform=None, clip_on=False,
-                                                            facecolor='white', edgecolor='none', zorder=-5)
+                self.magnified_backdrop = \
+                    patches.Rectangle((bbox.x0, bbox.y0), bbox.width,
+                                      bbox.height, transform=None,
+                                      clip_on=False, facecolor='white',
+                                      edgecolor='none', zorder=-5)
                 ax.add_patch(self.magnified_backdrop)
         try:
-            selector = widgets.RectangleSelector(ax, self._on_select, useblit=True, button=1,
-                                                 props=dict(facecolor='gray', edgecolor='gray', alpha=0.2, fill=True),
-                                                 state_modifier_keys=dict(move='', clear='', square='', center=''))
+            selector = \
+                widgets.RectangleSelector(ax, self._on_select,
+                                          useblit=True, button=1,
+                                          props=dict(facecolor='gray',
+                                                     edgecolor='gray',
+                                                     alpha=0.2,
+                                                     fill=True),
+                                          state_modifier_keys=dict(move='',
+                                                                   clear='', square='',
+                                                                   center=''))
         except TypeError:
             selector = widgets.RectangleSelector(ax, self._on_select, useblit=True, button=1)
         self.scatter_selector[idx] = selector
@@ -642,15 +668,13 @@ class MultivariateExplorer(object):
         cbax = self.cbax
         n = self.data.shape[1]
         for r in range(1, n):
-            yax = None
             for c in range(r):
-                ax = self.fig.add_subplot(n, n, (r-1)*n+c+1, sharex=self.hist_ax[c], sharey=yax)
+                ax = self.fig.add_subplot(n, n, (r-1)*n+c+1)
                 self.scatter_ax.append(ax)
                 self.scatter_indices.append([c, r])
                 self.scatter_artists.append(None)
                 self.scatter_selector.append(None)
                 self._plot_scatter(ax, False, False, cbax)
-                yax = ax
                 cbax = None
 
                 
@@ -712,12 +736,12 @@ class MultivariateExplorer(object):
 
         Returns
         -------
-            min: float
-                minimum value of color bar axis
-            max: float
-                maximum value of color bar axis
-            ticks: list of float
-                position of ticks for color bar axis
+        min: float
+            minimum value of color bar axis
+        max: float
+            maximum value of color bar axis
+        ticks: list of float
+            position of ticks for color bar axis
         """
         return np.nanmin(data), np.nanmax(data), None
 
@@ -916,23 +940,50 @@ class MultivariateExplorer(object):
         self.fig.canvas.draw()
 
         
+    def _set_limits(self, ax, x0, x1, y0, y1):
+        if ax in self.hist_ax:
+            ax.set_xlim(x0, x1)
+            idx = self.hist_ax.index(ax)
+            for hax in self.hist_ax:
+                hax.set_ylim(y0, y1)
+            for sax, (c, r) in zip(self.scatter_ax, self.scatter_indices):
+                if c == idx:
+                    sax.set_xlim(x0, x1)
+                if r == idx:
+                    sax.set_ylim(x0, x1)
+        if ax in self.scatter_ax:
+            idx = self.scatter_ax.index(ax)
+            cc, rr = self.scatter_indices[idx]
+            self.hist_ax[cc].set_xlim(x0, x1)
+            self.hist_ax[rr].set_xlim(y0, y1)
+            for sax, (c, r) in zip(self.scatter_ax, self.scatter_indices):
+                if c == cc:
+                    sax.set_xlim(x0, x1)
+                if c == rr:
+                    sax.set_xlim(y0, y1)
+                if r == cc:
+                    sax.set_ylim(x0, x1)
+                if r == rr:
+                    sax.set_ylim(y0, y1)
+
+                    
     def _on_key(self, event):
         """Handle key events."""
         #print('pressed', event.key)
-        plot_zoom = True
+        plot_magnified = True
         if event.key in ['left', 'right', 'up', 'down']:
             if self.magnified_on:
                 if event.key == 'left':
                     if self.scatter_indices[-1][0] > 0:
                         self.scatter_indices[-1][0] -= 1
                     else:
-                        plot_zoom = False
+                        plot_magnified = False
                 elif event.key == 'right':
                     if self.scatter_indices[-1][0] < self.scatter_indices[-1][1]-1 and \
                        self.scatter_indices[-1][0] < self.maxcols-1:
                         self.scatter_indices[-1][0] += 1
                     else:
-                        plot_zoom = False
+                        plot_magnified = False
                 elif event.key == 'up':
                     if self.scatter_indices[-1][1] > 1:
                         if self.scatter_indices[-1][1] >= self.data.shape[1]:
@@ -942,16 +993,16 @@ class MultivariateExplorer(object):
                         if self.scatter_indices[-1][0] >= self.scatter_indices[-1][1]:
                             self.scatter_indices[-1][0] = self.scatter_indices[-1][1]-1
                     else:
-                        plot_zoom = False
+                        plot_magnified = False
                 elif event.key == 'down':
                     if self.scatter_indices[-1][1] < self.maxcols:
                         self.scatter_indices[-1][1] += 1
                         if self.scatter_indices[-1][1] >= self.maxcols:
                             self.scatter_indices[-1][1] = self.data.shape[1]
                     else:
-                        plot_zoom = False
+                        plot_magnified = False
         else:
-            plot_zoom = False
+            plot_magnified = False
             if event.key == 'escape':
                 self.scatter_ax[-1].set_position([0.5, 0.9, 0.05, 0.05])
                 self.magnified_on = False
@@ -961,20 +1012,7 @@ class MultivariateExplorer(object):
                 self.select_zooms = not self.select_zooms
             elif event.key == 'backspace':
                 if len(self.zoom_stack) > 0:
-                    ax, xmin, xmax, ymin, ymax = self.zoom_stack.pop()
-                    ax.set_xlim(xmin, xmax)
-                    ax.set_ylim(ymin, ymax)
-                    if ax in self.scatter_ax[:-1]:
-                        axidx = self.scatter_ax[:-1].index(ax)
-                        if self.scatter_indices[axidx][0] == self.scatter_indices[-1][0]:
-                            self.scatter_ax[-1].set_xlim(xmin, xmax)
-                        if self.scatter_indices[axidx][1] == self.scatter_indices[-1][1]:
-                            self.scatter_ax[-1].set_ylim(ymin, ymax)
-                    elif ax in self.hist_ax:
-                        if self.scatter_indices[-1][1] == self.data.shape[1] and \
-                           self.scatter_indices[-1][0] == self.hist_ax.index(ax):
-                            self.scatter_ax[-1].set_xlim(xmin, xmax)
-                            self.scatter_ax[-1].set_ylim(ymin, ymax)
+                    self._set_limits(*self.zoom_stack.pop())
                     self.fig.canvas.draw()
             elif event.key in '+=':
                 self.pick_radius *= 1.5
@@ -1096,7 +1134,7 @@ class MultivariateExplorer(object):
                     print('')
                     print('selected:')
                     self.list_selection(self.mark_data)
-        if plot_zoom:
+        if plot_magnified:
             for k in reversed(range(len(self.zoom_stack))):
                 if self.zoom_stack[k][0] == self.scatter_ax[-1]:
                     del self.zoom_stack[k]
@@ -1142,8 +1180,7 @@ class MultivariateExplorer(object):
             y1 = erelease.ydata + dy
         elif self.select_zooms:
             self.zoom_stack.append((ax, xmin, xmax, ymin, ymax))
-            ax.set_xlim(x0, x1)
-            ax.set_ylim(y0, y1)
+            self._set_limits(ax, x0, x1, y0, y1)
         self._make_selection(ax, erelease.key, x0, x1, y0, y1)
         self._update_selection()
 
