@@ -76,15 +76,17 @@ class MultivariateExplorer(object):
             For the 2D array the columns are the second dimension,
             for a list of 1D arrays, the list goes over columns,
             i.e. each 1D array is one column.
-        labels: list of string
+        labels: list of str
             If data is not a TableData, then this provides labels
             for the data columns.
-        title: string
+        title: str
             Title for the window.
         """
-        # data and labels:
+        # data. categories and labels:
+        self.raw_data = None     # original data table as 2D numpy array (samples x features)
+        self.raw_labels = None   # for each feature a label, optional with unit
+        self.categories = []     # for each feature None or list of categories
         if isinstance(data, TableData):
-            self.categories = []
             for c, col in enumerate(data):
                 if not isinstance(col[0], (int, float,
                                            np.integer, np.floating)):
@@ -106,8 +108,8 @@ class MultivariateExplorer(object):
         else:
             if isinstance(data, np.ndarray):
                 self.raw_data = data
+                self.categories = [None] * data.shape[1]
             else:
-                self.categories = []
                 for c, col in enumerate(data):
                     if not isinstance(col[0], (int, float,
                                                np.integer, np.floating)):
@@ -118,20 +120,31 @@ class MultivariateExplorer(object):
                         self.categories.append(None)
                 self.raw_data = np.asarray(data).T
             self.raw_labels = labels
+        # remove columns containing only invalid numbers:
+        cols = np.all(~np.isfinite(self.raw_data), 0)
+        print('removed columns containing no numbers:',
+              [l for l, c in zip(self.raw_labels, cols) if c])
+        self.raw_data = self.raw_data[:, ~cols]
+        self.raw_labels = [l for l, c in zip(self.raw_labels, cols) if not c]
+        # remove rows containing invalid numbers:
+        self.valid_samples = ~np.any(~np.isfinite(self.raw_data), 1)
+        self.raw_data = self.raw_data[self.valid_samples, :]
+        print(f'removed {np.sum(~self.valid_samples)} rows containing invalid numbers')
+        # title for the window:
         self.title = title if title is not None else 'MultivariateExplorer'
-        # no pca data yet:
+        # data, pca-data, scaled-pca data (no pca data yet):
         self.all_data = [self.raw_data, None, None]
         self.all_labels = [self.raw_labels, None, None]
         self.all_maxcols = [self.raw_data.shape[1], None, None]
-        self.all_titles = ['data', 'PCA', 'scaled PCA']
+        self.all_titles = ['data', 'PCA', 'scaled PCA'] # added to window title 
         # pca:
-        self.pca_tables = [None, None]
-        self._pca_header(data, labels)
+        self.pca_tables = [None, None]  # raw and scaled pca coefficients
+        self._pca_header(self.raw_data, self.raw_labels)  # prepare header of the pca tables
         # start showing raw data:
-        self.show_mode = 0
-        self.data = self.all_data[self.show_mode]
-        self.labels = self.all_labels[self.show_mode]
-        self.maxcols = self.all_maxcols[self.show_mode]
+        self.show_mode = 0                       # show data, pca or scaled pca
+        self.data = self.all_data[self.show_mode]       # the data shown
+        self.labels = self.all_labels[self.show_mode]   # the feature labels shown
+        self.maxcols = self.all_maxcols[self.show_mode] # maximum number of features currently shown
         if self.maxcols > 6:
             self.maxcols = 6
         # waveform data:
@@ -143,20 +156,18 @@ class MultivariateExplorer(object):
         self.wave_title = False
         # colors:
         self.color_map = plt.get_cmap('jet')
-        self.extra_colors = None
-        self.extra_color_label = None
-        self.extra_categories = None
-        self.color_values = None
-        self.color_set_index = 0
-        self.color_index = 0
-        self.color_label = None
-        self.color_set_index = 0
-        self.color_index = 0
-        self.data_colors = None
+        self.extra_colors = None         # additional data column to be used for coloring
+        self.extra_color_label = None    # label for extra_colors
+        self.extra_categories = None     # category name for extra_colors if needed
+        self.color_set_index = 0         # -1: rows and extra_colors, 0: data, 1: pca, 2: scaled pca
+        self.color_index = 0             # column used for coloring with color_set_index
+        self.color_values = None         # data column currently used for coloring as specified by color_set_index and color_index
+        self.color_label = None          # label of data currently used for coloring
+        self.data_colors = None          # actual colors for color_values
         self.color_vmin = None
         self.color_vmax = None
         self.color_ticks = None
-        self.cbax = None
+        self.cbax = None                 # axes of color bar
         # figure variables:
         self.plt_params = {}
         for k in ['toolbar', 'keymap.quit', 'keymap.back', 'keymap.forward',
@@ -164,22 +175,22 @@ class MultivariateExplorer(object):
             self.plt_params[k] = plt.rcParams[k]
             if k != 'toolbar':
                 plt.rcParams[k] = ''
-        self.xborder = 70.0  # pixel for ylabels
-        self.yborder = 50.0  # pixel for xlabels
-        self.spacing = 10.0  # pixel between plots
+        self.xborder = 70.0    # pixel for ylabels
+        self.yborder = 50.0    # pixel for xlabels
+        self.spacing = 10.0    # pixel between plots
         self.pick_radius = 4.0
         # histogram plots:
-        self.hist_ax = []
-        self.hist_indices = []
-        self.hist_selector = []
-        self.hist_nbins = 30
+        self.hist_ax = []       # list of histogram axes
+        self.hist_indices = []  # feature index of the histogram axes
+        self.hist_selector = [] # for each histogram axes a selector
+        self.hist_nbins = 30    # number of bins for computing histograms
         # scatter plots:
-        self.scatter_ax = []
-        self.scatter_indices = []
-        self.scatter_artists = []
-        self.scatter_selector = []
-        self.scatter = True
-        self.mark_data = []
+        self.scatter_ax = []       # list of axes with scatter plots (1D)
+        self.scatter_indices = []  # for each axes a tuple of the column and row index
+        self.scatter_artists = []  # artists of selected scatter points
+        self.scatter_selector = [] # selector for each axes
+        self.scatter = True        # scatter (True) or density (False)
+        self.mark_data = []        # list of indices of selected data
         self.select_zooms = False
         self.zoom_stack = []
         # magnified scatter plot:
@@ -204,14 +215,14 @@ class MultivariateExplorer(object):
             from top to bottom.
             The optional inner list of 2D arrays contains several 2D arrays as ascribed above
             each with its own common x-axes.
-        xlabel: string or list of strings
+        xlabel: str or list of str
             The xlabels for the waveform plots. If only a string is given, then
             there will be a common xaxis for all the plots, and only the lowest
             one gets a labeled xaxis. If a list of strings is given, each waveform
             plot gets its own labeled x-axis.
-        ylabels: list of strings
+        ylabels: list of str
             The ylabels for each of the waveform plots.
-        title: bool or string
+        title: bool or str
             If True or a string, povide space on top of the waveform plots for a title.
             If string, set this as the title for the waveform plots.
         """
@@ -247,10 +258,10 @@ class MultivariateExplorer(object):
            Index to colum in data to be used for coloring scatter plots.
            -2 for coloring row index of data.
            Or data array used to color scalar plots.
-        color_label: string
+        color_label: str
            If colors is an array, this is a label describing the data.
            It is used to label the color bar.
-        color_map: string or None
+        color_map: str or None
             Name of a matplotlib color map.
             If None 'jet' is used.
         """
@@ -268,6 +279,7 @@ class MultivariateExplorer(object):
                 self.extra_categories, self.extra_colors = categorize(colors)
             else:
                 self.extra_colors = colors
+            self.extra_colors = self.extra_colors[self.valid_samples]
             self.extra_color_label = color_label
             self.color_set_index = -1
             self.color_index = 1
@@ -320,24 +332,25 @@ class MultivariateExplorer(object):
 
 
     def _pca_header(self, data, labels):
-        """Set up header for the table of principal components. """
-        if isinstance(data, TableData):
-            header = data.table_header()
-            for c in reversed(range(data.columns())):
-                if not np.all(np.isfinite(data[:,c])):
-                    header.remove(c)
-        else:
-            lbs = []
-            for l, d in zip(labels, data):
-                if not np.all(np.isfinite(d)):
-                    continue
-                if '[' in l:
-                    lbs.append(l.split('[')[0].strip())
-                elif '/' in l:
-                    lbs.append(l.split('/')[0].strip())
-                else:
-                    lbs.append(l)
-            header = TableData(header=lbs)
+        """Set up header for the table of principal components.
+
+        Parameters
+        ----------
+        data: ndarray of float
+            The data (samples x features) without invalid (infinite or
+            NaN) numbers.
+        labels: list of str
+            Labels of the features.
+        """
+        lbs = []
+        for l, d in zip(labels, data):
+            if '[' in l:
+                lbs.append(l.split('[')[0].strip())
+            elif '/' in l:
+                lbs.append(l.split('/')[0].strip())
+            else:
+                lbs.append(l)
+        header = TableData(header=lbs)
         header.set_formats('%.3f')
         header.insert(0, ['PC'] + ['-']*header.nsecs, '', '%d')
         header.insert(1, 'variance', '%', '%.3f')
@@ -356,23 +369,20 @@ class MultivariateExplorer(object):
         write: boolean
             If True write PCA components to standard out.
         """
-        # select columns without NANs:
-        idxs = [i for i in range(self.raw_data.shape[1]) if np.all(np.isfinite(self.raw_data[:,i]))]
-        data = self.raw_data[:,idxs]
         # pca:
         pca = decomposition.PCA()
         if scale:
             scaler = preprocessing.StandardScaler()
-            scaler.fit(data)
-            pca.fit(scaler.transform(data))
+            scaler.fit(self.raw_data)
+            pca.fit(scaler.transform(self.raw_data))
             pca_label = 'sPC'
         else:
-            pca.fit(data)
+            pca.fit(self.raw_data)
             pca_label = 'PC'
         for k in range(len(pca.components_)):
             if np.abs(np.min(pca.components_[k])) > np.max(pca.components_[k]):
                 pca.components_[k] *= -1.0
-        pca_data = pca.transform(data)
+        pca_data = pca.transform(self.raw_data)
         pca_labels = [('%s%d (%.1f%%)' if v > 0.01 else '%s%d (%.2f%%)') % (pca_label, k+1, 100.0*v)
                            for k, v in enumerate(pca.explained_variance_ratio_)]
         if np.min(pca.explained_variance_ratio_) >= 0.01:
@@ -409,7 +419,7 @@ class MultivariateExplorer(object):
 
         Parameters
         ----------
-        file_name: string
+        file_name: str
             Name of ouput file.
         scale: boolean
             If True write PCA components of standardized PCA.
@@ -436,7 +446,7 @@ class MultivariateExplorer(object):
         if self.color_set_index == -1:
             if self.color_index == 0:
                 self.color_values = np.arange(self.data.shape[0], dtype=float)
-                self.color_label = 'row'
+                self.color_label = 'sample'
             elif self.color_index == 1:
                 self.color_values = self.extra_colors
                 self.color_label = self.extra_color_label
@@ -472,7 +482,7 @@ class MultivariateExplorer(object):
         ax.relim()
         ax.autoscale(True)
         x = self.data[:,c]
-        ax.hist(x[np.isfinite(x)], self.hist_nbins)
+        ax.hist(x, self.hist_nbins)
         ax.set_xlabel(self.labels[c])
         if self.categories[c] is not None:
             ax.set_xticks(np.arange(len(self.categories[c])))
@@ -531,12 +541,11 @@ class MultivariateExplorer(object):
         ax_ylim = ax.get_ylim()
         idx = self.scatter_ax.index(ax)
         c, r = self.scatter_indices[idx]
-        sel = np.isfinite(self.data[:,c]) & np.isfinite(self.data[:,r])
-        if self.scatter:
+        if self.scatter: # scatter plot
             ax.clear()
             ax.relim()
             ax.autoscale(True)
-            a = ax.scatter(self.data[sel,c], self.data[sel,r], c=self.color_values[sel],
+            a = ax.scatter(self.data[:,c], self.data[:,r], c=self.color_values,
                            cmap=self.color_map, vmin=self.color_vmin, vmax=self.color_vmax,
                            s=50, edgecolors='none', zorder=10)
             if cax is not None:
@@ -552,18 +561,17 @@ class MultivariateExplorer(object):
                          self.color_index == 1 and \
                          self.extra_categories is not None:
                         cax.set_yticklabels(self.extra_categories)
-        else:
+        else: # histogram
             ax.autoscale(True)
-            self.fix_scatter_plot(ax, self.data[sel,c], self.labels[c], 'x')
-            self.fix_scatter_plot(ax, self.data[sel,r], self.labels[r], 'y')
+            self.fix_scatter_plot(ax, self.data[:,c], self.labels[c], 'x')
+            self.fix_scatter_plot(ax, self.data[:,r], self.labels[r], 'y')
             axrange = [ax.get_xlim(), ax.get_ylim()]
             ax.clear()
-            ax.hist2d(self.data[sel,c], self.data[sel,r], self.hist_nbins, range=axrange,
-                      cmap=plt.get_cmap('Greys'))
-        md = [m for m in self.mark_data if np.isfinite(self.data[m,c]) and
-                                           np.isfinite(self.data[m,r])]
-        a = ax.scatter(self.data[md,c], self.data[md,r], c=self.data_colors[md],
-                       s=80, zorder=11)
+            ax.hist2d(self.data[:,c], self.data[:,r], self.hist_nbins,
+                      range=axrange, cmap=plt.get_cmap('Greys'))
+        a = ax.scatter(self.data[self.mark_data, c],
+                       self.data[self.mark_data, r],
+                       c=self.data_colors[self.mark_data], s=80, zorder=11)
         self.scatter_artists[idx] = a
         if self.categories[c] is not None:
             ax.set_xticks(np.arange(len(self.categories[c])))
@@ -580,8 +588,8 @@ class MultivariateExplorer(object):
         else:
             if c == 0:
                 ax.set_ylabel(self.labels[r])
-        self.fix_scatter_plot(ax, self.data[sel,c], self.labels[c], 'x')
-        self.fix_scatter_plot(ax, self.data[sel,r], self.labels[r], 'y')
+        self.fix_scatter_plot(ax, self.data[:, c], self.labels[c], 'x')
+        self.fix_scatter_plot(ax, self.data[:, r], self.labels[r], 'y')
         if not magnifiedax:
             plt.setp(ax.get_xticklabels(), visible=False)
             if c > 0:
@@ -631,17 +639,15 @@ class MultivariateExplorer(object):
         self.magnified_on = False
         c = 0
         r = 1
-        sel = np.isfinite(self.data[:,c]) & np.isfinite(self.data[:,r])
-        ax.scatter(self.data[sel,c], self.data[sel,r], c=self.data_colors[sel],
+        ax.scatter(self.data[:, c], self.data[:, r], c=self.data_colors,
                    s=50, edgecolors='none')
-        md = [m for m in self.mark_data if np.isfinite(self.data[m,c]) and
-                                           np.isfinite(self.data[m,r])]
-        a = ax.scatter(self.data[md,c], self.data[md,r],
-                       c=self.data_colors[md], s=80)
+        a = ax.scatter(self.data[self.mark_data, c],
+                       self.data[self.mark_data, r],
+                       c=self.data_colors[self.mark_data], s=80)
         ax.set_xlabel(self.labels[c])
         ax.set_ylabel(self.labels[r])
-        self.fix_scatter_plot(ax, self.data[sel,c], self.labels[c], 'x')
-        self.fix_scatter_plot(ax, self.data[sel,r], self.labels[r], 'y')
+        self.fix_scatter_plot(ax, self.data[:, c], self.labels[c], 'x')
+        self.fix_scatter_plot(ax, self.data[:, r], self.labels[r], 'y')
         self.scatter_ax.append(ax)
         self.scatter_indices.append([c, r])
         self.scatter_artists.append(a)
@@ -674,7 +680,7 @@ class MultivariateExplorer(object):
             Axes of the scatter plot or color bar to be worked on.
         data: 1D array
             Data array of the axes.
-        label: string
+        label: str
             Label coresponding to the data array.
         axis: str
             'x', 'y': set properties of x or y axes of ax.
@@ -751,7 +757,7 @@ class MultivariateExplorer(object):
 
         This function is called when 'l' is pressed.  Reimplement this
         function, for example, to print some meaningfull information
-        about the current selection of data points on console. You nay
+        about the current selection of data points on console. You may
         do, however, whatever you want in this function.
 
         Parameters
@@ -815,9 +821,8 @@ class MultivariateExplorer(object):
             c, r = self.scatter_indices[axi]
             if r < self.data.shape[1]:
                 # from scatter:
-                for ind, (x, y) in enumerate(zip(self.data[:,c], self.data[:,r])):
-                    if np.isfinite(x) and np.isfinite(y) and \
-                       x >= x0 and x <= x1 and y >= y0 and y <= y1:
+                for ind, (x, y) in enumerate(zip(self.data[:, c], self.data[:, r])):
+                    if x >= x0 and x <= x1 and y >= y0 and y <= y1:
                         if ind in self.mark_data:
                             if key == 'control':
                                 self.mark_data.remove(ind)
@@ -825,8 +830,8 @@ class MultivariateExplorer(object):
                             self.mark_data.append(ind)
             else:
                 # from histogram:
-                for ind, x in enumerate(self.data[:,c]):
-                    if np.isfinite(x) and x >= x0 and x <= x1:
+                for ind, x in enumerate(self.data[:, c]):
+                    if x >= x0 and x <= x1:
                         if ind in self.mark_data:
                             if key == 'control':
                                 self.mark_data.remove(ind)
@@ -836,8 +841,8 @@ class MultivariateExplorer(object):
             try:
                 r = self.hist_ax.index(ax)
                 # from histogram:
-                for ind, x in enumerate(self.data[:,r]):
-                    if np.isfinite(x) and x >= x0 and x <= x1:
+                for ind, x in enumerate(self.data[:, r]):
+                    if x >= x0 and x <= x1:
                         if ind in self.mark_data:
                             if key == 'control':
                                 self.mark_data.remove(ind)
@@ -848,14 +853,13 @@ class MultivariateExplorer(object):
 
                         
     def _update_selection(self):
-        """Highlight select points in the scatter plots and plot corresponding waveforms."""
+        """Highlight selected points in the scatter plots and plot corresponding waveforms."""
         # update scatter plots:
         for artist, (c, r) in zip(self.scatter_artists, self.scatter_indices):
             if artist is not None:
-                md = [m for m in self.mark_data if np.isfinite(self.data[m,c]) and
-                                                   np.isfinite(self.data[m,r])]
-                artist.set_offsets(list(zip(self.data[md,c], self.data[md,r])))
-                artist.set_facecolors(self.data_colors[md])
+                artist.set_offsets(list(zip(self.data[self.mark_data, c],
+                                            self.data[self.mark_data, r])))
+                artist.set_facecolors(self.data_colors[self.mark_data])
         # waveform plots:
         if len(self.wave_ax) > 0:
             axdi = 0
@@ -973,47 +977,39 @@ class MultivariateExplorer(object):
                 self._update_selection()
             elif event.key in 'cC':
                 if event.key in 'c':
-                    first = True
-                    while first or not np.all(np.isfinite(self.color_values)):
-                        self.color_index -= 1
-                        if self.color_index < 0:
-                            self.color_set_index -= 1
-                            if self.color_set_index < -1:
-                                self.color_set_index = len(self.all_data)-1
-                            if self.color_set_index >= 0:
-                                if self.all_data[self.color_set_index] is None:
-                                    self.compute_pca(self.color_set_index>1, True)
-                                self.color_index = self.all_data[self.color_set_index].shape[1]-1
-                            else:
-                                self.color_index = 0 if self.extra_colors is None else 1
-                        self._set_color_column()
-                        first = False
-                else:
-                    first = True
-                    while first or not np.all(np.isfinite(self.color_values)):
-                        self.color_index += 1
-                        if (self.color_set_index >= 0 and \
-                            self.color_index >= self.all_data[self.color_set_index].shape[1]) or \
-                            (self.color_set_index < 0 and \
-                             self.color_index >= (1 if self.extra_colors is None else 2)):
-                            self.color_index = 0
-                            self.color_set_index += 1
-                            if self.color_set_index >= len(self.all_data):
-                                self.color_set_index = -1
-                            elif self.all_data[self.color_set_index] is None:
+                    self.color_index -= 1
+                    if self.color_index < 0:
+                        self.color_set_index -= 1
+                        if self.color_set_index < -1:
+                            self.color_set_index = len(self.all_data)-1
+                        if self.color_set_index >= 0:
+                            if self.all_data[self.color_set_index] is None:
                                 self.compute_pca(self.color_set_index>1, True)
-                        self._set_color_column()
-                        first = False
+                            self.color_index = self.all_data[self.color_set_index].shape[1]-1
+                        else:
+                            self.color_index = 0 if self.extra_colors is None else 1
+                    self._set_color_column()
+                else:
+                    self.color_index += 1
+                    if (self.color_set_index >= 0 and \
+                        self.color_index >= self.all_data[self.color_set_index].shape[1]) or \
+                        (self.color_set_index < 0 and \
+                         self.color_index >= (1 if self.extra_colors is None else 2)):
+                        self.color_index = 0
+                        self.color_set_index += 1
+                        if self.color_set_index >= len(self.all_data):
+                            self.color_set_index = -1
+                        elif self.all_data[self.color_set_index] is None:
+                            self.compute_pca(self.color_set_index>1, True)
+                    self._set_color_column()
                 for ax in self.scatter_ax:
                     if len(ax.collections) > 0:
                         idx = self.scatter_ax.index(ax)
                         c, r = self.scatter_indices[idx]
-                        ax.collections[0].set_facecolors(self.data_colors[np.isfinite(self.data[:,c]) & np.isfinite(self.data[:,r])])
+                        ax.collections[0].set_facecolors(self.data_colors)
                 for a, (c, r) in zip(self.scatter_artists, self.scatter_indices):
                     if a is not None:
-                        md = [m for m in self.mark_data if np.isfinite(self.data[m,c]) and
-                                                           np.isfinite(self.data[m,r])]
-                        a.set_facecolors(self.data_colors[md])
+                        a.set_facecolors(self.data_colors[self.mark_data])
                 for ax in self.wave_ax:
                     for l, c in zip(ax.lines, self.data_colors[self.mark_data]):
                         l.set_color(c)
@@ -1243,16 +1239,17 @@ def categorize(data):
 
     Parameters
     ----------
-    data: list of string
-        A list of textual categories.
+    data: list or ndarray of str
+        Data with textual categories.
 
     Returns
     -------
-    categories: list of strings
-        A sorted unique list of the strings in data.
-    cdata: list of integers
+    categories: list of str
+        A sorted unique list of the strings in `data`,
+        that is the names of the categories.
+    cdata: ndarray of int
         A copy of the input `data` where each string value is replaced
-        by an integer number that is an index into the reurned `categories`.
+        by an integer number that is an index into the returned `categories`.
     """
     cats = sorted(set(data))
     cdata = np.array([cats.index(x) for x in data], dtype=int)
