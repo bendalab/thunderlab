@@ -6,6 +6,7 @@
 
 import sys
 import numpy as np
+from scipy.stats import pearsonr
 from sklearn import decomposition
 from sklearn import preprocessing
 import matplotlib.pyplot as plt
@@ -554,6 +555,13 @@ class MultivariateExplorer(object):
             a = ax.scatter(self.data[:,c], self.data[:,r], c=self.color_values,
                            cmap=self.color_map, vmin=self.color_vmin, vmax=self.color_vmax,
                            s=50, edgecolors='none', zorder=10)
+            pr = pearsonr(self.data[:,c], self.data[:,r])
+            if pr.statistic < 0:
+                ax.text(0.95, 0.95, f'r={pr.statistic:.2f}, p={pr.pvalue:.3f}',
+                        transform=ax.transAxes, ha='right')
+            else:
+                ax.text(0.05, 0.95, f'r={pr.statistic:.2f}, p={pr.pvalue:.3f}',
+                        transform=ax.transAxes)
             if cax is not None:
                 self.fig.colorbar(a, cax=cax, ticks=self.color_ticks)
                 cax.set_ylabel(self.color_label)
@@ -979,7 +987,7 @@ class MultivariateExplorer(object):
                                  self.fig.get_window_extent().height)
                 self.fig.canvas.draw()
             elif event.key == 'ctrl+a':
-                self.mark_data = range(len(self.data))
+                self.mark_data = list(range(len(self.data)))
                 self._update_selection()
             elif event.key in 'cC':
                 if event.key in 'c':
