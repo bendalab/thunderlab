@@ -101,7 +101,7 @@ class MultivariateExplorer(object):
                 self.raw_labels = []
                 for c in range(len(data)):
                     if len(data.unit(c)) > 0 and not data.unit(c) in ['-', '1']:
-                        self.raw_labels.append('%s [%s]' % (data.label(c), data.unit(c)))
+                        self.raw_labels.append(f'{data.label(c)} [{data.unit(c)}]')
                     else:
                         self.raw_labels.append(data.label(c))
             else:
@@ -481,7 +481,7 @@ class MultivariateExplorer(object):
             in_hist = True
         except ValueError:
             idx = self.scatter_ax.index(ax)
-            c = self.scatter_indices[-1][0]
+            c = self.scatter_indices[idx][0]
             in_hist = False
         ax.clear()
         ax.relim()
@@ -886,7 +886,7 @@ class MultivariateExplorer(object):
                             self.mark_data.append(ind)
         except ValueError:
             try:
-                r = self.hist_ax.index(ax)
+                r = self.hist_indices[self.hist_ax.index(ax)]
                 # from histogram:
                 for ind, x in enumerate(self.data[:, r]):
                     if x >= x0 and x <= x1:
@@ -943,13 +943,13 @@ class MultivariateExplorer(object):
     def _set_limits(self, ax, x0, x1, y0, y1):
         if ax in self.hist_ax:
             ax.set_xlim(x0, x1)
-            idx = self.hist_ax.index(ax)
             for hax in self.hist_ax:
                 hax.set_ylim(y0, y1)
+            cc = self.hist_indices[self.hist_ax.index(ax)]
             for sax, (c, r) in zip(self.scatter_ax, self.scatter_indices):
-                if c == idx:
+                if c == cc:
                     sax.set_xlim(x0, x1)
-                if r == idx:
+                if r == cc:
                     sax.set_ylim(x0, x1)
         if ax in self.scatter_ax:
             idx = self.scatter_ax.index(ax)
@@ -1084,6 +1084,8 @@ class MultivariateExplorer(object):
                     self.hist_nbins = (self.hist_nbins*3)//2
                 elif self.hist_nbins >= 15:
                     self.hist_nbins = (self.hist_nbins*2)//3
+                else:
+                    self.hist_nbins = 10
                 for ax in self.hist_ax:
                     self._plot_hist(ax, False, True)
                 if self.scatter_indices[-1][1] >= self.data.shape[1]:
@@ -1320,7 +1322,7 @@ def main(*cargs):
     # parse command line:
     parser = argparse.ArgumentParser(add_help=True,
         description='View and explore multivariate data.',
-        epilog='version %s by Benda-Lab (2019-%s)' % (__version__, __year__))
+        epilog = f'version {__version__} by Benda-Lab (2019-{__year__})')
     parser.add_argument('file', nargs='?', default='', type=str,
                         help='a file containing a table of data (csv file or similar)')
     if len(cargs) == 0:
