@@ -122,14 +122,16 @@ class MultivariateExplorer(object):
             self.raw_labels = labels
         # remove columns containing only invalid numbers:
         cols = np.all(~np.isfinite(self.raw_data), 0)
-        print('removed columns containing no numbers:',
-              [l for l, c in zip(self.raw_labels, cols) if c])
+        if np.sum(cols) > 0:
+            print('removed columns containing no numbers:',
+                  [l for l, c in zip(self.raw_labels, cols) if c])
         self.raw_data = self.raw_data[:, ~cols]
         self.raw_labels = [l for l, c in zip(self.raw_labels, cols) if not c]
         # remove rows containing invalid numbers:
         self.valid_samples = ~np.any(~np.isfinite(self.raw_data), 1)
         self.raw_data = self.raw_data[self.valid_samples, :]
-        print(f'removed {np.sum(~self.valid_samples)} rows containing invalid numbers')
+        if np.sum(~self.valid_samples) > 0:
+            print(f'removed {np.sum(~self.valid_samples)} rows containing invalid numbers')
         # title for the window:
         self.title = title if title is not None else 'MultivariateExplorer'
         # data, pca-data, scaled-pca data (no pca data yet):
@@ -489,11 +491,15 @@ class MultivariateExplorer(object):
             ax.set_xticklabels(self.categories[c])
         self.fix_scatter_plot(ax, self.data[:,c], self.labels[c], 'x')
         if magnifiedax:
+            ax.text(0.05, 0.95, f'n={len(self.data)}',
+                    transform=ax.transAxes)
             ax.set_ylabel('count')
             cax = self.hist_ax[self.scatter_indices[-1][0]]
             ax.set_xlim(cax.get_xlim())
         else:
             if c == 0:
+                ax.text(0.05, 0.95, f'n={len(self.data)}',
+                        transform=ax.transAxes)
                 ax.set_ylabel('count')
             else:
                 plt.setp(ax.get_yticklabels(), visible=False)
