@@ -180,6 +180,7 @@ class MultivariateExplorer(object):
         self.xborder = 100.0       # pixel for ylabels
         self.yborder = 50.0        # pixel for xlabels
         self.spacing = 10.0        # pixel between plots
+        self.mborder = 20.0        # pixel around magnified plot
         self.pick_radius = 4.0
         # histogram plots:
         self.hist_ax = []          # list of histogram axes
@@ -199,7 +200,7 @@ class MultivariateExplorer(object):
         # magnified scatter plot:
         self.magnified_on = False
         self.magnified_backdrop = None
-        self.magnified_size = np.array([0.5, 0.5])
+        self.magnified_size = np.array([0.6, 0.6])
         # waveform plots:
         self.wave_ax = []
 
@@ -471,6 +472,39 @@ class MultivariateExplorer(object):
                 self.color_ticks = np.arange(len(self.extra_categories))
         self.data_colors = self.color_map((self.color_values - self.color_vmin)/(self.color_vmax - self.color_vmin))
 
+
+    def _add_backdrop(self, ax):
+        bbox = ax.get_tightbbox(self.fig.canvas.get_renderer())
+        if bbox is not None:
+            self.magnified_backdrop = \
+                patches.Rectangle((bbox.x0 - self.mborder,
+                                   bbox.y0 - self.mborder),
+                                  bbox.width + 2*self.mborder,
+                                  bbox.height + 2*self.mborder,
+                                  transform=None, clip_on=False,
+                                  facecolor='#f7f7f7', edgecolor='none',
+                                  zorder=-5)
+            ax.add_patch(self.magnified_backdrop)
+
+            
+    def _create_selector(self, ax):
+        try:
+            selector = \
+                widgets.RectangleSelector(ax, self._on_select,
+                                          useblit=True, button=1,
+                                          props=dict(facecolor='gray',
+                                                     edgecolor='gray',
+                                                     alpha=0.2,
+                                                     fill=True),
+                                          state_modifier_keys=dict(move='',
+                                                                   clear='',
+                                                                   square='',
+                                                                   center=''))
+        except TypeError:
+            selector = widgets.RectangleSelector(ax, self._on_select,
+                                                 useblit=True, button=1)
+        return selector
+    
                             
     def _plot_hist(self, ax, magnifiedax):
         """Plot and label a histogram."""
@@ -508,34 +542,14 @@ class MultivariateExplorer(object):
                 ax.set_ylabel('count')
             else:
                 ax.yaxis.set_major_formatter(plt.NullFormatter())
-        try:
-            selector = \
-                widgets.RectangleSelector(ax, self._on_select,
-                                          useblit=True, button=1,
-                                          props=dict(facecolor='gray',
-                                                     edgecolor='gray',
-                                                     alpha=0.2,
-                                                     fill=True),
-                                          state_modifier_keys=dict(move='',
-                                                                   clear='', square='',
-                                                                   center=''))
-        except TypeError:
-            selector = widgets.RectangleSelector(ax, self._on_select,
-                                                 useblit=True, button=1)
+        selector = self._create_selector(ax)
         if in_hist:
             self.hist_selector[idx] = selector
         else:
             self.scatter_selector[idx] = selector
             self.scatter_artists[idx] = None
         if magnifiedax:
-            bbox = ax.get_tightbbox(self.fig.canvas.get_renderer())
-            if bbox is not None:
-                self.magnified_backdrop = \
-                    patches.Rectangle((bbox.x0, bbox.y0), bbox.width,
-                                      bbox.height, transform=None,
-                                      clip_on=False, facecolor='white',
-                                      edgecolor='none', zorder=-5)
-                ax.add_patch(self.magnified_backdrop)
+            self._add_backdrop(ax)
 
 
     def _set_hist_ylim(self):
@@ -642,27 +656,8 @@ class MultivariateExplorer(object):
             ax.set_xlim(*ax_xlim)
             ax.set_ylim(*ax_ylim)
         if magnifiedax:
-            bbox = ax.get_tightbbox(self.fig.canvas.get_renderer())
-            if bbox is not None:
-                self.magnified_backdrop = \
-                    patches.Rectangle((bbox.x0, bbox.y0), bbox.width,
-                                      bbox.height, transform=None,
-                                      clip_on=False, facecolor='white',
-                                      edgecolor='none', zorder=-5)
-                ax.add_patch(self.magnified_backdrop)
-        try:
-            selector = \
-                widgets.RectangleSelector(ax, self._on_select,
-                                          useblit=True, button=1,
-                                          props=dict(facecolor='gray',
-                                                     edgecolor='gray',
-                                                     alpha=0.2,
-                                                     fill=True),
-                                          state_modifier_keys=dict(move='',
-                                                                   clear='', square='',
-                                                                   center=''))
-        except TypeError:
-            selector = widgets.RectangleSelector(ax, self._on_select, useblit=True, button=1)
+            self._add_backdrop(ax)
+        selector = self._create_selector(ax)
         self.scatter_selector[idx] = selector
 
         
@@ -1248,7 +1243,10 @@ class MultivariateExplorer(object):
             if self.magnified_backdrop is not None:
                 bbox = self.scatter_ax[-1].get_tightbbox(self.fig.canvas.get_renderer())
                 if bbox is not None:
-                    self.magnified_backdrop.set_bounds(bbox.x0, bbox.y0, bbox.width, bbox.height)
+                    self.magnified_backdrop.set_bounds(bbox.x0 - self.mborder,
+                                                       bbox.y0 - self.mborder,
+                                                       bbox.width + 2*self.mborder,
+                                                       bbox.height + 2*self.mborder)
         else:
             self.scatter_ax[-1].set_position([0.5, 0.9, 0.05, 0.05])
             self.scatter_ax[-1].set_visible(False)
