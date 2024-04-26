@@ -297,7 +297,8 @@ class MultivariateExplorer(object):
         else:
             plt.ion()
         plt.rcParams['toolbar'] = 'None'
-        plt.rcParams['keymap.quit'] = 'ctrl+w, alt+q, q'
+        plt.rcParams['keymap.quit'] = 'ctrl+w, alt+q, ctrl+q, q'
+        plt.rcParams['font.size'] = 12
         self.fig = plt.figure(facecolor='white')
         self.fig.canvas.manager.set_window_title(self.title + ': ' + self.all_titles[self.show_mode])
         self.fig.canvas.mpl_connect('key_press_event', self._on_key)
@@ -497,15 +498,15 @@ class MultivariateExplorer(object):
                 ax.set_xticklabels(self.categories[c])
             self.fix_scatter_plot(ax, self.data[:,c], self.labels[c], 'x')
         if magnifiedax:
-            ax.text(0.05, 0.95, f'n={len(self.data)}',
-                    transform=ax.transAxes)
+            ax.text(0.05, 0.9, f'n={len(self.data)}',
+                    transform=ax.transAxes, zorder=100)
             ax.set_ylabel('count')
             cax = self.hist_ax[self.scatter_indices[-1][0]]
             ax.set_xlim(cax.get_xlim())
         else:
             if c == 0:
-                ax.text(0.05, 0.95, f'n={len(self.data)}',
-                        transform=ax.transAxes)
+                ax.text(0.05, 0.9, f'n={len(self.data)}',
+                        transform=ax.transAxes, zorder=100)
                 ax.set_ylabel('count')
             else:
                 ax.yaxis.set_major_formatter(plt.NullFormatter())
@@ -568,12 +569,13 @@ class MultivariateExplorer(object):
                            edgecolors='white', linewidths=0.5, zorder=10)
             a.set_facecolor(self.data_colors)
             pr, pp = pearsonr(self.data[:,c], self.data[:,r])
+            fw = 'bold' if pp < 0.05 else 'normal'
             if pr < 0:
-                ax.text(0.95, 0.95, f'r={pr:.2f}, p={pp:.3f}',
-                        transform=ax.transAxes, ha='right')
+                ax.text(0.95, 0.9, f'r={pr:.2f}, p={pp:.3f}', fontweight=fw,
+                        transform=ax.transAxes, ha='right', zorder=100)
             else:
-                ax.text(0.05, 0.95, f'r={pr:.2f}, p={pp:.3f}',
-                        transform=ax.transAxes)
+                ax.text(0.05, 0.9, f'r={pr:.2f}, p={pp:.3f}', fontweight=fw,
+                        transform=ax.transAxes, zorder=100)
             # color bar:
             if cax is not None:
                 a = ax.scatter(self.data[:, c], self.data[:, r],
