@@ -3,7 +3,6 @@
 - `class MultiVariateExplorer`: simple matplotlib-based GUI for viewing and exploring multivariate data.
 - `categorize()`: convert categorial string data into integer categories.
 """
-
 import sys
 import numpy as np
 from scipy.stats import pearsonr
@@ -178,15 +177,15 @@ class MultivariateExplorer(object):
             self.plt_params[k] = plt.rcParams[k]
             if k != 'toolbar':
                 plt.rcParams[k] = ''
-        self.xborder = 70.0    # pixel for ylabels
-        self.yborder = 50.0    # pixel for xlabels
-        self.spacing = 10.0    # pixel between plots
+        self.xborder = 100.0       # pixel for ylabels
+        self.yborder = 50.0        # pixel for xlabels
+        self.spacing = 10.0        # pixel between plots
         self.pick_radius = 4.0
         # histogram plots:
-        self.hist_ax = []       # list of histogram axes
-        self.hist_indices = []  # feature index of the histogram axes
-        self.hist_selector = [] # for each histogram axes a selector
-        self.hist_nbins = 30    # number of bins for computing histograms
+        self.hist_ax = []          # list of histogram axes
+        self.hist_indices = []     # feature index of the histogram axes
+        self.hist_selector = []    # for each histogram axes a selector
+        self.hist_nbins = 30       # number of bins for computing histograms
         # scatter plots:
         self.scatter_ax = []       # list of axes with scatter plots (1D)
         self.scatter_indices = []  # for each axes a tuple of the column and row index
@@ -194,6 +193,7 @@ class MultivariateExplorer(object):
         self.scatter_selector = [] # selector for each axes
         self.scatter = True        # scatter (True) or density (False)
         self.mark_data = []        # list of indices of selected data
+        self.significance_level = 0.05 # r is bold if p is below
         self.select_zooms = False
         self.zoom_stack = []
         # magnified scatter plot:
@@ -472,10 +472,8 @@ class MultivariateExplorer(object):
         self.data_colors = self.color_map((self.color_values - self.color_vmin)/(self.color_vmax - self.color_vmin))
 
                             
-    def _plot_hist(self, ax, magnifiedax, keep_lims):
+    def _plot_hist(self, ax, magnifiedax):
         """Plot and label a histogram."""
-        ax_xlim = ax.get_xlim()
-        ax_ylim = ax.get_ylim()
         try:
             idx = self.hist_ax.index(ax)
             c = self.hist_indices[idx]
@@ -510,9 +508,6 @@ class MultivariateExplorer(object):
                 ax.set_ylabel('count')
             else:
                 ax.yaxis.set_major_formatter(plt.NullFormatter())
-        if keep_lims:
-            ax.set_xlim(*ax_xlim)
-            ax.set_ylim(*ax_ylim)
         try:
             selector = \
                 widgets.RectangleSelector(ax, self._on_select,
@@ -542,6 +537,12 @@ class MultivariateExplorer(object):
                                       edgecolor='none', zorder=-5)
                 ax.add_patch(self.magnified_backdrop)
 
+
+    def _set_hist_ylim(self):
+        ymax = np.max([ax.get_ylim() for ax in self.hist_ax[:self.maxcols]], 0)[1]
+        for ax in self.hist_ax:
+            ax.set_ylim(0, ymax)
+
                         
     def _init_hist_plots(self):
         """Initial plots of the histograms."""
@@ -552,7 +553,8 @@ class MultivariateExplorer(object):
             self.hist_ax.append(ax)
             self.hist_indices.append(r)
             self.hist_selector.append(None)
-            self._plot_hist(ax, False, False)
+            self._plot_hist(ax, False)
+        self._set_hist_ylim()
 
                         
     def _plot_scatter(self, ax, magnifiedax, keep_lims, cax=None):
@@ -569,7 +571,7 @@ class MultivariateExplorer(object):
                            edgecolors='white', linewidths=0.5, zorder=10)
             a.set_facecolor(self.data_colors)
             pr, pp = pearsonr(self.data[:,c], self.data[:,r])
-            fw = 'bold' if pp < 0.05 else 'normal'
+            fw = 'bold' if pp < self.significance_level/self.data.shape[1] else 'normal'
             if pr < 0:
                 ax.text(0.95, 0.9, f'r={pr:.2f}, p={pp:.3f}', fontweight=fw,
                         transform=ax.transAxes, ha='right', zorder=100)
@@ -1028,16 +1030,19 @@ class MultivariateExplorer(object):
                     self.maxcols -= 1
                 elif event.key in ['pagedown', '>'] and self.maxcols < self.raw_data.shape[1]:
                     self.maxcols += 1
+                for ax in self.hist_ax:
+                    self._plot_hist(ax, False)
                 self._update_layout()
             elif event.key == 'w':
-                if self.maxcols > 0:
-                    self.all_maxcols[self.show_mode] = self.maxcols
-                    self.maxcols = 0
-                else:
-                    self.maxcols = self.all_maxcols[self.show_mode]
-                self._set_layout(self.fig.get_window_extent().width,
-                                 self.fig.get_window_extent().height)
-                self.fig.canvas.draw()
+                if len(self.wave_data) > 0:
+                    if self.maxcols > 0:
+                        self.all_maxcols[self.show_mode] = self.maxcols
+                        self.maxcols = 0
+                    else:
+                        self.maxcols = self.all_maxcols[self.show_mode]
+                    self._set_layout(self.fig.get_window_extent().width,
+                                     self.fig.get_window_extent().height)
+                    self.fig.canvas.draw()
             elif event.key == 'ctrl+a':
                 self.mark_data = list(range(len(self.data)))
                 self._update_selection()
@@ -1089,7 +1094,8 @@ class MultivariateExplorer(object):
                 else:
                     self.hist_nbins = 10
                 for ax in self.hist_ax:
-                    self._plot_hist(ax, False, True)
+                    self._plot_hist(ax, False)
+                self._set_hist_ylim()
                 if self.scatter_indices[-1][1] >= self.data.shape[1]:
                     self._plot_hist(self.scatter_ax[-1], True, True)
                 elif not self.scatter:
@@ -1129,7 +1135,8 @@ class MultivariateExplorer(object):
                 self.zoom_stack = []
                 self.fig.canvas.manager.set_window_title(self.title + ': ' + self.all_titles[self.show_mode])
                 for ax in self.hist_ax:
-                    self._plot_hist(ax, False, False)
+                    self._plot_hist(ax, False)
+                self._set_hist_ylim()
                 for ax in self.scatter_ax:
                     self._plot_scatter(ax, False, False)
                 self._update_layout()
@@ -1150,7 +1157,7 @@ class MultivariateExplorer(object):
             if self.scatter_indices[-1][1] < self.data.shape[1]:
                 self._plot_scatter(self.scatter_ax[-1], True, False)
             else:
-                self._plot_hist(self.scatter_ax[-1], True, False)
+                self._plot_hist(self.scatter_ax[-1], True)
             self.fig.canvas.draw()
 
             
@@ -1287,7 +1294,8 @@ class MultivariateExplorer(object):
         else:
             if self.scatter_indices[-1][0] >= self.maxcols:
                 self.scatter_indices[-1][0] = self.maxcols-1
-                self._plot_hist(self.scatter_ax[-1], True, False)
+                self._plot_hist(self.scatter_ax[-1], True)
+        self._set_hist_ylim()
         self._set_layout(self.fig.get_window_extent().width,
                          self.fig.get_window_extent().height)
         self.fig.canvas.draw()
@@ -1341,7 +1349,7 @@ def main(*cargs):
         data = []
         data.append(np.random.randn(n) + 2.0)
         data.append(1.0+0.1*data[0] + 1.5*np.random.randn(n))
-        data.append(-3.0*data[0] - 2.0*data[1] + 1.8*np.random.randn(n))
+        data.append(10*(-3.0*data[0] + 2.0*data[1] + 1.8*np.random.randn(n)))
         idx = np.random.randint(0, 3, n)
         names = ['aaa', 'bbb', 'ccc']
         data.append([names[i] for i in idx])
