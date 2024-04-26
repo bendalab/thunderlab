@@ -325,7 +325,7 @@ class MultivariateExplorer(object):
                     xi += 1
                     axx = None
                 else:
-                    plt.setp(ax.get_xticklabels(), visible=False)
+                    #ax.xaxis.set_major_formatter(plt.NullFormatter())
                     if axx is None:
                         axx = ax
             for ax, ylabel in zip(self.wave_ax, self.wave_ylabels):
@@ -492,6 +492,8 @@ class MultivariateExplorer(object):
             selector = \
                 widgets.RectangleSelector(ax, self._on_select,
                                           useblit=True, button=1,
+                                          minspanx=0, minspany=0,
+                                          spancoords='pixels',
                                           props=dict(facecolor='gray',
                                                      edgecolor='gray',
                                                      alpha=0.2,
@@ -499,8 +501,9 @@ class MultivariateExplorer(object):
                                           state_modifier_keys=dict(move='',
                                                                    clear='',
                                                                    square='',
-                                                                   center=''))
+                                                                   center='ctrl'))
         except TypeError:
+            # old matplotlib:
             selector = widgets.RectangleSelector(ax, self._on_select,
                                                  useblit=True, button=1)
         return selector
@@ -582,7 +585,8 @@ class MultivariateExplorer(object):
             ax.relim()
             ax.autoscale(True)
             a = ax.scatter(self.data[:,c], self.data[:,r], s=50,
-                           edgecolors='white', linewidths=0.5, zorder=10)
+                           edgecolors='white', linewidths=0.5,
+                           picker=self.pick_radius, zorder=10)
             a.set_facecolor(self.data_colors)
             pr, pp = pearsonr(self.data[:,c], self.data[:,r])
             fw = 'bold' if pp < self.significance_level/self.data.shape[1] else 'normal'
@@ -622,7 +626,8 @@ class MultivariateExplorer(object):
         # selected data:
         a = ax.scatter(self.data[self.mark_data, c],
                        self.data[self.mark_data, r], s=100,
-                       edgecolors='black', linewidths=0.5, zorder=11)
+                       edgecolors='black', linewidths=0.5,
+                       picker=self.pick_radius, zorder=11)
         a.set_facecolor(self.data_colors[self.mark_data])
         self.scatter_artists[idx] = a
         ax.xaxis.set_major_locator(plt.AutoLocator())
@@ -922,15 +927,16 @@ class MultivariateExplorer(object):
                         else:
                             data = self.wave_data[idx]
                         if data is not None:
-                            ax.plot(data[:,0], data[:,axti], c=self.data_colors[idx],
+                            ax.plot(data[:, 0], data[:, axti],
+                                    c=self.data_colors[idx],
                                     picker=self.pick_radius)
                 axti += 1
                 if self.wave_has_xticks[xi]:
                     ax.set_xlabel(self.wave_xlabels[axdi])
                     axti = 1
                     axdi += 1
-                else:
-                    plt.setp(ax.get_xticklabels(), visible=False)
+                #else:
+                #    ax.xaxis.set_major_formatter(plt.NullFormatter())
             for ax, ylabel in zip(self.wave_ax, self.wave_ylabels):
                 ax.set_ylabel(ylabel)
             if not isinstance(self.wave_title, bool) and self.wave_title:
@@ -1192,11 +1198,14 @@ class MultivariateExplorer(object):
 
         
     def _on_pick(self, event):
-        """Handle pick events on waveforms."""
+        """Handle pick events."""
         for ax in self.wave_ax:
             for k, l in enumerate(ax.lines):
                 if l is event.artist:
                     self.mark_data = [self.mark_data[k]]
+        for ax in self.scatter_ax:
+            if ax.collections[0] is event.artist:
+                self.mark_data = event.ind
         self._update_selection()
         if event.mouseevent.dblclick:
             if len(self.mark_data) > 0:
