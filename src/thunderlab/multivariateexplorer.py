@@ -91,6 +91,7 @@ class MultivariateExplorer(object):
                 if not isinstance(col[0], (int, float,
                                            np.integer, np.floating)):
                     # categorial data:
+                    #print(data[:,c])
                     cats, data[:,c] = categorize(col)
                     self.categories.append(cats)
                 else:

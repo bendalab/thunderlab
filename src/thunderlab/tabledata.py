@@ -48,25 +48,32 @@ __pdoc__['TableData.__delitem__'] = True
 __pdoc__['TableData.__str__'] = True
 
 
+default_missing_str = '-'
+"""Default string indicating nan data elements whne outputting data."""
+
+default_missing_inputs = ['na', 'NA', 'nan', 'NAN', '-']
+"""Default strings that are translated to nan when loading table data."""
+
+
 class TableData(object):
     """Table with numpy-style indexing and a rich hierarchical header including units and formats.
     
     Parameters
     ----------
-    data: string, stream, array
+    data: str, stream, ndarray
         - a filename: load table from file with name `data`.
         - a stream/file handle: load table from that stream.
-        - 1-D or 2-D array of data: the data of the table.
+        - 1-D or 2-D ndarray of data: the data of the table.
           Requires als a specified `header`.
-    header: list of string
+    header: list of str
         Header labels for each column.
-    units: list of string, optional
+    units: list of str, optional
         Unit strings for each column.
-    formats: string or list of string, optional
+    formats: str or list of str, optional
         Format strings for each column. If only a single format string is
         given, then all columns are initialized with this format string.
-    missing: string
-        Missing data are indicated by this string.
+    missing: list of str
+        Missing data are indicated by one of these strings.
 
     Manipulate table header
     -----------------------
@@ -220,8 +227,9 @@ class TableData(object):
     Accessing data
     --------------
 
-    In contrast to the iterator functions the [] operator treats the table as a
-    2D-array where the first index indicates the row and the second index the column.
+    In contrast to the iterator functions the [] operator treats the
+    table as a 2D-array where the first index indicates the row and
+    the second index the column.
 
     Like a numpy aray the table can be sliced, and logical indexing can
     be used to select specific parts of the table.
@@ -234,11 +242,11 @@ class TableData(object):
     - `row()`: a single row of the table as TableData.
     - `row_dict()`: a single row of the table as dictionary.
     - `col()`: a single column of the table as TableData.
-    - `__call__()`: a single column of the table as numpy array.
+    - `__call__()`: a single column of the table as ndarray.
     - `__getitem__()`: data elements specified by slice.
     - `__setitem__()`: assign values to data elements specified by slice.
     - `__delitem__()`: delete data elements or whole columns or rows.
-    - `array()`: the table data as a numpy array.
+    - `array()`: the table data as a ndarray.
     - `data_frame()`: the table data as a pandas DataFrame.
     - `dicts()`: the table as a list of dictionaries.
     - `dict()`: the table as a dictionary.
@@ -255,8 +263,8 @@ class TableData(object):
     For example:
     ```
     # single column:    
-    df('size')     # data of 'size' column as numpy array
-    df[:,'size']   # data of 'size' column as numpy array
+    df('size')     # data of 'size' column as ndarray
+    df[:,'size']   # data of 'size' column as ndarray
     df.col('size') # table with the single column 'size'
 
     # single row:    
@@ -265,7 +273,7 @@ class TableData(object):
 
     # slices:
     df[2:5,['size','jitter']]          # sub-table
-    df[2:5,['size','jitter']].array()  # numpy array with data only
+    df[2:5,['size','jitter']].array()  # ndarray with data only
 
     # logical indexing:
     df[df('speed') > 100.0, 'size'] = 0.0 # set size to 0 if speed is > 100
@@ -319,6 +327,7 @@ class TableData(object):
     - `ext_formats`: dictionary mapping filename extensions to file formats.
 
     See documentation of the `write()` function for examples of the supported file formats.
+
     """
     
     formats = ['dat', 'ascii', 'csv', 'rtai', 'md', 'tex', 'html']
@@ -337,7 +346,7 @@ class TableData(object):
     """dict: Mapping of file extensions to the output formats."""
 
     def __init__(self, data=None, header=None, units=None, formats=None,
-                 missing='-'):
+                 missing=default_missing_inputs):
         self.data = []
         self.shape = (0, 0)
         self.header = []
@@ -391,15 +400,15 @@ class TableData(object):
 
         Parameters
         ----------
-        label: string or list of string
+        label: str or list of str
             Optional section titles and the name of the column.
-        unit: string or None
+        unit: str or None
             The unit of the column contents.
-        formats: string or None
+        formats: str or None
             The C-style format string used for printing out the column content, e.g.
             '%g', '%.2f', '%s', etc.
             If None, the format is set to '%g'.
-        value: None, float, int, string, etc. or list thereof, or list of dict
+        value: None, float, int, str, etc. or list thereof, or list of dict
             If not None, data for the column.
             If list of dictionaries, extract from each dictionary in the list
             the value specified by `key`. If `key` is `None` use `label` as
@@ -462,19 +471,19 @@ class TableData(object):
 
         Parameters
         ----------
-        columns int or string
+        columns int or str
             Column before which to insert the new column.
             Column can be specified by index or name,
             see `index()` for details.
-        label: string or list of string
+        label: str or list of str
             Optional section titles and the name of the column.
-        unit: string or None
+        unit: str or None
             The unit of the column contents.
-        formats: string or None
+        formats: str or None
             The C-style format string used for printing out the column content, e.g.
             '%g', '%.2f', '%s', etc.
             If None, the format is set to '%g'.
-        value: None, float, int, string, etc. or list thereof
+        value: None, float, int, str, etc. or list thereof
             If not None, data for the column.
 
         Returns
@@ -516,7 +525,7 @@ class TableData(object):
 
         Parameters
         -----------
-        columns: int or string or list of int or string
+        columns: int or str or list of int of str
             Columns can be specified by index or name,
             see `index()` for details.
 
@@ -554,7 +563,7 @@ class TableData(object):
 
         Parameters
         ----------
-        column: None, int, or string
+        column: None, int, or str
             A specification of a column.
             See self.index() for more information on how to specify a column.
         level: int
@@ -562,10 +571,12 @@ class TableData(object):
 
         Returns
         -------
-        name: string
-            The name of the section at the specified level containing the column.
+        name: str
+            The name of the section at the specified level containing
+            the column.
         index: int
-            The column index that contains this section (equal or smaller thant `column`).
+            The column index that contains this section
+            (equal or smaller thant `column`).
 
         Raises
         ------
@@ -584,9 +595,9 @@ class TableData(object):
 
         Parameters
         ----------
-        label: string
+        label: str
             The new name to be used for the section.
-        column: None, int, or string
+        column: None, int, or str
             A specification of a column.
             See self.index() for more information on how to specify a column.
         level: int
@@ -604,7 +615,7 @@ class TableData(object):
 
         Parameters
         ----------
-        label: string or list of string
+        label: stri or list of str
             The name(s) of the section(s).
 
         Returns
@@ -637,11 +648,11 @@ class TableData(object):
 
         Parameters
         ----------
-        columns int or string
+        columns int or str
             Column before which to insert the new section.
             Column can be specified by index or name,
             see `index()` for details.
-        section: string
+        section: str
             The name of the section.
 
         Returns
@@ -669,13 +680,13 @@ class TableData(object):
 
         Parameters
         ----------
-        column: None, int, or string
+        column: None, int, or str
             A specification of a column.
             See self.index() for more information on how to specify a column.
 
         Returns
         -------
-        name: string
+        name: str
             The column label.
         """
         column = self.index(column)
@@ -686,9 +697,9 @@ class TableData(object):
 
         Parameters
         ----------
-        label: string
+        label: str
             The new name to be used for the column.
-        column: None, int, or string
+        column: None, int, or str
             A specification of a column.
             See self.index() for more information on how to specify a column.
         """        
@@ -701,13 +712,13 @@ class TableData(object):
 
         Parameters
         ----------
-        column: None, int, or string
+        column: None, int, or str
             A specification of a column.
             See self.index() for more information on how to specify a column.
 
         Returns
         -------
-        unit: string
+        unit: str
             The unit.
         """
         column = self.index(column)
@@ -718,9 +729,9 @@ class TableData(object):
 
         Parameters
         ----------
-        unit: string
+        unit: str
             The new unit to be used for the column.
-        column: None, int, or string
+        column: None, int, or str
             A specification of a column.
             See self.index() for more information on how to specify a column.
         """
@@ -733,7 +744,7 @@ class TableData(object):
 
         Parameters
         ----------
-        units: list of string
+        units: list of str
             The new units to be used.
         """
         for c, u in enumerate(units):
@@ -744,13 +755,13 @@ class TableData(object):
 
         Parameters
         ----------
-        column: None, int, or string
+        column: None, int, or str
             A specification of a column.
             See self.index() for more information on how to specify a column.
 
         Returns
         -------
-        format: string
+        format: str
             The format string.
         """
         column = self.index(column)
@@ -761,9 +772,9 @@ class TableData(object):
 
         Parameters
         ----------
-        format: string
+        format: str
             The new format string to be used for the column.
-        column: None, int, or string
+        column: None, int, or str
             A specification of a column.
             See self.index() for more information on how to specify a column.
         """
@@ -776,7 +787,7 @@ class TableData(object):
 
         Parameters
         ----------
-        formats: string or list of string
+        formats: str or list of str
             The new format strings to be used.
             If only a single format is specified,
             then all columns get the same format.
@@ -813,17 +824,17 @@ class TableData(object):
 
         Parameters
         ----------
-        column: None, int, or string
+        column: None, int, or str
             A specification of a column.
             See self.index() for more information on how to specify a column.
 
         Returns
         -------
-        name: string
+        name: str
             The column label.
-        unit: string
+        unit: str
             The unit.
-        format: string
+        format: str
             The format string.
         """
         column = self.index(column)
@@ -834,13 +845,13 @@ class TableData(object):
 
         Parameters
         ----------
-        column: int or string
+        column: int or str
             Specifies the column.
             See self.index() for more information on how to specify a column.
 
         Returns
         -------
-        s: string
+        s: str
             Full specification of the column by all its section names and its header name.
         """
         c = self.index(column)
@@ -854,7 +865,7 @@ class TableData(object):
         
         Parameters
         ----------
-        column: None, int, or string
+        column: None, int, or str
             A specification of a column.
             See self.index() for more information on how to specify a column.
 
@@ -922,7 +933,7 @@ class TableData(object):
         
         Parameters
         ----------
-        column: None, int, or string
+        column: None, int, or str
             A specification of a column.
             - None: no column is specified
             - int: the index of the column (first column is zero), e.g. `index(2)`.
@@ -944,7 +955,7 @@ class TableData(object):
 
         Parameters
         ----------
-        column: None, int, or string
+        column: None, int, or str
             The column to be checked.
             See self.index() for more information on how to specify a column.
 
@@ -960,7 +971,7 @@ class TableData(object):
 
         Returns
         -------
-        keys: list of strings
+        keys: list of str
             List of unique column specifications.
         """
         return [self.column_spec(c) for c in range(self.columns())]
@@ -1094,7 +1105,7 @@ class TableData(object):
 
         Parameters
         ----------
-        column: None, int, or string
+        column: None, int, or str
             The column to be returned.
             See self.index() for more information on how to specify a column.
 
@@ -1111,18 +1122,18 @@ class TableData(object):
         return data
 
     def __call__(self, column):
-        """A single column of the table as a numpy array.
+        """A single column of the table as a ndarray.
 
         Parameters
         ----------
-        column: None, int, or string
+        column: None, int, or str
             The column to be returned.
             See self.index() for more information on how to specify a column.
 
         Returns
         -------
-        data: 1-D array
-            Content of the specified column as a numpy array.
+        data: 1-D ndarray
+            Content of the specified column as a ndarray.
         """
         c = self.index(column)
         return np.asarray(self.data[c])
@@ -1188,7 +1199,7 @@ class TableData(object):
         -------
         data:
             - A single data value if a single row and a single column is specified.
-            - An array of data elements if a single single column is specified.
+            - A ndarray of data elements if a single single column is specified.
             - A TableData object for multiple columns.
             - None if no row is selected (e.g. by a logical index that nowhere is True)
 
@@ -1327,19 +1338,19 @@ class TableData(object):
             self.shape = (self.rows(), self.columns())
 
     def array(self, row=None):
-        """The table data as a numpy array.
+        """The table data as a ndarray.
 
         Parameters
         ----------
         row: int or None
-            If specified, a 1D array of that row will be returned.
+            If specified, a 1D ndarray of that row will be returned.
 
         Returns
         -------
         data: 2D or 1D ndarray
             If no row is specified, the data content of the entire table
-            as a 2D numpy array (rows first).
-            If a row is specified, a 1D array of that row.
+            as a 2D ndarray (rows first).
+            If a row is specified, a 1D ndarray of that row.
         """
         if row is None:
             return np.array(self.data).T
@@ -1356,7 +1367,7 @@ class TableData(object):
         """
         return pd.DataFrame(self.dict())
 
-    def dicts(self, raw_values=True, missing='-'):
+    def dicts(self, raw_values=True, missing=default_missing_str):
         """The table as a list of dictionaries.
 
         Parameters
@@ -1364,7 +1375,7 @@ class TableData(object):
         raw_values: bool
             If True, use raw table values as values,
             else format the values and add unit string.
-        missing: string
+        missing: str
             String indicating non-existing data elements.
 
         Returns
@@ -1409,14 +1420,14 @@ class TableData(object):
 
         Parameters
         ----------
-        data: float, int, string, etc. or list thereof or list of list thereof
+        data: float, int, str, etc. or list thereof or list of list thereof
             Data values to be appended to successive column.
             - A single value is simply appened to the specified column of the table.
             - A 1D-list of values is appended to successive columns of the table
               starting with the specified column.
             - The columns of a 2D-list of values (second index) are appended
               to successive columns of the table starting with the specified column.
-        column: None, int, or string
+        column: None, int, or str
             The first column to which the data should be appended.
             If None, append to the current column.
             See self.index() for more information on how to specify a column.
@@ -1450,9 +1461,9 @@ class TableData(object):
 
         Parameters
         ----------
-        data: float, int, string, etc. or list thereof
+        data: float, int, str, etc. or list thereof
             Data values to be appended to a column.
-        column: None, int, or string
+        column: None, int, or str
             The column to which the data should be appended.
             If None, append to the current column.
             See self.index() for more information on how to specify a column.
@@ -1474,7 +1485,7 @@ class TableData(object):
 
         Parameters
         ----------
-        column: int or string
+        column: int or str
             The column to which data elements should be appended.
             See self.index() for more information on how to specify a column.
 
@@ -1517,7 +1528,7 @@ class TableData(object):
 
         Parameters
         ----------
-        columns: int or string or list of int or string
+        columns: int or str or list of int or str
             A column specifier or a list of column specifiers of the columns
             to be sorted.
         reverse: boolean
@@ -1606,24 +1617,24 @@ class TableData(object):
         ds.shape = (ds.rows(), ds.columns())
         return ds
 
-    def key_value(self, row, col, missing='-'):
+    def key_value(self, row, col, missing=default_missing_str):
         """A data element returned as a key-value pair.
 
         Parameters
         ----------
         row: int
             Specifies the row from which the data element should be retrieved.
-        col: None, int, or string
+        col: None, int, or str
             A specification of a column.
             See self.index() for more information on how to specify a column.
-        missing: string
+        missing: str
             String indicating non-existing data elements.
 
         Returns
         -------
-        key: string
+        key: str
             Header label of the column
-        value: string
+        value: str
             A textual representation of the data element according to the format
             of the column, followed by the unit of the column.
         """
@@ -1646,7 +1657,7 @@ class TableData(object):
 
         Parameters
         ----------
-        column: int or string
+        column: int or str
             The column to be hidden.
             See self.index() for more information on how to specify a column.
         """
@@ -1663,15 +1674,15 @@ class TableData(object):
         for c in range(len(self.hidden)):
             self.hidden[c] = True
 
-    def hide_empty_columns(self, missing='-'):
+    def hide_empty_columns(self, missing=default_missing_inputs):
         """Hide all columns that do not contain data.
 
         Hidden columns will not be printed out by the write() function.
 
         Parameters
         ----------
-        missing: string
-            String indicating missing data.
+        missing: list of str
+            Strings indicating missing data.
         """
         for c in range(len(self.data)):
             # check for empty column:
@@ -1682,7 +1693,7 @@ class TableData(object):
                         isempty = False
                         break
                 else:
-                    if v != missing:
+                    if not v in missing:
                         isempty = False
                         break
             if isempty:
@@ -1695,7 +1706,7 @@ class TableData(object):
 
         Parameters
         ----------
-        column: int or string
+        column: int or str
             The column to be shown.
             See self.index() for more information on how to specify a column.
         """
@@ -1706,8 +1717,9 @@ class TableData(object):
 
     def write(self, fh=sys.stdout, table_format=None, delimiter=None,
               unit_style=None, column_numbers=None, sections=None,
-              align_columns=None, shrink_width=True, missing='-',
-              center_columns=False, latex_label_command='', latex_merge_std=False):
+              align_columns=None, shrink_width=True,
+              missing=default_missing_str, center_columns=False,
+              latex_label_command='', latex_merge_std=False):
         """Write the table to a file or stream.
 
         Parameters
@@ -1717,20 +1729,20 @@ class TableData(object):
             If `fh` does not have an extension,
             the `table_format` is appended as an extension.
             Otherwise `fh` is used as a stream for writing.
-        table_format: None or string
+        table_format: None or str
             The format to be used for output.
             One of 'out', 'dat', 'ascii', 'csv', 'rtai', 'md', 'tex', 'html'.
             If None or 'auto' then the format is set to the extension of the filename given by `fh`.
             If `fh` is a stream the format is set to 'dat'.
-        delimiter: string
+        delimiter: str
             String or character separating columns, if supported by the `table_format`.
             If None or 'auto' use the default for the specified `table_format`.
-        unit_style: None or string
+        unit_style: None or str
             - None or 'auto': use default of the specified `table_format`.
             - 'row': write an extra row to the table header specifying the units of the columns.
             - 'header': add the units to the column headers.
             - 'none': do not specify the units.
-        column_numbers: string or None
+        column_numbers: str or None
             Add a row specifying the column index:
             - 'index': indices are integers, first column is 0.
             - 'num': indices are integers, first column is 1.
@@ -1748,20 +1760,20 @@ class TableData(object):
         shrink_width: boolean
             If `True` disregard width specified by the format strings,
             such that columns can become narrower.
-        missing: string
+        missing: str
             Indicate missing data by this string.
         center_columns: boolean
             If True center all columns (markdown, html, and latex).
-        latex_label_command: string
+        latex_label_command: str
             LaTeX command for formatting header labels.
             E.g. 'textbf' for making the header labels bold.
-        latex_merge_std: string
+        latex_merge_std: str
             Merge header of columns with standard deviations with previous column
             (LaTeX tables only).
 
         Returns
         -------
-        file_name: string or None
+        file_name: str or None
             The full name of the file into which the data were written.
 
         Supported file formats
@@ -2433,11 +2445,11 @@ class TableData(object):
 
         Parameters
         ----------
-        basename: string or stream
-            If string, path and basename of file.
+        basename: str or stream
+            If str, path and basename of file.
             `file_name` and an extension are appended.
             If stream, write table data into this stream.
-        file_name: string
+        file_name: str
             Name of file that is appended to a base path or `basename`.
         kwargs:
             Arguments passed on to `TableData.write()`.
@@ -2446,7 +2458,7 @@ class TableData(object):
 
         Returns
         -------
-        file_name: string
+        file_name: str
             Path and full name of the written file in case of `basename`
             being a string. Otherwise, the file name and extension that
             should be appended to a base path.
@@ -2471,17 +2483,18 @@ class TableData(object):
         return stream.getvalue()
                 
 
-    def load(self, fh, missing='-'):
+    def load(self, fh, missing=default_missing_inputs):
         """Load table from file or stream.
 
         File type and properties are automatically inferred.
 
         Parameters
         ----------
-        fh: filename or stream
+        fh: str or stream
             If not a stream, the file with name `fh` is opened for reading.
-        missing: string
-            Missing data are indicated by this string.
+        missing: str or list of str
+            Missing data are indicated by this string and
+            are translated to np.nan.
 
         Raises
         ------
@@ -2524,20 +2537,22 @@ class TableData(object):
                     indicess.append(i)
             return colss, indicess
 
-        def read_data_line(line, sep, post, precd, alld, numc, exped, fixed, strf, missing):
+        def read_data_line(line, sep, post, precd, alld, numc, exped,
+                           fixed, strf, missing, nans):
             # read line:
             cols = []
             if sep is None:
                 cols = [m.group(0) for m in re.finditer(r'\S+', line.strip())]
-            else:
+            elif sep.isspace():
                 seps = r'[^'+re.escape(sep)+']+'
-                cols = [m.group(0).strip() for m in re.finditer(seps, line.strip())]
+                cols = [m.group(0) for m in re.finditer(seps, line.strip())]
                 cols[0] = cols[0].lstrip('|').lstrip()
                 cols[-1] = cols[-1].rstrip('|').rstrip()
-            cols = [c for c in cols if c not in '|']
+            else:
+                cols = line.split(sep)
+            cols = [c.strip() for c in cols if c != '|']
             # read columns:
             for k, c in enumerate(cols):
-                c = c.strip()
                 try:
                     v = float(c)
                     ad = 0
@@ -2562,8 +2577,9 @@ class TableData(object):
                         alld[k] = ad
                     numc[k] = True
                 except ValueError:
-                    if c == missing:
+                    if c in missing:
                         v = np.nan
+                        nans[k] = c
                     else:
                         strf[k] = True
                         if alld[k] < len(c):
@@ -2572,6 +2588,8 @@ class TableData(object):
                 self.append_data(v, k)
 
         # initialize:
+        if isinstance(missing, str):
+            missing = [missing]
         self.data = []
         self.shape = (0, 0)
         self.header = []
@@ -2772,8 +2790,10 @@ class TableData(object):
         exped = [True] * colnum
         fixed = [True] * colnum
         strf = [False] * colnum
+        nans = [None] * colnum
         for line in data:
-            read_data_line(line, sep, post, precd, alld, numc, exped, fixed, strf, missing)
+            read_data_line(line, sep, post, precd, alld, numc, exped, fixed,
+                           strf, missing, nans)
         # read remaining data:
         for line in fh:
             line = line.rstrip()
@@ -2786,11 +2806,18 @@ class TableData(object):
                 break
             if line[0:3] == 'RTD':
                 line = line[3:]
-            read_data_line(line, sep, post, precd, alld, numc, exped, fixed, strf, missing)
+            read_data_line(line, sep, post, precd, alld, numc, exped, fixed,
+                           strf, missing, nans)
         # set formats:
         for k in range(len(alld)):
             if strf[k]:
                 self.set_format('%%-%ds' % alld[k], k)
+                # make sure all elements are strings:
+                for i in range(len(self.data[k])):
+                    if self.data[k][i] is np.nan:
+                        self.data[k][i] = nans[k]
+                    else:
+                        self.data[k][i] = str(self.data[k][i])
             elif exped[k]:
                 self.set_format('%%%d.%de' % (alld[k], post[k]), k)
             elif fixed[k]:
@@ -2802,10 +2829,12 @@ class TableData(object):
             fh.close()
 
 
-def write(fh, data, header, units=None, formats=None, table_format=None, delimiter=None,
-              unit_style=None, column_numbers=None, sections=None,
-              align_columns=None, shrink_width=True, missing='-',
-              center_columns=False, latex_label_command='', latex_merge_std=False):
+def write(fh, data, header, units=None, formats=None,
+          table_format=None, delimiter=None, unit_style=None,
+          column_numbers=None, sections=None, align_columns=None,
+          shrink_width=True, missing=default_missing_str,
+          center_columns=False, latex_label_command='',
+          latex_merge_std=False):
     """Construct table and write to file.
 
     Parameters
@@ -2815,13 +2844,13 @@ def write(fh, data, header, units=None, formats=None, table_format=None, delimit
         If `fh` does not have an extension,
         the `table_format` is appended as an extension.
         Otherwise `fh` is used as a stream for writing.
-    data: 1-D or 2-D array of data
+    data: 1-D or 2-D ndarray of data
           The data of the table.
-    header: list of string
+    header: list of str
         Header labels for each column.
-    units: list of string, optional
+    units: list of str, optional
         Unit strings for each column.
-    formats: string or list of string, optional
+    formats: str or list of str, optional
         Format strings for each column. If only a single format string is
         given, then all columns are initialized with this format string.
 
@@ -2835,15 +2864,20 @@ def write(fh, data, header, units=None, formats=None, table_format=None, delimit
     """
     td = TableData(data, header, units, formats)
     td.write(fh, table_format=table_format, unit_style=unit_style,
-             column_numbers=column_numbers, missing=missing, shrink_width=shrink_width,
-             delimiter=delimiter, align_columns=align_columns, sections=sections,
-             latex_label_command=latex_label_command, latex_merge_std=latex_merge_std)
+             column_numbers=column_numbers, missing=missing,
+             shrink_width=shrink_width, delimiter=delimiter,
+             align_columns=align_columns, sections=sections,
+             latex_label_command=latex_label_command,
+             latex_merge_std=latex_merge_std)
 
     
 def add_write_table_config(cfg, table_format=None, delimiter=None,
-                           unit_style=None, column_numbers=None, sections=None,
-                           align_columns=None, shrink_width=True, missing='-',
-                           center_columns=False, latex_label_command='', latex_merge_std=False):
+                           unit_style=None, column_numbers=None,
+                           sections=None, align_columns=None,
+                           shrink_width=True, missing='-',
+                           center_columns=False,
+                           latex_label_command='',
+                           latex_merge_std=False):
     """Add parameter specifying how to write a table to a file as a new
 section to a configuration.
 
@@ -2906,12 +2940,12 @@ def latex_unit(unit):
     
     Parameters
     ----------
-    unit: string
+    unit: str
         String enoting a unit.
         
     Returns
     -------
-    unit: string
+    unit: str
         Unit string as valid LaTeX code.
     """
     si_prefixes = {'y': '\\yocto',
@@ -3023,12 +3057,12 @@ def index2aa(n, a='a'):
     ----------
     n: int
         An integer to be converted into alphabetical representation.
-    a: string ('a' or 'A')
+    a: str ('a' or 'A')
         Use upper or lower case characters.
 
     Returns
     -------
-    ns: string
+    ns: str
         Alphabetical represtnation of an integer.
     """
     d, m = divmod(n, 26)
@@ -3045,7 +3079,7 @@ def aa2index(s):
 
     Parameters
     ----------
-    s: string
+    s: str
         Alphabetical representation of an index.
 
     Returns
