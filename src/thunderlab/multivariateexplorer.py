@@ -138,7 +138,12 @@ class MultivariateExplorer(object):
         self.valid_samples = ~np.any(~np.isfinite(self.raw_data), 1)
         self.raw_data = self.raw_data[self.valid_samples, :]
         if np.sum(~self.valid_samples) > 0:
-            print(f'removed {np.sum(~self.valid_samples)} rows containing invalid numbers')
+            print(f'removed {np.sum(~self.valid_samples)} rows containing invalid numbers:')
+            for k in range(len(self.valid_samples)):
+                if not self.valid_samples[k]:
+                    print(k)
+        self.valid_rows = [k for k in range(len(self.valid_samples))
+                           if self.valid_samples[k]]
         # title for the window:
         self.title = title if title is not None else 'MultivariateExplorer'
         # data, pca-data, scaled-pca data (no pca data yet):
@@ -307,7 +312,7 @@ class MultivariateExplorer(object):
         plt.rcParams['toolbar'] = 'None'
         plt.rcParams['keymap.quit'] = 'ctrl+w, alt+q, ctrl+q, q'
         plt.rcParams['font.size'] = 12
-        self.fig = plt.figure(facecolor='white')
+        self.fig = plt.figure(facecolor='white', figsize=(10, 8))
         self.fig.canvas.manager.set_window_title(self.title + ': ' + self.all_titles[self.show_mode])
         self.fig.canvas.mpl_connect('key_press_event', self._on_key)
         self.fig.canvas.mpl_connect('resize_event', self._on_resize)
@@ -527,10 +532,11 @@ class MultivariateExplorer(object):
             c = self.scatter_indices[idx][0]
             in_hist = False
         ax.clear()
-        ax.relim()
-        ax.autoscale(True)
+        #ax.relim()
+        #ax.autoscale(True)
         x = self.data[:,c]
         ax.hist(x, self.hist_nbins)
+        #ax.autoscale(False)
         ax.set_xlabel(self.labels[c])
         ax.xaxis.set_major_locator(plt.AutoLocator())
         ax.xaxis.set_major_formatter(plt.ScalarFormatter())
@@ -558,9 +564,10 @@ class MultivariateExplorer(object):
         else:
             self.scatter_selector[idx] = selector
             self.scatter_artists[idx] = None
+        ax.relim(True)
         if magnifiedax:
             self._add_backdrop(ax)
-
+            
 
     def _set_hist_ylim(self):
         ymax = np.max([ax.get_ylim() for ax in self.hist_ax[:self.maxcols]], 0)[1]
@@ -581,16 +588,12 @@ class MultivariateExplorer(object):
         self._set_hist_ylim()
 
                         
-    def _plot_scatter(self, ax, magnifiedax, keep_lims, cax=None):
+    def _plot_scatter(self, ax, magnifiedax, cax=None):
         """Plot a scatter plot."""
-        ax_xlim = ax.get_xlim()
-        ax_ylim = ax.get_ylim()
         idx = self.scatter_ax.index(ax)
         c, r = self.scatter_indices[idx]
         if self.scatter: # scatter plot
             ax.clear()
-            ax.relim()
-            ax.autoscale(True)
             a = ax.scatter(self.data[:,c], self.data[:,r], s=50,
                            edgecolors='white', linewidths=0.5,
                            picker=self.pick_radius, zorder=10)
@@ -622,7 +625,6 @@ class MultivariateExplorer(object):
                          self.extra_categories is not None:
                         cax.set_yticklabels(self.extra_categories)
         else: # histogram
-            ax.autoscale(True)
             if self.show_mode == 0:
                 self.fix_scatter_plot(ax, self.data[:,c], self.labels[c], 'x')
                 self.fix_scatter_plot(ax, self.data[:,r], self.labels[r], 'y')
@@ -664,13 +666,13 @@ class MultivariateExplorer(object):
             ax.xaxis.set_major_formatter(plt.NullFormatter())
             if c > 0:
                 ax.yaxis.set_major_formatter(plt.NullFormatter())
-        if keep_lims:
-            ax.set_xlim(*ax_xlim)
-            ax.set_ylim(*ax_ylim)
+        ax.set_xlim(*self.hist_ax[c].get_xlim())
+        ax.set_ylim(*self.hist_ax[r].get_xlim())
         if magnifiedax:
             self._add_backdrop(ax)
         selector = self._create_selector(ax)
         self.scatter_selector[idx] = selector
+        ax.relim(True)
 
         
     def _init_scatter_plots(self):
@@ -685,7 +687,7 @@ class MultivariateExplorer(object):
                 self.scatter_indices.append([c, r])
                 self.scatter_artists.append(None)
                 self.scatter_selector.append(None)
-                self._plot_scatter(ax, False, False, cbax)
+                self._plot_scatter(ax, False, cbax)
                 cbax = None
 
                 
@@ -823,8 +825,10 @@ class MultivariateExplorer(object):
         indices: list of int
             Indices of the data points that have been selected.
         """
+        print('')
+        print('selected rows in data table:')
         for i in indices:
-            print(i)
+            print(self.valid_rows[i])
 
             
     def analyze_selection(self, index):
@@ -1090,7 +1094,7 @@ class MultivariateExplorer(object):
                     for l, c in zip(ax.lines, self.data_colors[self.mark_data]):
                         l.set_color(c)
                         l.set_markerfacecolor(c)
-                self._plot_scatter(self.scatter_ax[0], False, True, self.cbax)
+                self._plot_scatter(self.scatter_ax[0], False, self.cbax)
                 self.fix_scatter_plot(self.cbax, self.color_values,
                                       self.color_label, 'c')
                 self.fig.canvas.draw()
@@ -1107,17 +1111,17 @@ class MultivariateExplorer(object):
                 if self.scatter_indices[-1][1] >= self.data.shape[1]:
                     self._plot_hist(self.scatter_ax[-1], True, True)
                 elif not self.scatter:
-                    self._plot_scatter(self.scatter_ax[-1], True, True)
+                    self._plot_scatter(self.scatter_ax[-1], True)
                 if not self.scatter:
                     for ax in self.scatter_ax[:-1]:
-                        self._plot_scatter(ax, False, True)
+                        self._plot_scatter(ax, False)
                 self.fig.canvas.draw()
             elif event.key in 'h':
                 self.scatter = not self.scatter
                 for ax in self.scatter_ax[:-1]:
-                    self._plot_scatter(ax, False, True)
+                    self._plot_scatter(ax, False)
                 if self.scatter_indices[-1][1] < self.data.shape[1]:
-                    self._plot_scatter(self.scatter_ax[-1], True, True)
+                    self._plot_scatter(self.scatter_ax[-1], True)
                 self.fig.canvas.draw()
             elif event.key in 'pP':
                 self.all_maxcols[self.show_mode] = self.maxcols
@@ -1146,12 +1150,10 @@ class MultivariateExplorer(object):
                     self._plot_hist(ax, False)
                 self._set_hist_ylim()
                 for ax in self.scatter_ax:
-                    self._plot_scatter(ax, False, False)
+                    self._plot_scatter(ax, False)
                 self._update_layout()
             elif event.key in 'l':
                 if len(self.mark_data) > 0:
-                    print('')
-                    print('selected:')
                     self.list_selection(self.mark_data)
         if plot_magnified:
             for k in reversed(range(len(self.zoom_stack))):
@@ -1163,7 +1165,7 @@ class MultivariateExplorer(object):
             self._set_magnified_pos(self.fig.get_window_extent().width,
                                     self.fig.get_window_extent().height)
             if self.scatter_indices[-1][1] < self.data.shape[1]:
-                self._plot_scatter(self.scatter_ax[-1], True, False)
+                self._plot_scatter(self.scatter_ax[-1], True)
             else:
                 self._plot_hist(self.scatter_ax[-1], True)
             self.fig.canvas.draw()
@@ -1304,7 +1306,7 @@ class MultivariateExplorer(object):
                 self.scatter_indices[-1][1] = self.maxcols-1
             if self.scatter_indices[-1][0] >= self.scatter_indices[-1][1]:
                 self.scatter_indices[-1][0] = self.scatter_indices[-1][1]-1
-            self._plot_scatter(self.scatter_ax[-1], True, False)
+            self._plot_scatter(self.scatter_ax[-1], True)
         else:
             if self.scatter_indices[-1][0] >= self.maxcols:
                 self.scatter_indices[-1][0] = self.maxcols-1
