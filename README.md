@@ -40,7 +40,7 @@ instructions](https://bendalab.github.io/audioio/installation/) of the
 The ThunderLab package provides the following software:
 
 - [`convertdata`](https://bendalab.github.io/thunderlab/api/convertdata/): Convert data from various file formats to audio files.
-
+- [`multivariateexplorer`](https://bendalab.github.io/thunderlab/api/multivariateexplorer.html): Simple GUI for viewing and exploring multivariate data. [More](docs/multivariateexplorer/index.html)
 
 
 ## Algorithms
@@ -60,7 +60,6 @@ Click on the modules for more information.
 - [`eventdetection`](https://bendalab.github.io/thunderlab/api/eventdetection.html): Detect and hande peaks and troughs as well as threshold crossings in data arrays.
 - [`powerspectrum`](https://bendalab.github.io/thunderlab/api/powerspectrum.html): Compute and plot powerspectra and spectrograms for a given minimum frequency resolution.
 - [`voronoi`](https://bendalab.github.io/thunderlab/api/voronoi.html): Analyse Voronoi diagrams based on scipy.spatial.
-- [`multivariateexplorer`](https://bendalab.github.io/thunderlab/api/multivariateexplorer.html): Simple GUI for viewing and exploring multivariate data.
 
 
 ## Used by

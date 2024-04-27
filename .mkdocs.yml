@@ -10,5 +10,7 @@ theme: readthedocs
     
 nav:
     - Home: 'index.md'
+    - 'User guide':
+        - 'Multivariate explorer': 'multivariateexplorer.md'
     - 'Code':
         - API reference: 'api/index.html'
