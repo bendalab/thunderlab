@@ -2,7 +2,11 @@
 
 - `class MultiVariateExplorer`: simple matplotlib-based GUI for viewing and exploring multivariate data.
 - `categorize()`: convert categorial string data into integer categories.
+- `select_features()`: assemble list of column indices.
+- `select_coloring()`: select column from data table for colorizing the data.
+- `list_available_features()`: print available features on console.
 """
+
 import sys
 import numpy as np
 from scipy.stats import pearsonr
@@ -45,12 +49,13 @@ class MultivariateExplorer(object):
     See the documentation of these functions for details.
     """
 
-    mouse_actions = (('left click', 'select data points'),
+    mouse_actions = [('left click', 'select data points'),
                      ('left and drag', 'rectangular selection and zoom of data points'),
                      ('shift + left click/drag', 'add data points to selection'),
-                     ('ctrl + left click/drag',  'remove data points from selection'))
+                     ('ctrl + left click/drag',  'remove data points from selection')]
+    """List of tuples with mouse actions and a description of their action."""
         
-    key_actions = (('l', 'list selected EOD waveforms on console'),
+    key_actions = [('l', 'list selected EOD waveforms on console'),
                    ('p,P', 'toggle between data columns, PC, and scaled PC axis'),
                    ('<, pageup', 'decrease number of displayed data columns/PC axis'),
                    ('>, pagedown', 'increase number of displayed data columns/PC axis'),
@@ -64,7 +69,8 @@ class MultivariateExplorer(object):
                    ('h', 'toggle between scatter plot and 2D histogram'),
                    ('c, C', 'cycle color map trough data columns'),
                    ('left, right, up, down', 'show and move magnified scatter plot'),
-                   ('escape', 'close magnified scatter plot'))
+                   ('escape', 'close magnified scatter plot')]
+    """List of tuples with key shortcuts and a description of their action."""
     
     def __init__(self, data, labels=None, title=None):
         """Initialize explorer with scatter-plot data.
@@ -1334,13 +1340,176 @@ def categorize(data):
     cats = sorted(set(data))
     cdata = np.array([cats.index(x) for x in data], dtype=int)
     return cats, cdata
+
+
+def select_features(data, columns):
+    """Assemble list of column indices.
+
+    Parameters
+    ----------
+    data: TableData
+        The table from which to select features.
+    columns: list of str
+        Feature names (column headers) to be selected from the data.
+        If a column is listed twice (even times) it is not added.
+
+    Returns
+    -------
+    data_cols: list of int
+        List of indices into data columns for selecting features.
+    """
+    if len(columns) == 0:
+        data_cols = list(np.arange(len(data)))
+    else:
+        data_cols = []
+        for c in columns:
+            idx = data.index(c)
+            if idx is None:
+                print(f'"{c}" is not a valid data column')
+            elif idx in data_cols:
+                data_cols.remove(idx)
+            else:
+                data_cols.append(idx)
+    return data_cols
+
+
+def select_coloring(data, data_cols, color_col):
+    """Select column from data table for colorizing the data.
+
+    Pass the output of this function on to MultivariateExplorer.set_colors().
+
+    Parameters
+    ----------
+    data: TableData
+        Table with all EOD properties from which columns are selected.
+    data_cols: list of int
+        List of columns selected to be explored.
+    color_col: str or int
+        Column to be selected for coloring the data.
+        If 'row' then use the row index of the data in the table for coloring.
+
+    Returns
+    -------
+    colors: int or list of values or None
+        Either index of `data_cols` or additional data from the data table
+        to be used for coloring.
+    color_label: str or None
+        Label for labeling the color bar.
+    color_idx: int or None
+        Index of color column in `data`.
+    error: None or str
+        In case an invalid column is selected, an error string.
+    """
+    color_idx = data.index(color_col)
+    colors = None
+    color_label = None
+    if color_idx is None and color_col != 'row':
+        return None, None, None, f'"{color_col}" is not a valid column for color code'
+    if color_idx is None:
+        colors = -2
+    elif color_idx in data_cols:
+        colors = data_cols.index(color_idx)
+    else:
+        if len(data.unit(color_idx)) > 0 and not data.unit(color_idx) in ['-', '1']:
+            color_label = f'{data.label(color_idx)} [{data.unit(color_idx)}]'
+        else:
+            color_label = data.label(color_idx)
+        colors = data[:, color_idx]
+    return colors, color_label, color_idx, None
+
+
+def list_available_features(data, data_cols=[], color_col=None):
+    """Print available features on console.
+
+    Parameters
+    ----------
+    data: TableData
+        The full data table.
+    data_cols: list of int
+        List of indices of columns (features) in the table
+        that are passed on to the MultivariateExplorer.
+    color_col: int or None
+        Index of columns (feature) in the table
+        that is initially used for color coding the data.
+    """
+    print('available features:')
+    for k, c in enumerate(data.keys()):
+        s = [' '] * 3
+        if k in data_cols:
+            s[1] = '*'
+        if color_col is not None and k == color_col:
+            s[0] = 'C'
+        print(''.join(s) + c)
+    if len(data_cols) > 0:
+        print('*: feature selected for exploration')
+    if color_col is not None:
+        print('C: feature selected for color coding the data')
+
+
+class PrintHelp(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string):
+        parser.print_help()
+        print('')
+        print('mouse:')
+        for ma in MultivariateExplorer.mouse_actions:
+            print('%-23s %s' % ma)
+        print('%-23s %s' % ('double left click', 'run thunderfish on selected EOD waveform'))
+        print('')
+        print('key shortcuts:')
+        for ka in MultivariateExplorer.key_actions:
+            print('%-23s %s' % ka)
+        parser.exit()      
+
+
+def demo():
+    """Run the multivariate explorer with a random test data set.
+    """
+    # generate data:
+    n = 100
+    data = []
+    data.append(np.random.randn(n) + 2.0)
+    data.append(1.0+0.1*data[0] + 1.5*np.random.randn(n))
+    data.append(10*(-3.0*data[0] + 2.0*data[1] + 1.8*np.random.randn(n)))
+    idx = np.random.randint(0, 3, n)
+    names = ['aaa', 'bbb', 'ccc']
+    data.append([names[i] for i in idx])
+    # generate waveforms:
+    waveforms = []
+    time = np.arange(0.0, 10.0, 0.01)
+    for r in range(len(data[0])):
+        x = data[0][r]*np.sin(2.0*np.pi*data[1][r]*time + data[2][r])
+        y = data[0][r]*np.exp(-0.5*((time-data[1][r])/(0.2*data[2][r]))**2.0)
+        waveforms.append(np.column_stack((time, x, y)))
+        #waveforms.append([np.column_stack((time, x)), np.column_stack((time, y))])
+    # initialize explorer:
+    expl = MultivariateExplorer(data,
+                                list(map(chr, np.arange(len(data))+ord('A'))),
+                                'Explorer')
+    expl.set_wave_data(waveforms, 'Time', ['Sine', 'Gauss'])
+    # explore data:
+    expl.set_colors()
+    expl.show()
         
 
 def main(*cargs):
     # parse command line:
-    parser = argparse.ArgumentParser(add_help=True,
+    parser = argparse.ArgumentParser(add_help=False,
         description='View and explore multivariate data.',
         epilog = f'version {__version__} by Benda-Lab (2019-{__year__})')
+    parser.add_argument('-h', '--help', nargs=0, action=PrintHelp,
+                        help='show this help message and exit')
+    parser.add_argument('--version', action='version', version=__version__)
+    parser.add_argument('-l', dest='list_features', action='store_true',
+                        help='list all available data columns (features) and exit')
+    parser.add_argument('-d', dest='data_cols', action='append',
+                        default=[], metavar='COLUMN',
+                        help='data columns (features) to be explored')
+    parser.add_argument('-c', dest='color_col', default=None,
+                        type=str, metavar='COLUMN',
+                        help='data column to be used for color code or "row"')
+    parser.add_argument('-m', dest='color_map', default='jet',
+                        type=str, metavar='CMAP',
+                        help='name of color map to be used')
     parser.add_argument('file', nargs='?', default='', type=str,
                         help='a file containing a table of data (csv file or similar)')
     if len(cargs) == 0:
@@ -1349,34 +1518,22 @@ def main(*cargs):
     if args.file:
         # load data:
         data = TableData(args.file)
-        # initialize explorer:
-        expl = MultivariateExplorer(data)
+        data_cols = select_features(data, args.data_cols)
+        # select column used for coloring the data:
+        colors, color_label, color_col, error = \
+          select_coloring(data, data_cols, args.color_col)
+        if error:
+            parser.error(error)
+        # list features:
+        if args.list_features:
+            list_available_features(data, data_cols, color_col)
+            parser.exit()
+        # explore data:
+        expl = MultivariateExplorer(data[:, data_cols])
+        expl.set_colors(colors, color_label, args.color_map)
+        expl.show()
     else:
-        # generate data:
-        n = 100
-        data = []
-        data.append(np.random.randn(n) + 2.0)
-        data.append(1.0+0.1*data[0] + 1.5*np.random.randn(n))
-        data.append(10*(-3.0*data[0] + 2.0*data[1] + 1.8*np.random.randn(n)))
-        idx = np.random.randint(0, 3, n)
-        names = ['aaa', 'bbb', 'ccc']
-        data.append([names[i] for i in idx])
-        # generate waveforms:
-        waveforms = []
-        time = np.arange(0.0, 10.0, 0.01)
-        for r in range(len(data[0])):
-            x = data[0][r]*np.sin(2.0*np.pi*data[1][r]*time + data[2][r])
-            y = data[0][r]*np.exp(-0.5*((time-data[1][r])/(0.2*data[2][r]))**2.0)
-            waveforms.append(np.column_stack((time, x, y)))
-            #waveforms.append([np.column_stack((time, x)), np.column_stack((time, y))])
-        # initialize explorer:
-        expl = MultivariateExplorer(data,
-                                    list(map(chr, np.arange(len(data))+ord('A'))),
-                                    'Explorer')
-        expl.set_wave_data(waveforms, 'Time', ['Sine', 'Gauss'])
-    # explore data:
-    expl.set_colors()
-    expl.show()
+        demo()
 
 
 if __name__ == '__main__':
