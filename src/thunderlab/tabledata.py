@@ -2543,13 +2543,19 @@ class TableData(object):
             cols = []
             if sep is None:
                 cols = [m.group(0) for m in re.finditer(r'\S+', line.strip())]
-            elif sep.isspace():
-                seps = r'[^'+re.escape(sep)+']+'
-                cols = [m.group(0) for m in re.finditer(seps, line.strip())]
-                cols[0] = cols[0].lstrip('|').lstrip()
-                cols[-1] = cols[-1].rstrip('|').rstrip()
             else:
-                cols = line.split(sep)
+                if sep.isspace():
+                    seps = r'[^'+re.escape(sep)+']+'
+                    cols = [m.group(0) for m in re.finditer(seps, line.strip())]
+                else:
+                    cols = line.split(sep)
+                    if len(cols) > 0 and len(cols[0]) == 0:
+                        cols = cols[1:]
+                    if len(cols) > 0 and len(cols[-1]) == 0:
+                        cols = cols[:-1]
+                if len(cols) > 0:
+                    cols[0] = cols[0].lstrip('|').lstrip()
+                    cols[-1] = cols[-1].rstrip('|').rstrip()
             cols = [c.strip() for c in cols if c != '|']
             # read columns:
             for k, c in enumerate(cols):
