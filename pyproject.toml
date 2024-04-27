@@ -49,6 +49,7 @@ Documentation = "https://bendalab.github.io/thunderlab"
 
 [project.scripts]
 convertdata = "thunderlab.convertdata:main"
+multivariateexplorer = "thunderlab.multivariateexplorer:main"
 
 [tool.setuptools.dynamic]
 version = {attr = "thunderlab.version.__version__"}
