@@ -49,27 +49,32 @@ class MultivariateExplorer(object):
     See the documentation of these functions for details.
     """
 
-    mouse_actions = [('left click', 'select data points'),
-                     ('left and drag', 'rectangular selection and zoom of data points'),
-                     ('shift + left click/drag', 'add data points to selection'),
-                     ('ctrl + left click/drag',  'remove data points from selection')]
+    mouse_actions = [
+        ('left click', 'select sample'),
+        ('left and drag', 'rectangular selection of samples and/or zoom'),
+        ('shift + left click/drag', 'add samples to selection'),
+        ('ctrl + left click/drag',  'remove samples from selection')
+    ]
     """List of tuples with mouse actions and a description of their action."""
         
-    key_actions = [('l', 'list selected EOD waveforms on console'),
-                   ('p,P', 'toggle between data columns, PC, and scaled PC axis'),
-                   ('<, pageup', 'decrease number of displayed data columns/PC axis'),
-                   ('>, pagedown', 'increase number of displayed data columns/PC axis'),
-                   ('w',  'toggle maximized waveform plot'),
-                   ('o, z',  'toggle zoom mode on or off'),
-                   ('backspace', 'zoom back'),
-                   ('ctrl + a', 'select all'),
-                   ('+, -', 'increase, decrease pick radius'),
-                   ('0', 'reset pick radius'),
-                   ('n, N', 'decrease, increase number of bins of histograms'),
-                   ('h', 'toggle between scatter plot and 2D histogram'),
-                   ('c, C', 'cycle color map trough data columns'),
-                   ('left, right, up, down', 'show and move magnified scatter plot'),
-                   ('escape', 'close magnified scatter plot')]
+    key_actions = [
+        ('c, C', 'cycle color map trough data columns'),
+        ('p,P', 'toggle between features, PCs, and scaled PCs'),
+        ('<, pageup', 'decrease number of displayed featured/PCs'),
+        ('>, pagedown', 'increase number of displayed features/PCs'),
+        ('o, z',  'toggle zoom mode on or off'),
+        ('backspace', 'zoom back'),
+        ('n, N', 'decrease, increase number of bins of histograms'),
+        ('H', 'toggle between scatter plot and 2D histogram'),
+        ('left, right, up, down', 'show and move magnified scatter plot'),
+        ('escape', 'close magnified scatter plot'),
+        ('ctrl + a', 'select all'),
+        ('+, -', 'increase, decrease pick radius'),
+        ('0', 'reset pick radius'),
+        ('l', 'list selection on console'),
+        ('w',  'toggle maximized waveform plot'),
+        ('h',  'toggle help window'),
+    ]
     """List of tuples with key shortcuts and a description of their action."""
     
     def __init__(self, data, labels=None, title=None):
@@ -215,6 +220,8 @@ class MultivariateExplorer(object):
         self.magnified_size = np.array([0.6, 0.6])
         # waveform plots:
         self.wave_ax = []
+        # help window:
+        self.help_ax = None
 
 
     def set_wave_data(self, data, xlabels='', ylabels=[], title=False):
@@ -346,6 +353,7 @@ class MultivariateExplorer(object):
                 self.wave_ax[0].set_title(self.wave_title)
             self.fix_waveform_plot(self.wave_ax, self.mark_data)
         self._plot_magnified_scatter()
+        self._plot_help()
         plt.show()
 
 
@@ -713,6 +721,33 @@ class MultivariateExplorer(object):
         self.scatter_artists.append(a)
         self.scatter_selector.append(None)
 
+        
+    def _plot_help(self):
+        ax = self.fig.add_subplot(1, 1, 1)
+        ax.set_position([0.02, 0.02, 0.96, 0.96])
+        ax.xaxis.set_major_locator(plt.NullLocator())
+        ax.yaxis.set_major_locator(plt.NullLocator())
+        n = len(self.mouse_actions) + len(self.key_actions) + 4
+        dy = 1/n
+        y = 1 - 1.5*dy
+        ax.text(0.05, y, 'Key shortcuts', transform=ax.transAxes,
+                fontweight='bold')
+        y -= dy
+        for a, d in self.key_actions:
+            ax.text(0.05, y, a, transform=ax.transAxes)
+            ax.text(0.3, y, d, transform=ax.transAxes)
+            y -= dy
+        y -= dy
+        ax.text(0.05, y, 'Mouse actions', transform=ax.transAxes,
+                fontweight='bold')
+        y -= dy
+        for a, d in self.mouse_actions:
+            ax.text(0.05, y, a, transform=ax.transAxes)
+            ax.text(0.3, y, d, transform=ax.transAxes)
+            y -= dy
+        ax.set_visible(False)
+        self.help_ax = ax
+        
         
     def fix_scatter_plot(self, ax, data, label, axis):
         """Customize an axes of a scatter plot.
@@ -1148,7 +1183,7 @@ class MultivariateExplorer(object):
                     for ax in self.scatter_ax[:-1]:
                         self._plot_scatter(ax, False)
                 self.fig.canvas.draw()
-            elif event.key in 'h':
+            elif event.key in 'H':
                 self.scatter = not self.scatter
                 for ax in self.scatter_ax[:-1]:
                     self._plot_scatter(ax, False)
@@ -1187,6 +1222,9 @@ class MultivariateExplorer(object):
             elif event.key in 'l':
                 if len(self.mark_data) > 0:
                     self.list_selection(self.mark_data)
+            elif event.key in 'h':
+                self.help_ax.set_visible(not self.help_ax.get_visible())
+                self.fig.canvas.draw()
 
             
     def _on_select(self, eclick, erelease):
