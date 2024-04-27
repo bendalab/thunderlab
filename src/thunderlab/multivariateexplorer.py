@@ -986,39 +986,71 @@ class MultivariateExplorer(object):
     def _on_key(self, event):
         """Handle key events."""
         #print('pressed', event.key)
-        plot_magnified = True
         if event.key in ['left', 'right', 'up', 'down']:
             if self.magnified_on:
+                mc, mr = self.scatter_indices[-1]
                 if event.key == 'left':
-                    if self.scatter_indices[-1][0] > 0:
+                    if mc > 0:
                         self.scatter_indices[-1][0] -= 1
-                    else:
-                        plot_magnified = False
-                elif event.key == 'right':
-                    if self.scatter_indices[-1][0] < self.scatter_indices[-1][1]-1 and \
-                       self.scatter_indices[-1][0] < self.maxcols-1:
-                        self.scatter_indices[-1][0] += 1
-                    else:
-                        plot_magnified = False
-                elif event.key == 'up':
-                    if self.scatter_indices[-1][1] > 1:
-                        if self.scatter_indices[-1][1] >= self.data.shape[1]:
-                            self.scatter_indices[-1][1] = self.maxcols-1
+                    elif mr > 1:
+                        if mr >= self.data.shape[1]:
+                            self.scatter_indices[-1][1] = self.maxcols - 1
                         else:
                             self.scatter_indices[-1][1] -= 1
-                        if self.scatter_indices[-1][0] >= self.scatter_indices[-1][1]:
-                            self.scatter_indices[-1][0] = self.scatter_indices[-1][1]-1
+                        self.scatter_indices[-1][0] = self.scatter_indices[-1][1] - 1
                     else:
-                        plot_magnified = False
-                elif event.key == 'down':
-                    if self.scatter_indices[-1][1] < self.maxcols:
+                        self.scatter_indices[-1][0] = self.data.shape[1] - 1
+                        self.scatter_indices[-1][1] = self.data.shape[1]
+                elif event.key == 'right':
+                    if mc < mr - 1 and mc < self.maxcols - 1:
+                        self.scatter_indices[-1][0] += 1
+                    elif mr < self.maxcols:
+                        self.scatter_indices[-1][0] = 0
                         self.scatter_indices[-1][1] += 1
+                        if mr >= self.maxcols:
+                            self.scatter_indices[-1][1] = self.data.shape[1]
+                    else:
+                        self.scatter_indices[-1][0] = 0
+                        self.scatter_indices[-1][1] = 1
+                elif event.key == 'up':
+                    if mr > mc + 1:
+                        if mr >= self.data.shape[1]:
+                            self.scatter_indices[-1][1] = self.maxcols - 1
+                        else:
+                            self.scatter_indices[-1][1] -= 1
+                    elif mc > 0:
+                        self.scatter_indices[-1][0] -= 1
+                        self.scatter_indices[-1][1] = self.data.shape[1]
+                    else:
+                        self.scatter_indices[-1][0] = self.data.shape[1] - 1
+                        self.scatter_indices[-1][1] = self.data.shape[1]
+                elif event.key == 'down':
+                    if mr < self.maxcols:
+                        self.scatter_indices[-1][1] += 1
+                        if mr >= self.maxcols:
+                            self.scatter_indices[-1][1] = self.data.shape[1]
+                    elif mc < self.maxcols - 1:
+                        self.scatter_indices[-1][0] += 1
+                        self.scatter_indices[-1][1] = mc + 2
                         if self.scatter_indices[-1][1] >= self.maxcols:
                             self.scatter_indices[-1][1] = self.data.shape[1]
                     else:
-                        plot_magnified = False
+                        self.scatter_indices[-1][0] = 0
+                        self.scatter_indices[-1][1] = 1
+            for k in reversed(range(len(self.zoom_stack))):
+                if self.zoom_stack[k][0] == self.scatter_ax[-1]:
+                    del self.zoom_stack[k]
+            self.scatter_ax[-1].clear()
+            self.scatter_ax[-1].set_visible(True)
+            self.magnified_on = True
+            self._set_magnified_pos(self.fig.get_window_extent().width,
+                                    self.fig.get_window_extent().height)
+            if self.scatter_indices[-1][1] < self.data.shape[1]:
+                self._plot_scatter(self.scatter_ax[-1], True)
+            else:
+                self._plot_hist(self.scatter_ax[-1], True)
+            self.fig.canvas.draw()
         else:
-            plot_magnified = False
             if event.key == 'escape':
                 self.scatter_ax[-1].set_position([0.5, 0.9, 0.05, 0.05])
                 self.magnified_on = False
@@ -1155,20 +1187,6 @@ class MultivariateExplorer(object):
             elif event.key in 'l':
                 if len(self.mark_data) > 0:
                     self.list_selection(self.mark_data)
-        if plot_magnified:
-            for k in reversed(range(len(self.zoom_stack))):
-                if self.zoom_stack[k][0] == self.scatter_ax[-1]:
-                    del self.zoom_stack[k]
-            self.scatter_ax[-1].clear()
-            self.scatter_ax[-1].set_visible(True)
-            self.magnified_on = True
-            self._set_magnified_pos(self.fig.get_window_extent().width,
-                                    self.fig.get_window_extent().height)
-            if self.scatter_indices[-1][1] < self.data.shape[1]:
-                self._plot_scatter(self.scatter_ax[-1], True)
-            else:
-                self._plot_hist(self.scatter_ax[-1], True)
-            self.fig.canvas.draw()
 
             
     def _on_select(self, eclick, erelease):
