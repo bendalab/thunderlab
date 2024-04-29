@@ -1087,10 +1087,11 @@ class MultivariateExplorer(object):
             self.fig.canvas.draw()
         else:
             if event.key == 'escape':
-                self.scatter_ax[-1].set_position([0.5, 0.9, 0.05, 0.05])
-                self.magnified_on = False
-                self.scatter_ax[-1].set_visible(False)
-                self.fig.canvas.draw()
+                if len(self.scatter_ax) >= self.data.shape[1]:
+                    self.scatter_ax[-1].set_position([0.5, 0.9, 0.05, 0.05])
+                    self.magnified_on = False
+                    self.scatter_ax[-1].set_visible(False)
+                    self.fig.canvas.draw()
             elif event.key in 'oz':
                 self.select_zooms = not self.select_zooms
             elif event.key == 'backspace':
@@ -1191,6 +1192,11 @@ class MultivariateExplorer(object):
                     self._plot_scatter(self.scatter_ax[-1], True)
                 self.fig.canvas.draw()
             elif event.key in 'pP':
+                if len(self.scatter_ax) >= self.data.shape[1]:
+                    self.scatter_ax[-1].set_position([0.5, 0.9, 0.05, 0.05])
+                    self.scatter_indices[-1] = [0, 1]
+                    self.magnified_on = False
+                    self.scatter_ax[-1].set_visible(False)
                 self.all_maxcols[self.show_mode] = self.maxcols
                 if event.key == 'P':
                     self.show_mode += 1
