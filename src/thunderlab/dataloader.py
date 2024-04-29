@@ -1,13 +1,15 @@
 """Load time-series data from files.
 
 ```
-data, samplingrate, unit = load_data('data/file.wav')
+data, samplingrate, unit, amax = load_data('data/file.wav')
 ```
-Loads the whole time-series from the file as a numpy array of floats.
-First dimension is frames, second is channels. In contrast to the
-`audioio.load_audio()` function, the values of the data array are not
-restricted between -1 and 1. They can assume any value with the unit
-that is also returned.
+
+The function `data_loader()` loads the whole time-series from the file
+as a numpy array of floats.  First dimension is frames, second is
+channels. In contrast to the `audioio.load_audio()` function, the
+values of the data array are not restricted between -1 and 1. They can
+assume any value wihin the range `-amax` to `+amax` with the returned
+`unit`.
 
 ```
 data = DataLoader('data/file.wav', 60.0)
@@ -1320,6 +1322,9 @@ class DataLoader(AudioLoader):
     Supported file formats are
 
     - audio files via `audioio` package
+    - python pickle files
+    - numpy .npz files
+    - matlab .mat files
     - relacs trace*.raw files (www.relacs.net)
     - fishgrid traces-*.raw files
 
