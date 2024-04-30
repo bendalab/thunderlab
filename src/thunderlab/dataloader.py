@@ -1533,7 +1533,7 @@ class DataLoader(AudioLoader):
         for i, file in enumerate(self.sf):
             file.seek(r_offset*4)
             data = file.read(r_size*4)
-            buffer[:, i] = np.fromstring(data, dtype=np.float32)
+            buffer[:, i] = np.frombuffer(data, dtype=np.float32)
         
 
     def _metadata_relacs(self, store_empty=False, first_only=False):
@@ -1647,7 +1647,7 @@ class DataLoader(AudioLoader):
         for file, gchannels, goffset in zip(self.sf, self.grid_channels, self.grid_offs):
             file.seek(r_offset*4*gchannels)
             data = file.read(r_size*4*gchannels)
-            buffer[:, goffset:goffset+gchannels] = np.fromstring(data, dtype=np.float32).reshape((-1, gchannels))
+            buffer[:, goffset:goffset+gchannels] = np.frombuffer(data, dtype=np.float32).reshape((-1, gchannels))
 
 
     # container interface:
