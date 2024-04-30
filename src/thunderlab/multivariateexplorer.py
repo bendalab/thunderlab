@@ -912,7 +912,7 @@ class MultivariateExplorer(object):
         """Select points from a scatter or histogram plot."""
         if not key in ['shift', 'control']:
             self.mark_data = []
-        try:
+        if ax in self.scatter_ax:
             axi = self.scatter_ax.index(ax)
             # from scatter plots:
             c, r = self.scatter_indices[axi]
@@ -934,19 +934,16 @@ class MultivariateExplorer(object):
                                 self.mark_data.remove(ind)
                         elif key != 'control':
                             self.mark_data.append(ind)
-        except ValueError:
-            try:
-                r = self.hist_indices[self.hist_ax.index(ax)]
-                # from histogram:
-                for ind, x in enumerate(self.data[:, r]):
-                    if x >= x0 and x <= x1:
-                        if ind in self.mark_data:
-                            if key == 'control':
-                                self.mark_data.remove(ind)
-                        elif key != 'control':
-                            self.mark_data.append(ind)
-            except ValueError:
-                return
+        elif ax in self.hist_ax:
+            r = self.hist_indices[self.hist_ax.index(ax)]
+            # from histogram:
+            for ind, x in enumerate(self.data[:, r]):
+                if x >= x0 and x <= x1:
+                    if ind in self.mark_data:
+                        if key == 'control':
+                            self.mark_data.remove(ind)
+                    elif key != 'control':
+                        self.mark_data.append(ind)
 
                         
     def _update_selection(self):

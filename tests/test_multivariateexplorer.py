@@ -239,7 +239,28 @@ def test_multivariateexplorer_onselect():
 
     erelease.xdata = 1.01
     erelease.ydata = 0.01
+    erelease.key = ['ctrl']
     expl._on_select(eclick, erelease)
+
+    erelease.xdata = 2
+    erelease.ydata = 1
+    erelease.key = ['shift']
+    expl._on_select(eclick, erelease)
+
+    class kev: pass
+    kev.key = 'z'
+    expl._on_key(kev)
+    erelease.key = []
+    expl._on_select(eclick, erelease)
+
+    kev.key = 'backspace'
+    expl._on_key(kev)
+
+    eclick.inaxes = expl.hist_ax[0]
+    expl._on_select(eclick, erelease)
+
+    kev.key = 'backspace'
+    expl._on_key(kev)
     
     # test _on_pick():
     #class ev: pass
