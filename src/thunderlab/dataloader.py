@@ -1495,9 +1495,9 @@ class DataLoader(AudioLoader):
         self.ndim = len(self.shape)
         self.format = 'RELACS'
         self.encoding = 'FLOAT'
-        self.buffersize = int(buffersize*self.samplerate)
-        self.backsize = int(backsize*self.samplerate)
-        self._init_buffer()
+        self.bufferframes = int(buffersize*self.samplerate)
+        self.backframes = int(backsize*self.samplerate)
+        self.init_buffer()
         self.offset = 0
         self.close = self._close_relacs
         self.load_buffer = self._load_buffer_relacs
@@ -1616,9 +1616,9 @@ class DataLoader(AudioLoader):
         self.ndim = len(self.shape)
         self.format = 'FISHGRID'
         self.encoding = 'FLOAT'
-        self.buffersize = int(buffersize*self.samplerate)
-        self.backsize = int(backsize*self.samplerate)
-        self._init_buffer()
+        self.bufferframes = int(buffersize*self.samplerate)
+        self.backframes = int(backsize*self.samplerate)
+        self.init_buffer()
         self.offset = 0
         self.close = self._close_fishgrid
         self.load_buffer = self._load_buffer_fishgrid
@@ -1742,7 +1742,7 @@ class DataLoader(AudioLoader):
         self.ampl_min = -amax
         self.ampl_max = +amax
         self.offset = 0
-        self.buffersize = self.frames
+        self.bufferframes = self.frames
         self.backsize = 0
         self.close = self._close_container
         self.load_buffer = self._load_buffer_container
