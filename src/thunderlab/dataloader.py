@@ -1500,7 +1500,7 @@ class DataLoader(AudioLoader):
         self.init_buffer()
         self.offset = 0
         self.close = self._close_relacs
-        self.load_buffer = self._load_buffer_relacs
+        self.load_audio_buffer = self._load_buffer_relacs
         self.ampl_min = -amax
         self.ampl_max = +amax
         self._load_metadata = self._metadata_relacs
@@ -1621,7 +1621,7 @@ class DataLoader(AudioLoader):
         self.init_buffer()
         self.offset = 0
         self.close = self._close_fishgrid
-        self.load_buffer = self._load_buffer_fishgrid
+        self.load_audio_buffer = self._load_buffer_fishgrid
         return self
 
     def _close_fishgrid(self):
@@ -1745,7 +1745,7 @@ class DataLoader(AudioLoader):
         self.bufferframes = self.frames
         self.backsize = 0
         self.close = self._close_container
-        self.load_buffer = self._load_buffer_container
+        self.load_audio_buffer = self._load_buffer_container
         self._metadata = extract_container_metadata(data_dict, metadatakey)
         self._load_metadata = None
         self._locs, self._labels = extract_container_markers(data_dict,
@@ -1807,8 +1807,8 @@ class DataLoader(AudioLoader):
             self.gain_fac = 1.0 
         else:
             self.gain_fac = fac
-            self._load_buffer_audio_org = self.load_buffer
-            self.load_buffer = self._load_buffer_audioio
+            self._load_buffer_audio_org = self.load_audio_buffer
+            self.load_audio_buffer = self._load_buffer_audioio
         self.ampl_min *= self.gain_fac
         self.ampl_max *= self.gain_fac
         self.unit = unit
