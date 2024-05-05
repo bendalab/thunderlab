@@ -7,16 +7,16 @@ import thunderlab.datawriter as dw
 import thunderlab.convertdata as cd
 
 
-def write_data_file(filename, channels=2, samplerate = 44100):
+def write_data_file(filename, channels=2, rate = 44100):
     duration = 10.0
-    t = np.arange(0.0, duration, 1.0/samplerate)
+    t = np.arange(0.0, duration, 1.0/rate)
     data = np.sin(2.0*np.pi*880.0*t) * t/duration
     data = data.reshape((-1, 1))
     for k in range(data.shape[1], channels):
         data = np.hstack((data, data[:,0].reshape((-1, 1))/k))
     encoding = 'PCM_16'
     md = dict(Amplifier='Teensy_Amp', Num=42)
-    dw.write_numpy(filename, data, samplerate, metadata=md, encoding=encoding)
+    dw.write_numpy(filename, data, rate, metadata=md, encoding=encoding)
 
 
 def test_main():

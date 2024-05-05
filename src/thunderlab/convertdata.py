@@ -171,13 +171,13 @@ def main(*cargs):
         try:
             with DataLoader(infile) as sf:
                 data = sf[:,:]
-                samplingrate = sf.samplerate
+                rate = sf.rate
                 unit = sf.unit
                 amax = sf.ampl_max
                 md = sf.metadata()
                 locs, labels = sf.markers()
                 pre_history = bext_history_str(sf.encoding,
-                                               sf.samplerate,
+                                               sf.rate,
                                                sf.channels,
                                                sf.filepath)
                 if sf.encoding is not None and args.encoding is None:
@@ -193,9 +193,9 @@ def main(*cargs):
             except FileNotFoundError:
                 print(f'file "{infile}" not found!')
                 sys.exit(-1)
-            if abs(samplingrate - xrate) > 1:
+            if abs(rate - xrate) > 1:
                 print('! cannot merge files with different sampling rates !')
-                print(f'    file "{args.file[i0]}" has {samplingrate:.0f}Hz')
+                print(f'    file "{args.file[i0]}" has {rate:.0f}Hz')
                 print(f'    file "{infile}" has {xrate:.0f}Hz')
                 sys.exit(-1)
             if xdata.shape[1] != data.shape[1]:
@@ -211,11 +211,9 @@ def main(*cargs):
             labels = np.vstack((labels, xlabels))
             if args.verbose > 1:
                 print(f'loaded data file "{infile}"')
-        data, samplingrate = modify_data(data, samplingrate, md,
-                                         channels, args.scale,
-                                         args.unwrap_clip,
-                                         args.unwrap, amax, unit,
-                                         args.decimate)
+        data, rate = modify_data(data, rate, md, channels, args.scale,
+                                 args.unwrap_clip, args.unwrap, amax, unit,
+                                 args.decimate)
         add_metadata(md, args.md_list, '.')
         if len(args.remove_keys) > 0:
             remove_metadata(md, args.remove_keys, '.')
@@ -225,12 +223,12 @@ def main(*cargs):
         hkey = 'CodingHistory'
         if 'BEXT' in md:
             hkey = 'BEXT.' + hkey
-        history = bext_history_str(args.encoding, samplingrate,
+        history = bext_history_str(args.encoding, rate,
                                    data.shape[1], outfile)
         add_history(md, history, hkey, pre_history)
         # write out data:
         try:
-            write_data(outfile, data, samplingrate, amax, unit,
+            write_data(outfile, data, rate, amax, unit,
                        md, locs, labels,
                        format=data_format, encoding=args.encoding)
         except PermissionError:

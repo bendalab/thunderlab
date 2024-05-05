@@ -11,11 +11,11 @@ fishgrid_path = 'test_fishgrid'
 
 
 def generate_data():
-    samplerate = 44100.0
+    rate = 44100.0
     duration = 100.0
     channels = 4
     amax = 20.0
-    t = np.arange(int(duration*samplerate))/samplerate
+    t = np.arange(int(duration*rate))/rate
     data = 18*np.sin(2.0*np.pi*880.0*t) * t/duration
     data = data.reshape((-1, 1))
     for k in range(data.shape[1], channels):
@@ -26,7 +26,7 @@ def generate_data():
                 Subject=dict(Species='Apteronotus leptorhynchus',
                              Sex='Female', Size='12cm'),
                 Weather='bad')
-    return data, samplerate, amax, info
+    return data, rate, amax, info
 
 
 def generate_markers(maxi):
@@ -71,7 +71,7 @@ def check_reading(filename, data):
     data = dl.DataLoader(filename, 10.0, 2.0)
     tolerance = data.ampl_max*2.0**(-15)
 
-    nframes = int(1.5*data.samplerate)
+    nframes = int(1.5*data.rate)
     # check access:
     ntests = 1000
     step = int(len(data)/ntests)
@@ -105,17 +105,17 @@ def check_reading(filename, data):
 
     
 def test_container():
-    data, samplerate, amax, info = generate_data()
+    data, rate, amax, info = generate_data()
     locs, labels = generate_markers(len(data))
     # pickle:
     for encoding in dw.encodings_pickle():
-        filename = dw.write_pickle('test', data, samplerate, amax, 'mV', info,
+        filename = dw.write_pickle('test', data, rate, amax, 'mV', info,
                                    locs, labels, encoding=encoding)
         check_reading(filename, data)
         md = dl.metadata(filename)
         assert info == md, 'pickle metadata'
         os.remove(filename)
-    filename = dw.write_data('test', data, samplerate, amax, 'mV', info,
+    filename = dw.write_data('test', data, rate, amax, 'mV', info,
                              locs, labels, format='pkl')
     full_data, rate, unit, rmax = dl.load_data(filename)
     tolerance = rmax*2.0**(-15)
@@ -131,13 +131,13 @@ def test_container():
 
     # numpy:
     for encoding in dw.encodings_numpy():
-        filename = dw.write_numpy('test', data, samplerate, amax, 'mV',
+        filename = dw.write_numpy('test', data, rate, amax, 'mV',
                                   info, locs, labels, encoding=encoding)
         check_reading(filename, data)
         md = dl.metadata(filename)
         assert info == md, 'numpy metadata'
         os.remove(filename)
-    filename = dw.write_data('test', data, samplerate, amax, 'mV',
+    filename = dw.write_data('test', data, rate, amax, 'mV',
                              info, locs, labels, format='npz')
     full_data, rate, unit, rmax = dl.load_data(filename)
     tolerance = rmax*2.0**(-15)
@@ -153,13 +153,13 @@ def test_container():
 
     # mat:
     for encoding in dw.encodings_mat():
-        filename = dw.write_mat('test', data, samplerate, amax, 'mV', info,
+        filename = dw.write_mat('test', data, rate, amax, 'mV', info,
                                 locs, labels, encoding=encoding)
         check_reading(filename, data)
         md = dl.metadata(filename)
         assert info == md, 'mat metadata'
         os.remove(filename)
-    filename = dw.write_data('test', data, samplerate, amax, 'mV',
+    filename = dw.write_data('test', data, rate, amax, 'mV',
                              info, locs, labels, format='mat')
     full_data, rate, unit, rmax = dl.load_data(filename)
     tolerance = rmax*2.0**(-15)
@@ -175,21 +175,21 @@ def test_container():
     
     
 def test_relacs(remove_relacs_files):
-    data, samplerate, amax, info = generate_data()
+    data, rate, amax, info = generate_data()
     dw.write_metadata_text(sys.stdout, info)
-    dw.write_relacs(relacs_path, data, samplerate, amax, 'mV', metadata=info)
+    dw.write_relacs(relacs_path, data, rate, amax, 'mV', metadata=info)
     dl.metadata_relacs(relacs_path + '/info.dat')
     check_reading(relacs_path, data)
     remove_files(relacs_path)
-    dw.write_relacs(relacs_path, data[:,0], samplerate, amax, 'mV',
+    dw.write_relacs(relacs_path, data[:,0], rate, amax, 'mV',
                     metadata=info)
     check_reading(relacs_path, data[:,:1])
 
 
 def test_fishgrid(remove_fishgrid_files):
-    data, samplerate, amax, info = generate_data()
+    data, rate, amax, info = generate_data()
     locs, labels = generate_markers(len(data))
-    dw.write_fishgrid(fishgrid_path, data, samplerate, amax, 'mV',
+    dw.write_fishgrid(fishgrid_path, data, rate, amax, 'mV',
                       metadata=info, locs=locs, labels=labels)
     check_reading(fishgrid_path, data)
     llocs, llabels = dl.markers(fishgrid_path)
@@ -200,14 +200,14 @@ def test_fishgrid(remove_fishgrid_files):
         assert np.all(locs == llocs), 'fishgrid same locs'
         assert np.all(labels == llabels), 'fishgrid same labels'
     remove_files(fishgrid_path)
-    dw.write_fishgrid(fishgrid_path, data[:,0], samplerate, amax, 'mV',
+    dw.write_fishgrid(fishgrid_path, data[:,0], rate, amax, 'mV',
                       metadata=info)
     check_reading(fishgrid_path, data[:,:1])
 
     
 def test_audioio():
-    data, samplerate, amax, info = generate_data()
-    filename = dw.write_audioio('test.wav', data, samplerate, amax, 'mV',
+    data, rate, amax, info = generate_data()
+    filename = dw.write_audioio('test.wav', data, rate, amax, 'mV',
                                 metadata=info)
     full_data, rate, unit, rmax = dl.load_data(filename)
     tolerance = rmax*2.0**(-15)
@@ -215,7 +215,7 @@ def test_audioio():
     os.remove(filename)
 
     info['gain'] = f'{amax:g}mV'
-    filename = dw.write_audioio('test.wav', data, samplerate, None, None,
+    filename = dw.write_audioio('test.wav', data, rate, None, None,
                                 metadata=info)
     full_data, rate, unit, rmax = dl.load_data(filename)
     assert unit == 'mV'
@@ -224,9 +224,9 @@ def test_audioio():
 
     
 def test_main(remove_fishgrid_files):
-    data, samplerate, amax, info = generate_data()
-    filename = dw.write_fishgrid(fishgrid_path, data[:10*int(samplerate)],
-                                 samplerate, amax, 'mV', info)
+    data, rate, amax, info = generate_data()
+    filename = dw.write_fishgrid(fishgrid_path, data[:10*int(rate)],
+                                 rate, amax, 'mV', info)
     dl.main(filename)
     dl.main('-p', filename)
     

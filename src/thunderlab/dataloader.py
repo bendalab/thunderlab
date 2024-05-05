@@ -1,7 +1,7 @@
 """Load time-series data from files.
 
 ```
-data, samplingrate, unit, amax = load_data('data/file.wav')
+data, rate, unit, amax = load_data('data/file.wav')
 ```
 
 The function `data_loader()` loads the whole time-series from the file
@@ -334,7 +334,7 @@ def load_relacs(file_path, amax=1.0):
     data: 2-D array
         All data traces as an 2-D numpy array, even for single channel data.
         First dimension is time, second is channel.
-    samplerate: float
+    rate: float
         Sampling rate of the data in Hz
     unit: str
         Unit of the data
@@ -353,7 +353,7 @@ def load_relacs(file_path, amax=1.0):
     nchannels = len(trace_file_paths)
     data = None
     nrows = 0
-    samplerate = None
+    rate = None
     unit = ''
     for c, path in enumerate(sorted(trace_file_paths)):
         if path[-3:] == '.gz':
@@ -367,16 +367,16 @@ def load_relacs(file_path, amax=1.0):
         n = min(len(x), nrows)
         data[:n,c] = x[:n]
         # retrieve sampling rate and unit:
-        rate, us = relacs_samplerate_unit(path, c)
-        if samplerate is None:
-            samplerate = rate
-        elif rate != samplerate:
+        crate, us = relacs_samplerate_unit(path, c)
+        if rate is None:
+            rate = crate
+        elif crate != rate:
             raise ValueError('sampling rates of traces differ')
         if len(unit) == 0:
             unit = us
         elif us != unit:
             raise ValueError('unit of traces differ')
-    return data, samplerate, unit, amax
+    return data, rate, unit, amax
 
 
 def metadata_relacs(file_path, store_empty=False, first_only=False,
@@ -536,7 +536,7 @@ def load_fishgrid(file_path):
     data: 2-D array
         All data traces as an 2-D numpy array, even for single channel data.
         First dimension is time, second is channel.
-    samplerate: float
+    rate: float
         Sampling rate of the data in Hz.
     unit: str
         Unit of the data.
@@ -564,7 +564,7 @@ def load_fishgrid(file_path):
     data = None
     nrows = 0
     c = 0
-    samplerate = get_number(md, 'Hz', 'AISampleRate')
+    rate = get_number(md, 'Hz', 'AISampleRate')
     for path, channels in zip(trace_file_paths, grid_channels):
         x = np.fromfile(path, np.float32).reshape((-1, channels))
         if data is None:
@@ -574,7 +574,7 @@ def load_fishgrid(file_path):
         data[:n,c:c+channels] = x[:n,:]
         c += channels
     amax, unit = get_number_unit(md, 'AIMaxVolt')
-    return data, samplerate, unit, amax
+    return data, rate, unit, amax
 
 
 # add fishgrid keys:
@@ -784,7 +784,7 @@ def extract_container_data(data_dict, datakey=None,
         Name of the variable holding the sampling rate.
     timekey: str or list of str
         Name of the variable holding sampling times.
-        If no sampling rate is available, the samplingrate is retrieved
+        If no sampling rate is available, the sampling rate is retrieved
         from the sampling times.
     amplkey: str or list of str
         Name of the variable holding the amplitude range of the data.
@@ -802,7 +802,7 @@ def extract_container_data(data_dict, datakey=None,
     data: 2-D array of floats
         All data traces as an 2-D numpy array, even for single channel data.
         First dimension is time, second is channel.
-    samplerate: float
+    rate: float
         Sampling rate of the data in Hz.
     unit: str
         Unit of the data.
@@ -821,17 +821,17 @@ def extract_container_data(data_dict, datakey=None,
         timekey = (timekey,)
     if not isinstance(amplkey, (list, tuple, np.ndarray)):
         amplkey = (amplkey,)
-    samplerate = 0.0
+    rate = 0.0
     for skey in samplekey:
         if skey in data_dict:
-            samplerate = float(data_dict[skey])
+            rate = float(data_dict[skey])
             break
-    if samplerate == 0.0:
+    if rate == 0.0:
         for tkey in timekey:
             if tkey in data_dict:
-                samplerate = 1.0/(data_dict[tkey][1] - data_dict[tkey][0])
+                rate = 1.0/(data_dict[tkey][1] - data_dict[tkey][0])
                 break
-    if samplerate == 0.0:
+    if rate == 0.0:
         raise ValueError(f"invalid keys {', '.join(samplekey)} and {', '.join(timekey)} for requesting sampling rate or sampling times")
     for akey in amplkey:
         if akey in data_dict:
@@ -878,7 +878,7 @@ def extract_container_data(data_dict, datakey=None,
         data *= amax/2**63
     else:
         data = raw_data
-    return data, samplerate, unit, amax
+    return data, rate, unit, amax
 
 
 def load_container(file_path, datakey=None,
@@ -905,7 +905,7 @@ def load_container(file_path, datakey=None,
         Name of the variable holding the sampling rate.
     timekey: str or list of str
         Name of the variable holding sampling times.
-        If no sampling rate is available, the samplingrate is retrieved
+        If no sampling rate is available, the sampling rate is retrieved
         from the sampling times.
     amplkey: str
         Name of the variable holding the amplitude range of the data.
@@ -924,7 +924,7 @@ def load_container(file_path, datakey=None,
     data: 2-D array of floats
         All data traces as an 2-D numpy array, even for single channel data.
         First dimension is time, second is channel.
-    samplerate: float
+    rate: float
         Sampling rate of the data in Hz.
     unit: str
         Unit of the data.
@@ -1151,7 +1151,7 @@ def load_audioio(file_path, verbose=0, gainkey=default_gain_keys, sep='.',
     data: 2-D array of floats
         All data traces as an 2-D numpy array, even for single channel data.
         First dimension is time, second is channel.
-    samplerate: float
+    rate: float
         Sampling rate of the data in Hz.
     unit: str
         Unit of the data if found in the metadata (see `gainkey`),
@@ -1163,10 +1163,10 @@ def load_audioio(file_path, verbose=0, gainkey=default_gain_keys, sep='.',
     md = metadata_audioio(file_path)
     amax, unit = get_gain(md, gainkey, sep, amax, unit)
     # load data:
-    data, samplerate = load_audio(file_path, verbose)
+    data, rate = load_audio(file_path, verbose)
     if amax != 1.0:
         data *= amax
-    return data, samplerate, unit, amax
+    return data, rate, unit, amax
 
 
 data_loader_funcs = (
@@ -1204,7 +1204,7 @@ def load_data(file_path, verbose=0, **kwargs):
     data: 2-D array
         All data traces as an 2-D numpy array, even for single channel data.
         First dimension is time, second is channel.
-    samplerate: float
+    rate: float
         Sampling rate of the data in Hz.
     unit: str
         Unit of the data.
@@ -1375,7 +1375,7 @@ class DataLoader(AudioLoader):
 
     Attributes
     ----------
-    samplerate: float
+    rate: float
         The sampling rate of the data in Hertz.
     channels: int
         The number of channels that are read in.
@@ -1455,7 +1455,7 @@ class DataLoader(AudioLoader):
         # open trace files:
         self.sf = []
         self.frames = None
-        self.samplerate = None
+        self.rate = None
         self.unit = ''
         self.filepath = None
         if len(trace_file_paths) > 0:
@@ -1481,9 +1481,9 @@ class DataLoader(AudioLoader):
             sf.seek(0)
             # retrieve sampling rate and unit:
             rate, us = relacs_samplerate_unit(path)
-            if self.samplerate is None:
-                self.samplerate = rate
-            elif rate != self.samplerate:
+            if self.rate is None:
+                self.rate = rate
+            elif rate != self.rate:
                 raise ValueError('sampling rates of traces differ')
             if len(self.unit) == 0:
                 self.unit = us
@@ -1495,8 +1495,8 @@ class DataLoader(AudioLoader):
         self.ndim = len(self.shape)
         self.format = 'RELACS'
         self.encoding = 'FLOAT'
-        self.bufferframes = int(buffersize*self.samplerate)
-        self.backframes = int(backsize*self.samplerate)
+        self.bufferframes = int(buffersize*self.rate)
+        self.backframes = int(backsize*self.rate)
         self.init_buffer()
         self.offset = 0
         self.close = self._close_relacs
@@ -1584,7 +1584,7 @@ class DataLoader(AudioLoader):
         self.grid_offs = []
         offs = 0
         self.frames = None
-        self.samplerate = get_number(self.metadata(), 'Hz', 'AISampleRate')
+        self.rate = get_number(self.metadata(), 'Hz', 'AISampleRate')
         v, self.unit = get_number_unit(self.metadata(), 'AIMaxVolt')
         if v is not None:
             self.ampl_min = -v
@@ -1616,8 +1616,8 @@ class DataLoader(AudioLoader):
         self.ndim = len(self.shape)
         self.format = 'FISHGRID'
         self.encoding = 'FLOAT'
-        self.bufferframes = int(buffersize*self.samplerate)
-        self.backframes = int(backsize*self.samplerate)
+        self.bufferframes = int(buffersize*self.rate)
+        self.backframes = int(backsize*self.rate)
         self.init_buffer()
         self.offset = 0
         self.close = self._close_fishgrid
@@ -1686,7 +1686,7 @@ class DataLoader(AudioLoader):
             Name of the variable holding the sampling rate.
         timekey: str or list of str
             Name of the variable holding sampling times.
-            If no sampling rate is available, the samplingrate is retrieved
+            If no sampling rate is available, the sampling rate is retrieved
             from the sampling times.
         amplkey: str or list of str
             Name of the variable holding the amplitude range of the data.
@@ -1729,7 +1729,7 @@ class DataLoader(AudioLoader):
             from scipy.io import loadmat
             data_dict = loadmat(file_path, squeeze_me=True)
             self.format = 'MAT'
-        self.buffer, self.samplerate, self.unit, amax = \
+        self.buffer, self.rate, self.unit, amax = \
             extract_container_data(data_dict, datakey, samplekey,
                                    timekey, amplkey, unitkey, amax, unit)
         self.filepath = file_path
@@ -1875,7 +1875,7 @@ class DataLoader(AudioLoader):
                         print(f'  format       : {self.format}')
                     if self.encoding is not None:
                         print(f'  encoding     : {self.encoding}')
-                    print(f'  sampling rate: {self.samplerate} Hz')
+                    print(f'  sampling rate: {self.rate} Hz')
                     print(f'  channels     : {self.channels}')
                     print(f'  frames       : {self.frames}')
                     print(f'  range        : {amax:g}{unit}')
@@ -1885,10 +1885,10 @@ class DataLoader(AudioLoader):
 
 def demo(file_path, plot=False):
     print("try load_data:")
-    data, samplerate, unit, amax = load_data(file_path, verbose=2)
+    data, rate, unit, amax = load_data(file_path, verbose=2)
     if plot:
         fig, ax = plt.subplots()
-        time = np.arange(len(data))/samplerate
+        time = np.arange(len(data))/rate
         for c in range(data.shape[1]):
             ax.plot(time, data[:,c])
         ax.set_xlabel('Time [s]')
@@ -1901,16 +1901,16 @@ def demo(file_path, plot=False):
     print('')
     print("try DataLoader:")
     with DataLoader(file_path, 2.0, 1.0, 1) as data:
-        print('samplerate: %g' % data.samplerate)
-        print('frames: %d %d' % (len(data), data.shape[0]))
-        nframes = int(1.0 * data.samplerate)
+        print('sampling rate: %g' % data.rate)
+        print('frames       : %d %d' % (len(data), data.shape[0]))
+        nframes = int(1.0 * data.rate)
         # forward:
         for i in range(0, len(data), nframes):
             print('forward %d-%d' % (i, i + nframes))
             x = data[i:i + nframes, 0]
             if plot:
                 fig, ax = plt.subplots()
-                ax.plot((i + np.arange(len(x)))/data.samplerate, x)
+                ax.plot((i + np.arange(len(x)))/data.rate, x)
                 ax.set_xlabel('Time [s]')
                 ax.set_ylabel(f'[{data.unit}]')
                 plt.show()
@@ -1920,7 +1920,7 @@ def demo(file_path, plot=False):
             x = data[i:i + nframes, 0]
             if plot:
                 fig, ax = plt.subplots()
-                ax.plot((i + np.arange(len(x)))/data.samplerate, x)
+                ax.plot((i + np.arange(len(x)))/data.rate, x)
                 ax.set_xlabel('Time [s]')
                 ax.set_ylabel(f'[{data.unit}]')
                 plt.show()

@@ -63,7 +63,7 @@ def next_power_of_two(n):
     return int(2 ** np.floor(np.log(n) / np.log(2.0) + 1.0-1e-8))
 
 
-def nfft(samplerate, freq_resolution, min_nfft=16, max_nfft=None):
+def nfft(rate, freq_resolution, min_nfft=16, max_nfft=None):
     """Required number of samples for an FFT of a given frequency resolution.
 
     Note that the returned number of FFT samples results
@@ -71,7 +71,7 @@ def nfft(samplerate, freq_resolution, min_nfft=16, max_nfft=None):
 
     Parameters
     ----------
-    samplerate: float
+    rate: float
         Sampling rate of the data in Hertz.
     freq_resolution: float
         Minimum frequency resolution in Hertz.
@@ -85,7 +85,7 @@ def nfft(samplerate, freq_resolution, min_nfft=16, max_nfft=None):
     nfft: int
         Number of FFT points.
     """
-    nfft = next_power_of_two(samplerate / freq_resolution)
+    nfft = next_power_of_two(rate / freq_resolution)
     if not max_nfft is None:
         if nfft > max_nfft:
             nfft = next_power_of_two(max_nfft//2 + 1)
@@ -156,14 +156,14 @@ def psd(data, ratetime, freq_resolution, min_nfft=16, max_nfft=None,
     """Power spectrum density of a given frequency resolution.
 
     NFFT is computed from the requested frequency resolution and the
-    samplerate.  Check the returned frequency array for the actually
+    sampling rate.  Check the returned frequency array for the actually
     used frequency resolution.  The frequency intervals are smaller or
     equal to `freq_resolution`.  NFFT can be retrieved by dividing
-    `samplerate` by the actual frequency resolution:
+    the sampling rate by the actual frequency resolution:
     ```
-    freq, power = psd(data, samplerate, 0.1)
+    freq, power = psd(data, samplingrate, 0.1)
     df = np.mean(np.diff(freq))  # the actual frequency resolution
-    nfft = int(samplerate/df)
+    nfft = int(samplingrate/df)
     ```
 
     Uses `scipy signal.welch()` if available, otherwise
@@ -203,21 +203,21 @@ def psd(data, ratetime, freq_resolution, min_nfft=16, max_nfft=None,
     power: 1-D array
         Power spectral density in [data]^2/Hz.
     """
-    samplerate = ratetime if np.isscalar(ratetime) else 1.0/(ratetime[1]-ratetime[0])
-    n_fft = nfft(samplerate, freq_resolution, min_nfft, max_nfft)
+    rate = ratetime if np.isscalar(ratetime) else 1.0/(ratetime[1]-ratetime[0])
+    n_fft = nfft(rate, freq_resolution, min_nfft, max_nfft)
     noverlap = int(n_fft * overlap_frac)
     if psdscipy:
         if detrend == 'none':
             detrend = False
         elif detrend == 'mean':
             detrend = 'constant'
-        freqs, power = welch(data, fs=samplerate, nperseg=n_fft, nfft=None,
+        freqs, power = welch(data, fs=rate, nperseg=n_fft, nfft=None,
                              noverlap=noverlap, detrend=detrend,
                              window=window, scaling='density')
     else:
         if detrend == 'constant':
             detrend = 'mean'
-        power, freqs = mpsd(data, Fs=samplerate, NFFT=n_fft,
+        power, freqs = mpsd(data, Fs=rate, NFFT=n_fft,
                                 noverlap=noverlap, detrend=detrend,
                                 window=get_window(window, n_fft),
                                 scale_by_freq=True)
@@ -268,11 +268,11 @@ def multi_psd(data, ratetime, freq_resolution=0.2,
         List of the power spectra for each window and frequency resolution
         (`psd_data[i][freq, power]`).
     """
-    samplerate = ratetime if np.isscalar(ratetime) else 1.0/(ratetime[1]-ratetime[0])
+    rate = ratetime if np.isscalar(ratetime) else 1.0/(ratetime[1]-ratetime[0])
     n_incr = len(data)//(num_windows+1)  # overlap by half a window
     multi_psd_data = []
     for k in range(num_windows):
-        freq, power = psd(data[k*n_incr:(k+2)*n_incr], samplerate,
+        freq, power = psd(data[k*n_incr:(k+2)*n_incr], rate,
                           freq_resolution, min_nfft, 2*n_incr,
                           overlap_frac, detrend, window)
         multi_psd_data.append(np.column_stack((freq, power)))
@@ -291,9 +291,9 @@ def spectrogram(data, ratetime, freq_resolution=0.2, min_nfft=16,
     sampling rate divided by the actual frequency resolution:
 
     ```
-    spec, freq, time = spectrum(data, samplerate, 0.1) # request 0.1Hz resolution
+    spec, freq, time = spectrum(data, samplingrate, 0.1) # request 0.1Hz resolution
     df = np.mean(np.diff(freq))  # the actual frequency resolution
-    nfft = int(samplerate/df)
+    nfft = int(samplingrate/df)
     ```
     
     Parameters
@@ -436,7 +436,7 @@ def plot_decibel_psd(ax, freqs, power, ref_power=1.0, min_power=1e-20,
     ax.set_ylabel('Power [dB]')
 
 
-def peak_freqs(onsets, offsets, data, samplerate, freq_resolution=0.2,
+def peak_freqs(onsets, offsets, data, rate, freq_resolution=0.2,
                thresh=None, **kwargs):
     """Peak frequencies computed from power spectra of data snippets.
 
@@ -449,8 +449,8 @@ def peak_freqs(onsets, offsets, data, samplerate, freq_resolution=0.2,
     data: 1-D array
         Data array that contains the data snippets defined by
         `onsets` and `offsets`.
-    samplerate: float
-        Samplerate of data in Hertz.
+    rate: float
+        Sampling rate of data in Hertz.
     freq_resolution: float
         Desired frequency resolution of the computed power spectra in Hertz.
     thresh: None or float
@@ -469,7 +469,7 @@ def peak_freqs(onsets, offsets, data, samplerate, freq_resolution=0.2,
     for i0, i1 in zip(onsets, offsets):
         if 'max_nfft' in kwargs:
             del kwargs['max_nfft']
-        f, power = psd(data[i0:i1], samplerate, freq_resolution,
+        f, power = psd(data[i0:i1], rate, freq_resolution,
                        max_nfft=i1-i0, **kwargs)
         if thresh is None:
             fpeak = f[np.argmax(power)]
@@ -530,19 +530,19 @@ def main():
 
     # generate data:
     fundamentals = [300, 450]  # Hz
-    samplerate = 100000.0      # Hz
-    time = np.arange(0.0, 8.0, 1.0/samplerate)
+    rate = 100000.0      # Hz
+    time = np.arange(0.0, 8.0, 1.0/rate)
     data = np.sin(2*np.pi*fundamentals[0]*time) + 0.5*np.sin(2*np.pi*fundamentals[1]*time)
 
     # compute power spectra:
-    psd_data = multi_psd(data, samplerate, freq_resolution=0.5, num_windows=3,
+    psd_data = multi_psd(data, rate, freq_resolution=0.5, num_windows=3,
                          detrend='none', window='hann')
 
     # plot power spectra:
     fig, ax = plt.subplots()
     for k in range(len(psd_data)):
         df = np.mean(np.diff(psd_data[k][:,0]))
-        nfft = int(samplerate/df)
+        nfft = int(rate/df)
         plot_decibel_psd(ax, psd_data[k][:,0], psd_data[k][:,1], lw=2,
                          label='$\\Delta f = %.1f$ Hz, nnft=%d' % (df, nfft))
     ax.legend(loc='upper right')

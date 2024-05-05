@@ -144,7 +144,7 @@ def encodings_relacs(format=None):
         return ['FLOAT']
     
     
-def write_relacs(filepath, data, samplerate, amax=1.0, unit=None,
+def write_relacs(filepath, data, rate, amax=1.0, unit=None,
                  metadata=None, locs=None, labels=None, format=None,
                  encoding=None):
     """Write data as relacs raw files.
@@ -155,7 +155,7 @@ def write_relacs(filepath, data, samplerate, amax=1.0, unit=None,
         Full path of folder where to write relacs files.
     data: 1-D or 2-D array of floats
         Array with the data (first index time, optional second index channel).
-    samplerate: float
+    rate: float
         Sampling rate of the data in Hertz.
     amax: float
         Maximum possible amplitude of the data in `unit`.
@@ -215,8 +215,8 @@ def write_relacs(filepath, data, samplerate, amax=1.0, unit=None,
     for c in range(data.shape[1] if data.ndim > 1 else 1):
         df.write(f'#     identifier{c+1}      : V-{c+1}\n')
         df.write(f'#     data file{c+1}       : trace-{{c+1}}.raw\n')
-        df.write(f'#     sample interval{c+1} : {1000.0/samplerate:.4f}ms\n')
-        df.write(f'#     sampling rate{c+1}   : {samplerate:.2f}Hz\n')
+        df.write(f'#     sample interval{c+1} : {1000.0/rate:.4f}ms\n')
+        df.write(f'#     sampling rate{c+1}   : {rate:.2f}Hz\n')
         df.write(f'#     unit{c+1}            : {unit}\n')
     df.write('# event lists:\n')
     df.write('#      event file1: stimulus-events.dat\n')
@@ -278,7 +278,7 @@ def encodings_fishgrid(format=None):
         return ['FLOAT']
     
     
-def write_fishgrid(filepath, data, samplerate, amax=1.0, unit=None,
+def write_fishgrid(filepath, data, rate, amax=1.0, unit=None,
                    metadata=None, locs=None, labels=None, format=None,
                    encoding=None):
     """Write data as fishgrid raw files.
@@ -289,7 +289,7 @@ def write_fishgrid(filepath, data, samplerate, amax=1.0, unit=None,
         Full path of the folder where to write fishgrid files.
     data: 1-D or 2-D array of floats
         Array with the data (first index time, optional second index channel).
-    samplerate: float
+    rate: float
         Sampling rate of the data in Hertz.
     amax: float
         Maximum possible amplitude of the data in `unit`.
@@ -421,7 +421,7 @@ def write_fishgrid(filepath, data, samplerate, amax=1.0, unit=None,
         if smd:
             md['FishGrid']['Other'] = smd
     add_metadata(md,
-                 [f'FishGrid.Hardware Settings.DAQ board.AISampleRate={0.001*samplerate:.3f}kHz',
+                 [f'FishGrid.Hardware Settings.DAQ board.AISampleRate={0.001*rate:.3f}kHz',
                   f'FishGrid.Hardware Settings.DAQ board.AIMaxVolt={amax:g}{unit}'])
     with open(cfgfilename, 'w') as df:
         for k in md:
@@ -436,7 +436,7 @@ def write_fishgrid(filepath, data, samplerate, amax=1.0, unit=None,
                              default=dt.datetime.utcfromtimestamp(0))
     with open(filename, 'w') as df:
         count = 0
-        write_timestamp(df, count, 0, 0, samplerate, starttime,
+        write_timestamp(df, count, 0, 0, rate, starttime,
                         '', 'begin of recording')
         count += 1
         if locs is not None:
@@ -449,10 +449,10 @@ def write_fishgrid(filepath, data, samplerate, amax=1.0, unit=None,
                 index = locs[i,0] if locs.ndim > 1 else locs[i]
                 span = locs[i,1] if locs.ndim > 1 else 0
                 write_timestamp(df, count, index*nchannels,
-                                span*nchannels, samplerate,
+                                span*nchannels, rate,
                                 starttime, label, comment)
                 count += 1
-        write_timestamp(df, count, len(data)*nchannels, 0, samplerate,
+        write_timestamp(df, count, len(data)*nchannels, 0, rate,
                         starttime, '', 'end of recording')
     return cfgfilename
 
@@ -492,7 +492,7 @@ def encodings_pickle(format=None):
         return ['PCM_16', 'PCM_32', 'FLOAT', 'DOUBLE']
 
     
-def write_pickle(filepath, data, samplerate, amax=1.0, unit=None,
+def write_pickle(filepath, data, rate, amax=1.0, unit=None,
                  metadata=None, locs=None, labels=None, format=None,
                  encoding=None):
     """Write data into python pickle file.
@@ -508,7 +508,7 @@ def write_pickle(filepath, data, samplerate, amax=1.0, unit=None,
     data: 1-D or 2-D array of floats
         Array with the data (first index time, optional second index channel).
         Stored under the key "data".
-    samplerate: float
+    rate: float
         Sampling rate of the data in Hertz.
         Stored under the key "rate".
     amax: float
@@ -562,7 +562,7 @@ def write_pickle(filepath, data, samplerate, amax=1.0, unit=None,
     if not encoding in encodings_pickle(format):
         raise ValueError(f'file encoding {format} not supported by pickle file format')
     buffer = recode_array(data, amax, encoding)
-    ddict = dict(data=buffer, rate=samplerate)
+    ddict = dict(data=buffer, rate=rate)
     ddict['amax'] = amax
     if unit:
         ddict['unit'] = unit
@@ -622,7 +622,7 @@ def encodings_numpy(format=None):
         return ['PCM_16', 'PCM_32', 'FLOAT', 'DOUBLE']
 
 
-def write_numpy(filepath, data, samplerate, amax=1.0, unit=None,
+def write_numpy(filepath, data, rate, amax=1.0, unit=None,
                 metadata=None, locs=None, labels=None, format=None,
                 encoding=None):
     """Write data into numpy npz file.
@@ -638,7 +638,7 @@ def write_numpy(filepath, data, samplerate, amax=1.0, unit=None,
     data: 1-D or 2-D array of floats
         Array with the data (first index time, optional second index channel).
         Stored under the key "data".
-    samplerate: float
+    rate: float
         Sampling rate of the data in Hertz.
         Stored under the key "rate".
     amax: float
@@ -693,7 +693,7 @@ def write_numpy(filepath, data, samplerate, amax=1.0, unit=None,
     if not encoding in encodings_numpy(format):
         raise ValueError(f'file encoding {format} not supported by numpy file format')
     buffer = recode_array(data, amax, encoding)
-    ddict = dict(data=buffer, rate=samplerate)
+    ddict = dict(data=buffer, rate=rate)
     ddict['amax'] = amax
     if unit:
         ddict['unit'] = unit
@@ -758,7 +758,7 @@ def encodings_mat(format=None):
         return ['PCM_16', 'PCM_32', 'FLOAT', 'DOUBLE']
 
 
-def write_mat(filepath, data, samplerate, amax=1.0, unit=None,
+def write_mat(filepath, data, rate, amax=1.0, unit=None,
               metadata=None, locs=None, labels=None, format=None,
               encoding=None):
     """Write data into matlab file.
@@ -775,7 +775,7 @@ def write_mat(filepath, data, samplerate, amax=1.0, unit=None,
     data: 1-D or 2-D array of floats
         Array with the data (first index time, optional second index channel).
         Stored under the key "data".
-    samplerate: float
+    rate: float
         Sampling rate of the data in Hertz.
         Stored under the key "rate".
     amax: float
@@ -829,7 +829,7 @@ def write_mat(filepath, data, samplerate, amax=1.0, unit=None,
     if not encoding in encodings_mat(format):
         raise ValueError(f'file encoding {format} not supported by matlab file format')
     buffer = recode_array(data, amax, encoding)
-    ddict = dict(data=buffer, rate=samplerate)
+    ddict = dict(data=buffer, rate=rate)
     ddict['amax'] = amax
     if unit:
         ddict['unit'] = unit
@@ -892,7 +892,7 @@ def encodings_audio(format):
         return aw.available_encodings(format)
 
 
-def write_audioio(filepath, data, samplerate, amax=1.0, unit=None,
+def write_audioio(filepath, data, rate, amax=1.0, unit=None,
                   metadata=None, locs=None, labels=None, format=None,
                   encoding=None, gainkey=default_gain_keys, sep='.'):
     """Write data into audio file.
@@ -914,7 +914,7 @@ def write_audioio(filepath, data, samplerate, amax=1.0, unit=None,
         Full path and name of the file to write.
     data: 1-D or 2-D array of floats
         Array with the data (first index time, optional second index channel).
-    samplerate: float
+    rate: float
         Sampling rate of the data in Hertz.
     amax: float
         Maximum possible amplitude of the data in `unit`.
@@ -988,7 +988,7 @@ def write_audioio(filepath, data, samplerate, amax=1.0, unit=None,
                 metadata['INFO'][gainkey[0]] = f'{amax:g}{unit}'
             else:
                 metadata[gainkey[0]] = f'{amax:g}{unit}'
-    aw.write_audio(filepath, data, samplerate, metadata, locs, labels)
+    aw.write_audio(filepath, data, rate, metadata, locs, labels)
     return filepath
 
 
@@ -1071,7 +1071,7 @@ function.
 """
 
 
-def write_data(filepath, data, samplerate, amax=1.0, unit=None,
+def write_data(filepath, data, rate, amax=1.0, unit=None,
                metadata=None, locs=None, labels=None, format=None,
                encoding=None, verbose=0, **kwargs):
     """Write data into a file.
@@ -1083,7 +1083,7 @@ def write_data(filepath, data, samplerate, amax=1.0, unit=None,
         File format is determined from extension.
     data: 1-D or 2-D array of floats
         Array with the data (first index time, second index channel).
-    samplerate: float
+    rate: float
         Sampling rate of the data in Hertz.
     amax: float
         Maximum possible amplitude of the data in `unit`.
@@ -1126,12 +1126,12 @@ def write_data(filepath, data, samplerate, amax=1.0, unit=None,
     import numpy as np
     from thunderlab.datawriter import write_data
     
-    samplerate = 28000.0
+    rate = 28000.0
     freq = 800.0
-    time = np.arange(0.0, 1.0, 1/samplerate)     # one second
+    time = np.arange(0.0, 1.0, 1/rate)     # one second
     data = 2.5*np.sin(2.0*np.p*freq*time)        # 800Hz sine wave
     md = dict(Artist='underscore_')          # metadata
-    write_data('audio/file.npz', data, samplerate, 'mV', md)
+    write_data('audio/file.npz', data, rate, 'mV', md)
     ```
     """
     if not filepath:
@@ -1145,14 +1145,14 @@ def write_data(filepath, data, samplerate, amax=1.0, unit=None,
             continue
         if format.upper() in formats_func():
             writer_func = data_writer_funcs[fmt]
-            filepath = writer_func(filepath, data, samplerate, amax,
+            filepath = writer_func(filepath, data, rate, amax,
                                    unit, metadata, locs, labels,
                                    format=format, encoding=encoding,
                                    **kwargs)
             if verbose > 0:
                 print(f'wrote data to file "{filepath}" using {fmt} format')
                 if verbose > 1:
-                    print(f'  sampling rate: {samplerate:g}Hz')
+                    print(f'  sampling rate: {rate:g}Hz')
                     print(f'  channels     : {data.shape[1] if len(data.shape) > 1 else 1}')
                     print(f'  frames       : {len(data)}')
                     print(f'  range        : {amax:g}{unit}')
@@ -1171,14 +1171,14 @@ def demo(file_path, channels=2, format=None):
         File format to be used.
     """
     print('generate data ...')
-    samplerate = 44100.0
-    t = np.arange(0.0, 1.0, 1.0/samplerate)
+    rate = 44100.0
+    t = np.arange(0.0, 1.0, 1.0/rate)
     data = np.zeros((len(t), channels))
     for c in range(channels):
         data[:,c] = 0.1*(channels-c)*np.sin(2.0*np.pi*(440.0+c*8.0)*t)
         
     print(f"write_data('{file_path}') ...")
-    write_data(file_path, data, samplerate, 1.0, 'mV', format=format, verbose=2)
+    write_data(file_path, data, rate, 1.0, 'mV', format=format, verbose=2)
 
     print('done.')
     
