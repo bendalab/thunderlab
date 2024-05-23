@@ -306,7 +306,7 @@ def relacs_trace_files(file_path):
     """
     relacs_dir = file_path
     if not os.path.isdir(file_path):
-        relacs_dir = os.path.dirname(file_paths)
+        relacs_dir = os.path.dirname(file_path)
     trace_file_paths = []
     for k in range(10000):
         fname = os.path.join(relacs_dir, f'trace-{k+1}.raw')
