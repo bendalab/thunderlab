@@ -396,7 +396,7 @@ class ConfigFile(object):
             path = os.path.join(*(dirs[:-k] + [cfgfile]))
             if os.path.isfile(path):
                 if verbose > 0:
-                    print('load configuration {path}')
+                    print(f'load configuration {path}')
                 self.load(path)
 
 
