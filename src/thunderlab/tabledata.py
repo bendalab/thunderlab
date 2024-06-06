@@ -554,8 +554,8 @@ class TableData(object):
             del self.formats[c]
             del self.hidden[c]
             del self.data[c]
-        if self.setcol > len(self.data):
-            self.setcol = len(self.data)
+        if self.setcol >= len(self.data):
+            self.setcol = 0
         self.shape = (self.rows(), self.columns())
 
     def section(self, column, level):
@@ -1420,15 +1420,20 @@ class TableData(object):
 
         Parameters
         ----------
-        data: float, int, str, etc. or list thereof or list of list thereof
-            Data values to be appended to successive column.
+        data: float, int, str, etc. or list thereof or list of list thereof or dict or list of dict
+            Data values to be appended to successive columns:
             - A single value is simply appened to the specified column of the table.
             - A 1D-list of values is appended to successive columns of the table
               starting with the specified column.
             - The columns of a 2D-list of values (second index) are appended
               to successive columns of the table starting with the specified column.
+            - Values or list of values of a dictionary are added to the
+              columns specified by the keys. Does not affect the current column.
+            - The values of dictionaries in a list are appended to the
+              columns specified by the keys. Does not affect the current column.
         column: None, int, or str
-            The first column to which the data should be appended.
+            The first column to which the data should be appended,
+            if `data` does not specify columns.
             If None, append to the current column.
             See self.index() for more information on how to specify a column.
         """
@@ -1442,16 +1447,32 @@ class TableData(object):
                     for i, val in enumerate(row):
                         self.data[column+i].append(val)
                 self.setcol = column + len(data[0])
+            elif isinstance(data[0], dict):
+                # list of dictionaries:
+                for row in data:
+                    for key in row:
+                        column = self.index(k)
+                        self.data[column].append(data[k])
             else:
                 # 1D list:
                 for val in data:
                     self.data[column].append(val)
                     column += 1
                 self.setcol = column
+        elif isinstance(data, dict):
+            # dictionary with values:
+            for key in data:
+                column = self.index(key)
+                if isinstance(data[key], (list, tuple, np.ndarray)):
+                    self.data[column].extend(data[key])
+                else:
+                    self.data[column].append(data[key])
         else:
             # single value:
             self.data[column].append(data)
-            self.setcol = column+1
+            self.setcol = column + 1
+        if self.setcol >= len(self.data):
+            self.setcol = 0
         self.shape = (self.rows(), self.columns())
 
     def append_data_column(self, data, column=None):
@@ -1478,6 +1499,8 @@ class TableData(object):
         else:
             self.data[column].append(data)
             self.setcol = column+1
+        if self.setcol >= len(self.data):
+            self.setcol = 0
         self.shape = (self.rows(), self.columns())
 
     def set_column(self, column):
