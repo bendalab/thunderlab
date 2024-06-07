@@ -28,6 +28,7 @@ on demand. `data` can be used like a read-only numpy array of floats.
 - numpy .npz files
 - matlab .mat files
 - audio files via [`audioio`](https://github.com/bendalab/audioio) package
+- LabView .scandat files
 - relacs trace*.raw files (https://www.relacs.net)
 - fishgrid traces-*.raw files (https://github.com/bendalab/fishgrid)
 
@@ -1121,6 +1122,83 @@ def markers_container(file_path, poskey=['positions'],
                                      labelskey, descrkey)
 
 
+def check_raw(filepath):
+    """Check if file is a raw file.
+
+    The following extensions are interpreted as raw files:
+
+    - raw files (*.raw)
+    - LabView scandata (*.scandat)
+
+    Parameters
+    ----------
+    filepath: str
+        Path of the file to check.
+    
+    Returns
+    -------
+    is_raw: bool
+        `True`, if `filepath` is a raw format.
+    """
+    ext = os.path.splitext(filepath)[1]
+    return ext.lower() in ('.raw', '.scandat', '.mat')
+
+
+def load_raw(file_path, rate=44000, channels=1, dtype=np.float,
+             amax=1.0, unit='a.u.'):
+    """Load data from a raw file.
+
+    Raw files just contain the data and absolutely no metadata, not
+    even the smapling rate, number of channels, etc.
+    Supported file formats are:
+
+    - raw files (*.raw)
+    - LabView scandata (*.scandat)
+
+    Parameters
+    ----------
+    file_path: str
+        Path of the file to load.
+    rate: float
+        Sampling rate of the data in Hertz.
+    channels: int
+        Number of channels multiplexed in the data.
+    dtype: str or numpy.dtype
+        The data type stored in the file.
+    amax: float
+        The amplitude range of the data.
+    unit: str
+        The unit of the data.
+
+    Returns
+    -------
+    data: 2-D array of floats
+        All data traces as an 2-D numpy array, even for single channel data.
+        First dimension is time, second is channel.
+    rate: float
+        Sampling rate of the data in Hz.
+    unit: str
+        Unit of the data.
+    amax: float
+        Maximum amplitude of data range.
+
+    """
+    raw_data = np.fromfile(file_path, dtype=dtype).reshape(-1, channels)
+    # recode:
+    if dtype == np.dtype('int16'):
+        data = raw_data.astype('float32')
+        data *= amax/2**15
+    elif dtype == np.dtype('int32'):
+        data = raw_data.astype(float)
+        data *= amax/2**31
+    elif dtype == np.dtype('int64'):
+        data = raw_data.astype(float)
+        data *= amax/2**63
+    else:
+        data = raw_data
+    return data, rate, unit, amax
+    
+
 def load_audioio(file_path, verbose=0, gainkey=default_gain_keys, sep='.',
                  amax=1.0, unit='a.u.'):
     """Load data from an audio file.
@@ -1177,6 +1255,7 @@ data_loader_funcs = (
     ('relacs', check_relacs, load_relacs, metadata_relacs, None),
     ('fishgrid', check_fishgrid, load_fishgrid, metadata_fishgrid, markers_fishgrid),
     ('container', check_container, load_container, metadata_container, markers_container),
+    ('raw', check_raw, load_raw, None, None),
     ('audioio', None, load_audioio, metadata_audioio, markers_audioio),
     )
 """List of implemented load functions.
@@ -1418,7 +1497,7 @@ class DataLoader(AudioLoader):
         super(DataLoader, self).__init__(None, buffersize, backsize,
                                          verbose, **meta_kwargs)
         if file_path is not None:
-            self.open(file_path, buffersize, backsize, verbose)
+            self.open(file_path, buffersize, backsize, verbose, **meta_kwargs)
 
     def __getitem__(self, key):
         return super(DataLoader, self).__getitem__(key)
@@ -1766,7 +1845,99 @@ class DataLoader(AudioLoader):
     def _load_buffer_container(self, r_offset, r_size, buffer):
         """Load new data from container."""
         pass
-            
+
+
+    # raw data interface:
+    def open_raw(self, file_path, buffersize=10.0, backsize=0.0,
+                 verbose=0, rate=44000, channels=1, dtype=np.float,
+                 amax=1.0, unit='a.u.'):
+        """Load data from a raw file.
+
+        Raw files just contain the data and absolutely no metadata, not
+        even the smapling rate, number of channels, etc.
+        Supported file formats are:
+
+        - raw files (*.raw)
+        - LabView scandata (*.scandat)
+
+        Parameters
+        ----------
+        file_path: str
+            Path of the file to load.
+        buffersize: float
+            Size of internal buffer in seconds.
+        backsize: float
+            Part of the buffer to be loaded before the requested start index in seconds.
+        verbose: int
+            If > 0 show detailed error/warning messages.
+        rate: float
+            Sampling rate of the data in Hertz.
+        channels: int
+            Number of channels multiplexed in the data.
+        dtype: str or numpy.dtype
+            The data type stored in the file.
+        amax: float
+            The amplitude range of the data.
+        unit: str
+            The unit of the data.
+        """
+        self.verbose = verbose
+        self.filepath = file_path
+        self.sf = open(file_path, 'rb')
+        if verbose > 0:
+            print(f'open_raw(file_path) with file_path={file_path}')
+        self.dtype = np.dtype(dtype)
+        self.rate = float(rate)
+        # file size:
+        self.sf.seek(0, os.SEEK_END)
+        self.frames = self.sf.tell()//self.dtype.itemsize
+        self.sf.seek(0)
+        self.channels = int(channels)
+        self.shape = (self.frames, self.channels)
+        self.ndim = len(self.shape)
+        self.size = self.frames*self.channels
+        self.format = 'RAW'
+        self.encoding = self.numpy_encodings.get(self.dtype, 'UNKNOWN')
+        self.unit = unit
+        self.ampl_max = float(amax)
+        self.ampl_min = -self.ampl_max
+        self.offset = 0
+        self.bufferframes = int(buffersize*self.rate)
+        self.backframes = int(backsize*self.rate)
+        self.init_buffer()
+        self.close = self._close_raw
+        self.load_audio_buffer = self._load_buffer_raw
+        self._metadata = None
+        self._load_metadata = None
+        self._locs = None
+        self._labels = None
+        self._load_markers = None
+
+    def _close_raw(self):
+        """Close raw file. """
+        self.sf.close()
+        self.sf = None
+
+    def _load_buffer_raw(self, r_offset, r_size, buffer):
+        """Load new data from container."""
+        self.sf.seek(r_offset*self.dtype.itemsize)
+        raw_data = self.sf.read(r_size*self.dtype.itemsize)
+        raw_data = np.frombuffer(raw_data, dtype=self.dtype)
+        raw_data = raw_data.reshape(-1, self.channels)
+        # recode:
+        if self.dtype == np.dtype('int16'):
+            data = raw_data.astype('float32')
+            data *= amax/2**15
+        elif self.dtype == np.dtype('int32'):
+            data = raw_data.astype(float)
+            data *= amax/2**31
+        elif self.dtype == np.dtype('int64'):
+            data = raw_data.astype(float)
+            data *= amax/2**63
+        else:
+            data = raw_data
+        buffer[:, :] = data
+
     
     # audioio interface:        
     def open_audioio(self, file_path, buffersize=10.0, backsize=0.0,
@@ -1866,6 +2037,7 @@ class DataLoader(AudioLoader):
             ('relacs', check_relacs, self.open_relacs, 1),
             ('fishgrid', check_fishgrid, self.open_fishgrid, 1),
             ('container', check_container, self.open_container, 1),
+            ('raw', check_raw, self.open_raw, 1),
             ('audioio', None, self.open_audioio, 0),
             )
         if len(file_path) == 0:
