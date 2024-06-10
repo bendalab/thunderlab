@@ -1144,7 +1144,7 @@ def check_raw(filepath):
     return ext.lower() in ('.raw', '.scandat', '.mat')
 
 
-def load_raw(file_path, rate=44000, channels=1, dtype=np.float,
+def load_raw(file_path, rate=44000, channels=1, dtype=np.float32,
              amax=1.0, unit='a.u.'):
     """Load data from a raw file.
 
