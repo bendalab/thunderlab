@@ -250,7 +250,7 @@ class Voronoi(object):
         # For each ridge, compute far point:
         center = self.vor.points.mean(axis=0)
         if radius is None:
-            radius = 2.0*self.vor.points.ptp(axis=0).max()
+            radius = np.max(np.ptp(2.0*self.vor.points, axis=0))
         self.infinite_vertices = []
         for points, vertices in zip(self.vor.ridge_points, self.vor.ridge_vertices):
             vertices = np.asarray(vertices)
