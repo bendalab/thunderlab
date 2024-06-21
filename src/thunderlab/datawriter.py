@@ -433,7 +433,7 @@ def write_fishgrid(filepath, data, rate, amax=1.0, unit=None,
                                         ('OriginationDate', 'OriginationTime'),
                                         ('StartDate', 'StartTime'),
                                         ('Location_Time',)),
-                             default=dt.datetime.fromtimestamp(0, datetime.UTC))
+                             default=dt.datetime.fromtimestamp(0, dt.timezone.utc))
     with open(filename, 'w') as df:
         count = 0
         write_timestamp(df, count, 0, 0, rate, starttime,
