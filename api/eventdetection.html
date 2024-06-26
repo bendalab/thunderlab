@@ -1,0 +1,853 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.0">
+<title>thunderlab.eventdetection API documentation</title>
+<meta name="description" content="Detect and handle peaks and troughs as well as threshold crossings in data arrays …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\(","\\)"] ], processEscapes: true } });</script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>thunderlab.eventdetection</code></h1>
+</header>
+<section id="section-intro">
+<p>Detect and handle peaks and troughs as well as threshold crossings in data arrays.</p>
+<h2 id="peak-detection">Peak detection</h2>
+<ul>
+<li><code><a title="thunderlab.eventdetection.detect_peaks" href="#thunderlab.eventdetection.detect_peaks">detect_peaks()</a></code>: detect peaks and troughs using a relative threshold.</li>
+<li><code><a title="thunderlab.eventdetection.peak_width" href="#thunderlab.eventdetection.peak_width">peak_width()</a></code>: compute width of each peak.</li>
+<li><code><a title="thunderlab.eventdetection.peak_size_width" href="#thunderlab.eventdetection.peak_size_width">peak_size_width()</a></code>: compute size and width of each peak.</li>
+</ul>
+<h2 id="threshold-crossings">Threshold crossings</h2>
+<ul>
+<li><code><a title="thunderlab.eventdetection.threshold_crossings" href="#thunderlab.eventdetection.threshold_crossings">threshold_crossings()</a></code>: detect crossings of an absolute threshold.</li>
+<li><code><a title="thunderlab.eventdetection.threshold_crossing_times" href="#thunderlab.eventdetection.threshold_crossing_times">threshold_crossing_times()</a></code>: compute times of threshold crossings by linear interpolation.</li>
+</ul>
+<h2 id="event-manipulation">Event manipulation</h2>
+<ul>
+<li><code><a title="thunderlab.eventdetection.trim" href="#thunderlab.eventdetection.trim">trim()</a></code>: make the list of peaks and troughs the same length.</li>
+<li><code><a title="thunderlab.eventdetection.trim_to_peak" href="#thunderlab.eventdetection.trim_to_peak">trim_to_peak()</a></code>: ensure that the peak is first.</li>
+<li>
+<p><code><a title="thunderlab.eventdetection.trim_closest" href="#thunderlab.eventdetection.trim_closest">trim_closest()</a></code>: ensure that peaks minus troughs is smallest.</p>
+</li>
+<li>
+<p><code><a title="thunderlab.eventdetection.merge_events" href="#thunderlab.eventdetection.merge_events">merge_events()</a></code>: Merge events if they are closer than a minimum distance.</p>
+</li>
+<li><code><a title="thunderlab.eventdetection.remove_events" href="#thunderlab.eventdetection.remove_events">remove_events()</a></code>: Remove events that are too short or too long.</li>
+<li><code><a title="thunderlab.eventdetection.widen_events" href="#thunderlab.eventdetection.widen_events">widen_events()</a></code>: Enlarge events on both sides without overlap.</li>
+</ul>
+<h2 id="threshold-estimation">Threshold estimation</h2>
+<ul>
+<li><code><a title="thunderlab.eventdetection.std_threshold" href="#thunderlab.eventdetection.std_threshold">std_threshold()</a></code>: estimate detection threshold based on the standard deviation.</li>
+<li><code><a title="thunderlab.eventdetection.median_std_threshold" href="#thunderlab.eventdetection.median_std_threshold">median_std_threshold()</a></code>: estimate detection threshold based on the median standard deviation of data snippets.</li>
+<li><code><a title="thunderlab.eventdetection.hist_threshold" href="#thunderlab.eventdetection.hist_threshold">hist_threshold()</a></code>: esimate detection threshold based on a histogram of the data.</li>
+<li><code><a title="thunderlab.eventdetection.minmax_threshold" href="#thunderlab.eventdetection.minmax_threshold">minmax_threshold()</a></code>: estimate detection threshold based on maximum minus minimum value.</li>
+<li><code><a title="thunderlab.eventdetection.percentile_threshold" href="#thunderlab.eventdetection.percentile_threshold">percentile_threshold()</a></code>: estimate detection threshold based on interpercentile range.</li>
+</ul>
+<h2 id="snippets">Snippets</h2>
+<ul>
+<li><code><a title="thunderlab.eventdetection.snippets" href="#thunderlab.eventdetection.snippets">snippets()</a></code>: cut out data snippets around a list of indices.</li>
+</ul>
+<h2 id="peak-detection-with-dynamic-threshold">Peak detection with dynamic threshold:</h2>
+<ul>
+<li><code><a title="thunderlab.eventdetection.detect_dynamic_peaks" href="#thunderlab.eventdetection.detect_dynamic_peaks">detect_dynamic_peaks()</a></code>: peak and trough detection with a dynamically adapted threshold.</li>
+<li><code><a title="thunderlab.eventdetection.accept_peak_size_threshold" href="#thunderlab.eventdetection.accept_peak_size_threshold">accept_peak_size_threshold()</a></code>: adapt the dection threshold to the size of the detected peaks.</li>
+</ul>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="thunderlab.eventdetection.detect_peaks"><code class="name flex">
+<span>def <span class="ident">detect_peaks</span></span>(<span>data, threshold)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Detect peaks and troughs using a relative threshold.</p>
+<p>This is an implementation of the algorithm by
+Bryan S. Todd and David C. Andrews (1999): The identification of peaks in physiological signals.
+Computers and Biomedical Research 32, 322-335.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>array</code></dt>
+<dd>An 1-D array of input data where peaks are detected.</dd>
+<dt><strong><code>threshold</code></strong> :&ensp;<code>float</code> or <code>array</code> of <code>floats</code></dt>
+<dd>A positive number or array of numbers setting the detection threshold,
+i.e. the minimum distance between peaks and troughs.
+In case of an array make sure that the threshold does not change faster
+than the expected intervals between peaks and troughs.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>peaks</code></strong> :&ensp;<code>array</code> of <code>ints</code></dt>
+<dd>Array of indices of detected peaks.</dd>
+<dt><strong><code>troughs</code></strong> :&ensp;<code>array</code> of <code>ints</code></dt>
+<dd>Array of indices of detected troughs.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<h2 id="valueerror">Valueerror</h2>
+<p>If <code>threshold &lt;= 0</code>.</p>
+<h2 id="indexerror">Indexerror</h2>
+<p>If <code>data</code> and <code>threshold</code> arrays differ in length.</p></div>
+</dd>
+<dt id="thunderlab.eventdetection.detect_peaks_fixed"><code class="name flex">
+<span>def <span class="ident">detect_peaks_fixed</span></span>(<span>data, threshold)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Detect peaks and troughs using a fixed, relative threshold.</p>
+<p>Helper function for detect_peaks().</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>array</code></dt>
+<dd>An 1-D array of input data where peaks are detected.</dd>
+<dt><strong><code>threshold</code></strong> :&ensp;<code>float</code></dt>
+<dd>A positive number setting the detection threshold,
+i.e. the minimum distance between peaks and troughs.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>peaks</code></strong> :&ensp;<code>array</code> of <code>ints</code></dt>
+<dd>Array of indices of detected peaks.</dd>
+<dt><strong><code>troughs</code></strong> :&ensp;<code>array</code> of <code>ints</code></dt>
+<dd>Array of indices of detected troughs.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.eventdetection.detect_peaks_array"><code class="name flex">
+<span>def <span class="ident">detect_peaks_array</span></span>(<span>data, threshold)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Detect peaks and troughs using a variable relative threshold.</p>
+<p>Helper function for detect_peaks().</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>array</code></dt>
+<dd>An 1-D array of input data where peaks are detected.</dd>
+<dt><strong><code>threshold</code></strong> :&ensp;<code>array</code></dt>
+<dd>A array of positive numbers setting the detection threshold,
+i.e. the minimum distance between peaks and troughs.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>peaks</code></strong> :&ensp;<code>array</code> of <code>ints</code></dt>
+<dd>Array of indices of detected peaks.</dd>
+<dt><strong><code>troughs</code></strong> :&ensp;<code>array</code> of <code>ints</code></dt>
+<dd>Array of indices of detected troughs.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.eventdetection.peak_width"><code class="name flex">
+<span>def <span class="ident">peak_width</span></span>(<span>time, data, peak_indices, trough_indices, peak_frac=0.5, base='max')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Width of each peak.</p>
+<p>Peak width is computed from interpolated threshold crossings at
+<code>peak_frac</code> hieght of each peak.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>time</code></strong> :&ensp;<code>array</code></dt>
+<dd>Time, must not be <code>None</code>.</dd>
+<dt><strong><code>data</code></strong> :&ensp;<code>array</code></dt>
+<dd>The data with the peaks.</dd>
+<dt><strong><code>peak_indices</code></strong> :&ensp;<code>array</code></dt>
+<dd>Indices of the peaks.</dd>
+<dt><strong><code>trough_indices</code></strong> :&ensp;<code>array</code></dt>
+<dd>Indices of corresponding troughs.</dd>
+<dt><strong><code>peak_frac</code></strong> :&ensp;<code>float</code></dt>
+<dd>Fraction of peak height where its width is measured.</dd>
+<dt><strong><code>base</code></strong> :&ensp;<code>string</code></dt>
+<dd>
+<p>Height and width of peak is measured relative to</p>
+<ul>
+<li>'left': trough to the left</li>
+<li>'right': trough to the right</li>
+<li>'min': the minimum of the two troughs to the left and to the right</li>
+<li>'max': the maximum of the two troughs to the left and to the right</li>
+<li>'mean': mean of the throughs to the left and to the rigth</li>
+<li>'closest': trough that is closest to peak</li>
+</ul>
+</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>widths</code></strong> :&ensp;<code>array</code></dt>
+<dd>Width at <code>peak_frac</code> height of each peak.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<h2 id="valueerror">Valueerror</h2>
+<p>If an invalid value is passed to <code>base</code>.</p></div>
+</dd>
+<dt id="thunderlab.eventdetection.peak_size_width"><code class="name flex">
+<span>def <span class="ident">peak_size_width</span></span>(<span>time, data, peak_indices, trough_indices, peak_frac=0.75, base='closest')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compute size and width of each peak.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>time</code></strong> :&ensp;<code>array</code></dt>
+<dd>Time, must not be <code>None</code>.</dd>
+<dt><strong><code>data</code></strong> :&ensp;<code>array</code></dt>
+<dd>The data with the peaks.</dd>
+<dt><strong><code>peak_indices</code></strong> :&ensp;<code>array</code></dt>
+<dd>Indices of the peaks.</dd>
+<dt><strong><code>trough_indices</code></strong> :&ensp;<code>array</code></dt>
+<dd>Indices of the troughs.</dd>
+<dt><strong><code>peak_frac</code></strong> :&ensp;<code>float</code></dt>
+<dd>Fraction of peak height where its width is measured.</dd>
+<dt><strong><code>base</code></strong> :&ensp;<code>string</code></dt>
+<dd>
+<p>Height and width of peak is measured relative to</p>
+<ul>
+<li>'left': trough to the left</li>
+<li>'right': trough to the right</li>
+<li>'min': the minimum of the two troughs to the left and to the right</li>
+<li>'max': the maximum of the two troughs to the left and to the right</li>
+<li>'mean': mean of the throughs to the left and to the rigth</li>
+<li>'closest': trough that is closest to peak</li>
+</ul>
+</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>peaks</code></strong> :&ensp;<code>2-D array</code></dt>
+<dd>First dimension is the peak index. Second dimension is
+time, height (value of data at the peak),
+size (peak height minus height of closest trough),
+width (at <code>peak_frac</code> size), 0.0 (count) of the peak. See <code><a title="thunderlab.eventdetection.peak_width" href="#thunderlab.eventdetection.peak_width">peak_width()</a></code>.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<h2 id="valueerror">Valueerror</h2>
+<p>If an invalid value is passed to <code>base</code>.</p></div>
+</dd>
+<dt id="thunderlab.eventdetection.threshold_crossings"><code class="name flex">
+<span>def <span class="ident">threshold_crossings</span></span>(<span>data, threshold)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Detect crossings of a threshold with positive and negative slope.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>array</code></dt>
+<dd>An 1-D array of input data where threshold crossings are detected.</dd>
+<dt><strong><code>threshold</code></strong> :&ensp;<code>float</code> or <code>array</code></dt>
+<dd>A number or array of numbers setting the threshold
+that needs to be crossed.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>up_indices</code></strong> :&ensp;<code>array</code> of <code>ints</code></dt>
+<dd>A list of indices where the threshold is crossed with positive slope.</dd>
+<dt><strong><code>down_indices</code></strong> :&ensp;<code>array</code> of <code>ints</code></dt>
+<dd>A list of indices where the threshold is crossed with negative slope.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<h2 id="indexerror">Indexerror</h2>
+<p>If <code>data</code> and <code>threshold</code> arrays differ in length.</p></div>
+</dd>
+<dt id="thunderlab.eventdetection.threshold_crossing_times"><code class="name flex">
+<span>def <span class="ident">threshold_crossing_times</span></span>(<span>time, data, threshold, up_indices, down_indices)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compute times of threshold crossings by linear interpolation.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>time</code></strong> :&ensp;<code>array</code></dt>
+<dd>Time, must not be <code>None</code>.</dd>
+<dt><strong><code>data</code></strong> :&ensp;<code>array</code></dt>
+<dd>The data.</dd>
+<dt><strong><code>threshold</code></strong> :&ensp;<code>float</code></dt>
+<dd>A number or array of numbers setting the threshold
+that was crossed.</dd>
+<dt><strong><code>up_indices</code></strong> :&ensp;<code>array</code> of <code>ints</code></dt>
+<dd>A list of indices where the threshold is crossed with positive slope.</dd>
+<dt><strong><code>down_indices</code></strong> :&ensp;<code>array</code> of <code>ints</code></dt>
+<dd>A list of indices where the threshold is crossed with negative slope.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>up_times</code></strong> :&ensp;<code>array</code> of <code>floats</code></dt>
+<dd>Interpolated times where the threshold is crossed with positive slope.</dd>
+<dt><strong><code>down_times</code></strong> :&ensp;<code>array</code> of <code>floats</code></dt>
+<dd>Interpolated times where the threshold is crossed with negative slope.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.eventdetection.trim"><code class="name flex">
+<span>def <span class="ident">trim</span></span>(<span>peaks, troughs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Trims the peaks and troughs arrays such that they have the same length.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>peaks</code></strong> :&ensp;<code>array</code></dt>
+<dd>List of peak indices or times.</dd>
+<dt><strong><code>troughs</code></strong> :&ensp;<code>array</code></dt>
+<dd>List of trough indices or times.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>peaks</code></strong> :&ensp;<code>array</code></dt>
+<dd>List of peak indices or times.</dd>
+<dt><strong><code>troughs</code></strong> :&ensp;<code>array</code></dt>
+<dd>List of trough indices or times.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.eventdetection.trim_to_peak"><code class="name flex">
+<span>def <span class="ident">trim_to_peak</span></span>(<span>peaks, troughs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Trims the peaks and troughs arrays such that they have the same length
+and the first peak comes first.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>peaks</code></strong> :&ensp;<code>array</code></dt>
+<dd>List of peak indices or times.</dd>
+<dt><strong><code>troughs</code></strong> :&ensp;<code>array</code></dt>
+<dd>List of trough indices or times.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>peaks</code></strong> :&ensp;<code>array</code></dt>
+<dd>List of peak indices or times.</dd>
+<dt><strong><code>troughs</code></strong> :&ensp;<code>array</code></dt>
+<dd>List of trough indices or times.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.eventdetection.trim_closest"><code class="name flex">
+<span>def <span class="ident">trim_closest</span></span>(<span>peaks, troughs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Trims the peaks and troughs arrays such that they have the same length
+and that peaks-troughs is on average as small as possible.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>peaks</code></strong> :&ensp;<code>array</code></dt>
+<dd>List of peak indices or times.</dd>
+<dt><strong><code>troughs</code></strong> :&ensp;<code>array</code></dt>
+<dd>List of trough indices or times.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>peaks</code></strong> :&ensp;<code>array</code></dt>
+<dd>List of peak indices or times.</dd>
+<dt><strong><code>troughs</code></strong> :&ensp;<code>array</code></dt>
+<dd>List of trough indices or times.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.eventdetection.merge_events"><code class="name flex">
+<span>def <span class="ident">merge_events</span></span>(<span>onsets, offsets, min_distance)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Merge events if they are closer than a minimum distance.</p>
+<p>If the beginning of an event (onset, peak, or positive threshold crossing,
+is too close to the end of the previous event (offset, trough, or negative
+threshold crossing) the two events are merged into a single one that begins
+with the first one and ends with the second one.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>onsets</code></strong> :&ensp;<code>1-D array</code></dt>
+<dd>The onsets (peaks, or positive threshold crossings) of the events
+as indices or times.</dd>
+<dt><strong><code>offsets</code></strong> :&ensp;<code>1-D array</code></dt>
+<dd>The offsets (troughs, or negative threshold crossings) of the events
+as indices or times.</dd>
+<dt><strong><code>min_distance</code></strong> :&ensp;<code>int</code> or <code>float</code></dt>
+<dd>The minimum distance between events. If the beginning of an event is separated
+from the end of the previous event by less than this distance then the two events
+are merged into one. If the event onsets and offsets are given in indices than
+min_distance is also in indices.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>merged_onsets</code></strong> :&ensp;<code>1-D array</code></dt>
+<dd>The onsets (peaks, or positive threshold crossings) of the merged events
+as indices or times according to onsets.</dd>
+<dt><strong><code>merged_offsets</code></strong> :&ensp;<code>1-D array</code></dt>
+<dd>The offsets (troughs, or negative threshold crossings) of the merged events
+as indices or times according to offsets.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.eventdetection.remove_events"><code class="name flex">
+<span>def <span class="ident">remove_events</span></span>(<span>onsets, offsets, min_duration, max_duration=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Remove events that are too short or too long.</p>
+<p>If the length of an event, i.e. <code>offset</code> (offset, trough, or negative
+threshold crossing) minus <code>onset</code> (onset, peak, or positive threshold crossing),
+is shorter than <code>min_duration</code> or longer than <code>max_duration</code>, then this event is
+removed.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>onsets</code></strong> :&ensp;<code>1-D array</code></dt>
+<dd>The onsets (peaks, or positive threshold crossings) of the events
+as indices or times.</dd>
+<dt><strong><code>offsets</code></strong> :&ensp;<code>1-D array</code></dt>
+<dd>The offsets (troughs, or negative threshold crossings) of the events
+as indices or times.</dd>
+<dt><strong><code>min_duration</code></strong> :&ensp;<code>int, float,</code> or <code>None</code></dt>
+<dd>The minimum duration of events. If the event offset minus the event onset
+is less than <code>min_duration</code>, then the event is removed from the lists.
+If the event onsets and offsets are given in indices than
+<code>min_duration</code> is also in indices. If <code>None</code> then this test is skipped.</dd>
+<dt><strong><code>max_duration</code></strong> :&ensp;<code>int, float,</code> or <code>None</code></dt>
+<dd>The maximum duration of events. If the event offset minus the event onset
+is larger than <code>max_duration</code>, then the event is removed from the lists.
+If the event onsets and offsets are given in indices than
+<code>max_duration</code> is also in indices. If <code>None</code> then this test is skipped.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>onsets</code></strong> :&ensp;<code>1-D array</code></dt>
+<dd>The onsets (peaks, or positive threshold crossings) of the events
+with too short and too long events removed as indices or times according to onsets.</dd>
+<dt><strong><code>offsets</code></strong> :&ensp;<code>1-D array</code></dt>
+<dd>The offsets (troughs, or negative threshold crossings) of the events
+with too short and too long events removed as indices or times according to offsets.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.eventdetection.widen_events"><code class="name flex">
+<span>def <span class="ident">widen_events</span></span>(<span>onsets, offsets, max_time, duration)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enlarge events on both sides without overlap.</p>
+<p>Subtracts <code>duration</code> from the <code>onsets</code> and adds <code>duration</code> to the offsets.
+If two succeeding events are separated by less than two times the
+<code>duration</code>, then the offset of the previous event and the onset of
+the following event are set at the center between the two events.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>onsets</code></strong> :&ensp;<code>1-D array</code></dt>
+<dd>The onsets (peaks, or positive threshold crossings) of the events
+as indices or times.</dd>
+<dt><strong><code>offsets</code></strong> :&ensp;<code>1-D array</code></dt>
+<dd>The offsets (troughs, or negative threshold crossings) of the events
+as indices or times.</dd>
+<dt><strong><code>max_time</code></strong> :&ensp;<code>int</code> or <code>float</code></dt>
+<dd>The maximum value for the end of the last event.
+If the event onsets and offsets are given in indices than
+max_time is the maximum possible index, i.e. the len of the
+data array on which the events where detected.</dd>
+<dt><strong><code>duration</code></strong> :&ensp;<code>int</code> or <code>float</code></dt>
+<dd>The number of indices or the time by which the events should
+be enlarged.
+If the event onsets and offsets are given in indices than
+duration is also in indices.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>onsets</code></strong> :&ensp;<code>1-D array</code></dt>
+<dd>The onsets (peaks, or positive threshold crossings) of the enlarged events.</dd>
+<dt><strong><code>offsets</code></strong> :&ensp;<code>1-D array</code></dt>
+<dd>The offsets (troughs, or negative threshold crossings) of the enlarged events.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.eventdetection.std_threshold"><code class="name flex">
+<span>def <span class="ident">std_threshold</span></span>(<span>data, win_size=None, thresh_fac=5.0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Estimates a threshold for peak detection based on the standard deviation of the data.</p>
+<p>The threshold is computed as the standard deviation of the data
+multiplied with <code>thresh_fac</code>.</p>
+<p>In case of Gaussian distributed data, setting <code>thresh_fac=2.0</code>
+(two standard deviations) captures 68% of the data,
+<code>thresh_fac=4.0</code> captures 95%, and <code>thresh_fac=6.0</code> 99.7%.</p>
+<p>If <code>win_size</code> is given, then the threshold is computed for
+half-overlapping windows of size <code>win_size</code> separately.
+In this
+case the returned threshold is an array of the same size as data.
+Without a <code>win_size</code> a single threshold value determined from the
+whole data array is returned.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>1-D array</code></dt>
+<dd>The data to be analyzed.</dd>
+<dt><strong><code>win_size</code></strong> :&ensp;<code>int</code> or <code>None</code></dt>
+<dd>Size of window in which a threshold value is computed.</dd>
+<dt><strong><code>thresh_fac</code></strong> :&ensp;<code>float</code></dt>
+<dd>Factor by which the standard deviation is multiplied to set the threshold.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>threshold</code></strong> :&ensp;<code>float</code> or <code>1-D array</code></dt>
+<dd>The computed threshold.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.eventdetection.median_std_threshold"><code class="name flex">
+<span>def <span class="ident">median_std_threshold</span></span>(<span>data, win_size=100, thresh_fac=6.0, n_snippets=1000)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Estimate a threshold for peak detection based on the median standard deviation of data snippets.</p>
+<p>On <code>n_snippets</code> snippets of <code>win_size</code> size the standard
+deviation of the data is estimated. The returned threshold is the
+median of these standard deviations that are larger than zero
+multiplied by <code>thresh_fac</code>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>1-D array</code> of <code>float</code></dt>
+<dd>The data to be analysed.</dd>
+<dt><strong><code>win_size</code></strong> :&ensp;<code>int</code></dt>
+<dd>Size of windows on which standarad deviations are computed.</dd>
+<dt><strong><code>thresh_fac</code></strong> :&ensp;<code>float</code></dt>
+<dd>Factor by which the median standard deviation is multiplied to set the threshold.</dd>
+<dt><strong><code>n_snippets</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of snippets on which the standard deviations are estimated.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>threshold</code></strong> :&ensp;<code>float</code></dt>
+<dd>The computed threshold.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.eventdetection.hist_threshold"><code class="name flex">
+<span>def <span class="ident">hist_threshold</span></span>(<span>data, win_size=None, thresh_fac=5.0, nbins=100, hist_height=np.float64(0.6065306597126334))</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Estimate a threshold for peak detection based on a histogram of the data.</p>
+<p>The standard deviation of the data is estimated from half the
+width of the histogram of the data at <code>hist_height</code> relative
+height.
+This estimates the data's standard deviation by ignoring
+tails of the distribution.</p>
+<p>However, you need enough data to robustly estimate the histogram.</p>
+<p>If <code>win_size</code> is given, then the threshold is computed for
+half-overlapping windows of size <code>win_size</code> separately.
+In this
+case the returned threshold is an array of the same size as data.
+Without a win_size a single threshold value determined from the
+whole data array is returned.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>1-D array</code></dt>
+<dd>The data to be analyzed.</dd>
+<dt><strong><code>win_size</code></strong> :&ensp;<code>int</code> or <code>None</code></dt>
+<dd>Size of window in which a threshold value is computed.</dd>
+<dt><strong><code>thresh_fac</code></strong> :&ensp;<code>float</code></dt>
+<dd>Factor by which the width of the histogram is multiplied to set the threshold.</dd>
+<dt><strong><code>nbins</code></strong> :&ensp;<code>int</code> or <code>list</code> of <code>floats</code></dt>
+<dd>Number of bins or the bins for computing the histogram.</dd>
+<dt><strong><code>hist_height</code></strong> :&ensp;<code>float</code></dt>
+<dd>Height between 0 and 1 at which the width of the histogram is computed.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>threshold</code></strong> :&ensp;<code>float</code> or <code>1-D array</code></dt>
+<dd>The computed threshold.</dd>
+<dt><strong><code>center</code></strong> :&ensp;<code>float</code> or <code>1-D array</code></dt>
+<dd>The center (mean) of the width of the histogram.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.eventdetection.minmax_threshold"><code class="name flex">
+<span>def <span class="ident">minmax_threshold</span></span>(<span>data, win_size=None, thresh_fac=0.8)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Estimate a threshold for peak detection based on minimum and maximum values of the data.</p>
+<p>The threshold is computed as the difference between maximum and
+minimum value of the data multiplied with <code>thresh_fac</code>.</p>
+<p>If <code>win_size</code> is given, then the threshold is computed for
+half-overlapping windows of size <code>win_size</code> separately.
+In this
+case the returned threshold is an array of the same size as data.
+Without a win_size a single threshold value determined from the
+whole data array is returned.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>1-D array</code></dt>
+<dd>The data to be analyzed.</dd>
+<dt><strong><code>win_size</code></strong> :&ensp;<code>int</code> or <code>None</code></dt>
+<dd>Size of window in which a threshold value is computed.</dd>
+<dt><strong><code>thresh_fac</code></strong> :&ensp;<code>float</code></dt>
+<dd>Factor by which the difference between minimum and maximum data value
+is multiplied to set the threshold.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>threshold</code></strong> :&ensp;<code>float</code> or <code>1-D array</code></dt>
+<dd>The computed threshold.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.eventdetection.percentile_threshold"><code class="name flex">
+<span>def <span class="ident">percentile_threshold</span></span>(<span>data, win_size=None, thresh_fac=1.0, percentile=1.0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Estimate a threshold for peak detection based on an inter-percentile range of the data.</p>
+<p>The threshold is computed as the range between the percentile and
+100.0-percentile percentiles of the data multiplied with
+thresh_fac.</p>
+<p>For very small values of <code>percentile</code> the estimated threshold
+approaches the one returned by <code><a title="thunderlab.eventdetection.minmax_threshold" href="#thunderlab.eventdetection.minmax_threshold">minmax_threshold()</a></code> (for same
+values of <code>thresh_fac</code>). For <code>percentile=16.0</code> and Gaussian
+distributed data, the returned theshold is twice the one returned
+by <code><a title="thunderlab.eventdetection.std_threshold" href="#thunderlab.eventdetection.std_threshold">std_threshold()</a></code> or <code><a title="thunderlab.eventdetection.hist_threshold" href="#thunderlab.eventdetection.hist_threshold">hist_threshold()</a></code>, i.e. twice the
+standard deviation.</p>
+<p>If you have knowledge about how many data points are in the tails of
+the distribution, then this method is preferred over
+<code><a title="thunderlab.eventdetection.hist_threshold" href="#thunderlab.eventdetection.hist_threshold">hist_threshold()</a></code>. For example, if you expect peaks that you want
+to detect using <code><a title="thunderlab.eventdetection.detect_peaks" href="#thunderlab.eventdetection.detect_peaks">detect_peaks()</a></code> at an average rate of 10Hz and
+these peaks are about 1ms wide, then you have a 1ms peak per 100ms
+period, i.e. the peaks make up 1% of the distribution. So you should
+set <code>percentile=1.0</code> or lower. For much lower percentile values, you
+might choose <code>thresh_fac</code> slightly smaller than one to capture also
+smaller peaks. Setting <code>percentile</code> slightly higher might not change
+the estimated threshold too much, since you start incorporating the
+noise floor with a large density, but you may want to set
+<code>thresh_fac</code> larger than one to reduce false detections.</p>
+<p>If <code>win_size</code> is given, then the threshold is computed for
+half-overlapping windows of size <code>win_size</code> separately.
+In this
+case the returned threshold is an array of the same size as data.
+Without a win_size a single threshold value determined from the
+whole data array is returned.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>1-D array</code></dt>
+<dd>The data to be analyzed.</dd>
+<dt><strong><code>win_size</code></strong> :&ensp;<code>int</code> or <code>None</code></dt>
+<dd>Size of window in which a threshold value is computed.</dd>
+<dt><strong><code>percentile</code></strong> :&ensp;<code>float</code></dt>
+<dd>The interpercentile range is computed at percentile and
+100.0-percentile.
+If zero, compute maximum minus minimum data value as the
+interpercentile range.</dd>
+<dt><strong><code>thresh_fac</code></strong> :&ensp;<code>float</code></dt>
+<dd>Factor by which the inter-percentile range of the data is
+multiplied to set the threshold.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>threshold</code></strong> :&ensp;<code>float</code> or <code>1-D array</code></dt>
+<dd>The computed threshold.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.eventdetection.snippets"><code class="name flex">
+<span>def <span class="ident">snippets</span></span>(<span>data, indices, start=-10, stop=10)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Cut out data arround each position given in indices.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>1-D array</code></dt>
+<dd>Data array from which snippets are extracted.</dd>
+<dt><strong><code>indices</code></strong> :&ensp;<code>list</code> of <code>int</code></dt>
+<dd>Indices around which snippets are cut out.</dd>
+<dt><strong><code>start</code></strong> :&ensp;<code>int</code></dt>
+<dd>Each snippet starts at index + start.</dd>
+<dt><strong><code>stop</code></strong> :&ensp;<code>int</code></dt>
+<dd>Each snippet ends at index + stop.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>snippet_data</code></strong> :&ensp;<code>2-D array</code></dt>
+<dd>The snippets: first index number of snippet, second index time.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.eventdetection.detect_dynamic_peaks"><code class="name flex">
+<span>def <span class="ident">detect_dynamic_peaks</span></span>(<span>data, threshold, min_thresh, tau, time=None, check_peak_func=None, check_trough_func=None, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Detect peaks and troughs using a relative threshold.</p>
+<p>The threshold decays dynamically towards min_thresh with time
+constant tau.
+Use <code>check_peak_func</code> or <code>check_trough_func</code> to
+reset the threshold to an appropriate size.</p>
+<p>Based on Bryan S. Todd and David C. Andrews (1999): The
+identification of peaks in physiological signals.
+Computers and
+Biomedical Research 32, 322-335.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>array</code></dt>
+<dd>An 1-D array of input data where peaks are detected.</dd>
+<dt><strong><code>threshold</code></strong> :&ensp;<code>float</code></dt>
+<dd>A positive number setting the minimum distance between peaks and troughs.</dd>
+<dt><strong><code>min_thresh</code></strong> :&ensp;<code>float</code></dt>
+<dd>The minimum value the threshold is allowed to assume.</dd>
+<dt><strong><code>tau</code></strong> :&ensp;<code>float</code></dt>
+<dd>The time constant of the the decay of the threshold value
+given in indices (<code>time</code> is None) or time units (<code>time</code> is not <code>None</code>).</dd>
+<dt><strong><code>time</code></strong> :&ensp;<code>array</code></dt>
+<dd>The (optional) 1-D array with the time corresponding to the data values.</dd>
+<dt><strong><code>check_peak_func</code></strong> :&ensp;<code>function</code></dt>
+<dd>
+<p>An optional function to be used for further evaluating and analysing a peak.
+The signature of the function is</p>
+<p><code>r, th = check_peak_func(time, data, peak_inx, index, min_inx, threshold, **kwargs)</code></p>
+<p>with the arguments:</p>
+<ul>
+<li>time (array): the full time array that might be None</li>
+<li>data (array): the full data array</li>
+<li>peak_inx (int): the index of the
+detected peak</li>
+<li>index (int): the current index</li>
+<li>min_inx (int): the index of the trough preceeding the peak (might be 0)</li>
+<li>threshold (float): the threshold value</li>
+<li>min_thresh (float): the minimum value the threshold is allowed to assume.</li>
+<li>tau (float): the time constant of the the decay of the threshold value
+given in indices (time is None) or time units (time is not None)</li>
+<li>**kwargs: further keyword arguments provided by the user</li>
+<li>r (scalar or np.array): a single number or an array with properties of the peak or None to skip the peak</li>
+<li>th (float): a new value for the threshold or None (to keep the original value)</li>
+</ul>
+</dd>
+<dt><strong><code>check_trough_func</code></strong> :&ensp;<code>function</code></dt>
+<dd>
+<p>An optional function to be used for further evaluating and analysing a trough.
+The signature of the function is</p>
+<p><code>r, th = check_trough_func(time, data, trough_inx, index, max_inx, threshold, **kwargs)</code></p>
+<p>with the arguments:</p>
+<ul>
+<li>time (array): the full time array that might be None</li>
+<li>data (array): the full data array</li>
+<li>trough_inx (int): the index of the
+detected trough</li>
+<li>index (int): the current index</li>
+<li>max_inx (int): the index of the peak preceeding the trough (might be 0)</li>
+<li>threshold (float): the threshold value</li>
+<li>min_thresh (float): the minimum value the threshold is allowed to assume.</li>
+<li>tau (float): the time constant of the the decay of the threshold value
+given in indices (time is None) or time units (time is not None)</li>
+<li>**kwargs: further keyword arguments provided by the user</li>
+<li>r (scalar or np.array): a single number or an array with properties of the trough or None to skip the trough</li>
+<li>th (float): a new value for the threshold or None (to keep the original value)</li>
+</ul>
+</dd>
+<dt><strong><code>kwargs</code></strong> :&ensp;<code>key-word arguments</code></dt>
+<dd>Arguments passed on to <code>check_peak_func</code> and <code>check_trough_func</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>peak_list</code></strong> :&ensp;<code>array</code></dt>
+<dd>List of peaks.</dd>
+<dt><strong><code>trough_list</code></strong> :&ensp;<code>array</code></dt>
+<dd>List of troughs.</dd>
+</dl>
+<ul>
+<li>If time is <code>None</code> and no <code>check_peak_func</code> is given,
+then these are lists of the indices where the peaks/troughs occur.</li>
+<li>If <code>time</code> is given and no <code>check_peak_func</code>/<code>check_trough_func</code> is given,
+then these are lists of the times where the peaks/troughs occur.</li>
+<li>If <code>check_peak_func</code> or <code>check_trough_func</code> is given,
+then these are lists of whatever <code>check_peak_func</code>/<code>check_trough_func</code> return.</li>
+</ul>
+<h2 id="raises">Raises</h2>
+<h2 id="valueerror">Valueerror</h2>
+<p>If <code>threshold &lt;= 0</code> or <code>min_thresh &lt;= 0</code> or <code>tau &lt;= 0</code>.</p>
+<h2 id="indexerror">Indexerror</h2>
+<p>If <code>data</code> and <code>time</code> arrays differ in length.</p></div>
+</dd>
+<dt id="thunderlab.eventdetection.accept_peak_size_threshold"><code class="name flex">
+<span>def <span class="ident">accept_peak_size_threshold</span></span>(<span>time, data, event_inx, index, min_inx, threshold, min_thresh, tau, thresh_ampl_fac=0.75, thresh_weight=0.02)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Accept each detected peak/trough and return its index or time.</p>
+<p>Adjust the threshold to the size of the detected peak.
+To be passed to the <code><a title="thunderlab.eventdetection.detect_dynamic_peaks" href="#thunderlab.eventdetection.detect_dynamic_peaks">detect_dynamic_peaks()</a></code> function.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>time</code></strong> :&ensp;<code>array</code></dt>
+<dd>Time values, can be <code>None</code>.</dd>
+<dt><strong><code>data</code></strong> :&ensp;<code>array</code></dt>
+<dd>The data in wich peaks and troughs are detected.</dd>
+<dt><strong><code>event_inx</code></strong> :&ensp;<code>int</code></dt>
+<dd>Index of the current peak/trough.</dd>
+<dt><strong><code>index</code></strong> :&ensp;<code>int</code></dt>
+<dd>Current index.</dd>
+<dt><strong><code>min_inx</code></strong> :&ensp;<code>int</code></dt>
+<dd>Index of the previous trough/peak.</dd>
+<dt><strong><code>threshold</code></strong> :&ensp;<code>float</code></dt>
+<dd>Threshold value.</dd>
+<dt><strong><code>min_thresh</code></strong> :&ensp;<code>float</code></dt>
+<dd>The minimum value the threshold is allowed to assume..</dd>
+<dt><strong><code>tau</code></strong> :&ensp;<code>float</code></dt>
+<dd>The time constant of the the decay of the threshold value
+given in indices (<code>time</code> is <code>None</code>) or time units (<code>time</code> is not <code>None</code>).</dd>
+<dt><strong><code>thresh_ampl_fac</code></strong> :&ensp;<code>float</code></dt>
+<dd>The new threshold is <code>thresh_ampl_fac</code> times the size of the current peak.</dd>
+<dt><strong><code>thresh_weight</code></strong> :&ensp;<code>float</code></dt>
+<dd>New threshold is weighted against current threshold with <code>thresh_weight</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>index</code></strong> :&ensp;<code>int</code></dt>
+<dd>Index of the peak/trough if <code>time</code> is <code>None</code>.</dd>
+<dt><strong><code>time</code></strong> :&ensp;<code>int</code></dt>
+<dd>Time of the peak/trough if <code>time</code> is not <code>None</code>.</dd>
+<dt><strong><code>threshold</code></strong> :&ensp;<code>float</code></dt>
+<dd>The new threshold to be used.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.eventdetection.main"><code class="name flex">
+<span>def <span class="ident">main</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul>
+<li><a href="#peak-detection">Peak detection</a></li>
+<li><a href="#threshold-crossings">Threshold crossings</a></li>
+<li><a href="#event-manipulation">Event manipulation</a></li>
+<li><a href="#threshold-estimation">Threshold estimation</a></li>
+<li><a href="#snippets">Snippets</a></li>
+<li><a href="#peak-detection-with-dynamic-threshold">Peak detection with dynamic threshold:</a></li>
+</ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="thunderlab" href="index.html">thunderlab</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="thunderlab.eventdetection.detect_peaks" href="#thunderlab.eventdetection.detect_peaks">detect_peaks</a></code></li>
+<li><code><a title="thunderlab.eventdetection.detect_peaks_fixed" href="#thunderlab.eventdetection.detect_peaks_fixed">detect_peaks_fixed</a></code></li>
+<li><code><a title="thunderlab.eventdetection.detect_peaks_array" href="#thunderlab.eventdetection.detect_peaks_array">detect_peaks_array</a></code></li>
+<li><code><a title="thunderlab.eventdetection.peak_width" href="#thunderlab.eventdetection.peak_width">peak_width</a></code></li>
+<li><code><a title="thunderlab.eventdetection.peak_size_width" href="#thunderlab.eventdetection.peak_size_width">peak_size_width</a></code></li>
+<li><code><a title="thunderlab.eventdetection.threshold_crossings" href="#thunderlab.eventdetection.threshold_crossings">threshold_crossings</a></code></li>
+<li><code><a title="thunderlab.eventdetection.threshold_crossing_times" href="#thunderlab.eventdetection.threshold_crossing_times">threshold_crossing_times</a></code></li>
+<li><code><a title="thunderlab.eventdetection.trim" href="#thunderlab.eventdetection.trim">trim</a></code></li>
+<li><code><a title="thunderlab.eventdetection.trim_to_peak" href="#thunderlab.eventdetection.trim_to_peak">trim_to_peak</a></code></li>
+<li><code><a title="thunderlab.eventdetection.trim_closest" href="#thunderlab.eventdetection.trim_closest">trim_closest</a></code></li>
+<li><code><a title="thunderlab.eventdetection.merge_events" href="#thunderlab.eventdetection.merge_events">merge_events</a></code></li>
+<li><code><a title="thunderlab.eventdetection.remove_events" href="#thunderlab.eventdetection.remove_events">remove_events</a></code></li>
+<li><code><a title="thunderlab.eventdetection.widen_events" href="#thunderlab.eventdetection.widen_events">widen_events</a></code></li>
+<li><code><a title="thunderlab.eventdetection.std_threshold" href="#thunderlab.eventdetection.std_threshold">std_threshold</a></code></li>
+<li><code><a title="thunderlab.eventdetection.median_std_threshold" href="#thunderlab.eventdetection.median_std_threshold">median_std_threshold</a></code></li>
+<li><code><a title="thunderlab.eventdetection.hist_threshold" href="#thunderlab.eventdetection.hist_threshold">hist_threshold</a></code></li>
+<li><code><a title="thunderlab.eventdetection.minmax_threshold" href="#thunderlab.eventdetection.minmax_threshold">minmax_threshold</a></code></li>
+<li><code><a title="thunderlab.eventdetection.percentile_threshold" href="#thunderlab.eventdetection.percentile_threshold">percentile_threshold</a></code></li>
+<li><code><a title="thunderlab.eventdetection.snippets" href="#thunderlab.eventdetection.snippets">snippets</a></code></li>
+<li><code><a title="thunderlab.eventdetection.detect_dynamic_peaks" href="#thunderlab.eventdetection.detect_dynamic_peaks">detect_dynamic_peaks</a></code></li>
+<li><code><a title="thunderlab.eventdetection.accept_peak_size_threshold" href="#thunderlab.eventdetection.accept_peak_size_threshold">accept_peak_size_threshold</a></code></li>
+<li><code><a title="thunderlab.eventdetection.main" href="#thunderlab.eventdetection.main">main</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.0</a>.</p>
+</footer>
+</body>
+</html>
