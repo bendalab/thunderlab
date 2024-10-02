@@ -49,7 +49,7 @@ __pdoc__['TableData.__str__'] = True
 
 
 default_missing_str = '-'
-"""Default string indicating nan data elements whne outputting data."""
+"""Default string indicating nan data elements when outputting data."""
 
 default_missing_inputs = ['na', 'NA', 'nan', 'NAN', '-']
 """Default strings that are translated to nan when loading table data."""
@@ -346,7 +346,7 @@ class TableData(object):
     """dict: Mapping of file extensions to the output formats."""
 
     def __init__(self, data=None, header=None, units=None, formats=None,
-                 missing=default_missing_inputs):
+                 missing=default_missing_inputs, stop=None):
         self.data = []
         self.shape = (0, 0)
         self.header = []
@@ -392,7 +392,7 @@ class TableData(object):
                     for c, val in enumerate(data):
                         self.data[c].append(val)
             else:
-                self.load(data, missing)
+                self.load(data, missing, stop)
         
     def append(self, label, unit=None, formats=None, value=None,
                fac=None, key=None):
@@ -2506,7 +2506,7 @@ class TableData(object):
         return stream.getvalue()
                 
 
-    def load(self, fh, missing=default_missing_inputs):
+    def load(self, fh, missing=default_missing_inputs, stop=None):
         """Load table from file or stream.
 
         File type and properties are automatically inferred.
@@ -2518,6 +2518,8 @@ class TableData(object):
         missing: str or list of str
             Missing data are indicated by this string and
             are translated to np.nan.
+        stop: str or None
+            If the beginning of a line matches `stop`, then stop reading the file.
 
         Raises
         ------
@@ -2641,6 +2643,8 @@ class TableData(object):
         table_format='dat'        
         for line in fh:
             line = line.rstrip()
+            if line == stop:
+                break;
             if line:
                 if r'\begin{tabular' in line:
                     table_format='tex'
@@ -2826,6 +2830,8 @@ class TableData(object):
         # read remaining data:
         for line in fh:
             line = line.rstrip()
+            if line == stop:
+                break;
             if table_format == 'tex':
                 if r'\end{tabular' in line or r'\hline' in line:
                     break
