@@ -854,16 +854,16 @@ def extract_container_data(data_dict, datakey=None,
             if dkey in data_dict:
                 raw_data = data_dict[dkey]
                 break
-        if np.prod(raw_data.shape) == 0:
+        if len(raw_data) == 0:
             raise ValueError(f"invalid key(s) {', '.join(datakey)} for requesting data")
     else:
         # find largest 2D array:
         for d in data_dict:
             if hasattr(data_dict[d], 'shape'):
                 if 1 <= len(data_dict[d].shape) <= 2 and \
-                   np.prod(data_dict[d].shape) > np.prod(raw_data.shape):
+                   len(data_dict[d]) > len(raw_data):
                     raw_data = data_dict[d]
-    if np.prod(raw_data.shape) == 0:
+    if len(raw_data) == 0:
         raise ValueError('no data found')
     # make 2D:
     if len(raw_data.shape) == 1:
@@ -1494,8 +1494,8 @@ class DataLoader(AudioLoader):
 
     def __init__(self, file_path=None, buffersize=10.0, backsize=0.0,
                  verbose=0, **meta_kwargs):
-        super(DataLoader, self).__init__(None, buffersize, backsize,
-                                         verbose, **meta_kwargs)
+        super().__init__(None, buffersize, backsize,
+                         verbose, **meta_kwargs)
         if file_path is not None:
             self.open(file_path, buffersize, backsize, verbose, **meta_kwargs)
 
@@ -1825,6 +1825,7 @@ class DataLoader(AudioLoader):
         self.ampl_min = -amax
         self.ampl_max = +amax
         self.offset = 0
+        self.buffer_changed = np.zeros(self.channels, dtype=bool)
         self.bufferframes = self.frames
         self.backsize = 0
         self.close = self._close_container
