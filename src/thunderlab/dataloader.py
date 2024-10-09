@@ -1845,7 +1845,7 @@ class DataLoader(AudioLoader):
 
     def _load_buffer_container(self, r_offset, r_size, buffer):
         """Load new data from container."""
-        pass
+        buffer[:, :] = self.buffer[r_offset:r_offset + r_size, :]
 
 
     # raw data interface:
