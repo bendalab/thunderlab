@@ -861,7 +861,7 @@ def extract_container_data(data_dict, datakey=None,
         for d in data_dict:
             if hasattr(data_dict[d], 'shape'):
                 if 1 <= len(data_dict[d].shape) <= 2 and \
-                   len(data_dict[d]) > len(raw_data):
+                   np.max(data_dict[d].shape) > np.max(raw_data.shape):
                     raw_data = data_dict[d]
     if len(raw_data) == 0:
         raise ValueError('no data found')
