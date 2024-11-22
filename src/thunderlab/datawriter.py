@@ -5,6 +5,7 @@
 - `available_encodings()`: encodings of a data file format.
 - `format_from_extension()`: deduce data file format from file extension.
 - `recode_array()`: recode array of floats.
+- `insert_container_metadata()`: insert flattened metadata to data dictionary for a container file format.
 """
 
 import os
@@ -587,6 +588,25 @@ def write_pickle(filepath, data, rate, amax=1.0, unit=None,
     return filepath
 
 
+def insert_container_metadata(metadata, data_dict, metadatakey='metadata'):
+    """Insert flattened metadata to data dictionary for a container file format.
+
+    Parameters
+    ----------
+    metadata: nested dict
+        Nested dictionary with key-value pairs of the meta data.
+    data_dict: dict
+        Dictionary of the data items contained in the container to
+        which the metadata should be added.
+    metadatakey: str or list of str
+        Name of the variable holding the metadata.
+    """
+    fmeta = flatten_metadata(metadata, True, sep='__')
+    for k in list(fmeta):
+        fmeta[metadatakey + '__' + k] = fmeta.pop(k)
+    data_dict.update(fmeta)
+    
+
 def formats_numpy():
     """Data formats supported by numpy.savez().
 
@@ -698,10 +718,7 @@ def write_numpy(filepath, data, rate, amax=1.0, unit=None,
     if unit:
         ddict['unit'] = unit
     if metadata:
-        fmeta = flatten_metadata(metadata, True, sep='__')
-        for k in list(fmeta):
-            fmeta['metadata__'+k] = fmeta.pop(k)
-        ddict.update(fmeta)
+        insert_container_metadata(metadata, ddict, 'metadata')
     if locs is not None and len(locs) > 0:
         if locs.ndim == 1:
             ddict['positions'] = locs
@@ -834,10 +851,7 @@ def write_mat(filepath, data, rate, amax=1.0, unit=None,
     if unit:
         ddict['unit'] = unit
     if metadata:
-        fmeta = flatten_metadata(metadata, True, sep='__')
-        for k in list(fmeta):
-            fmeta['metadata__'+k] = fmeta.pop(k)
-        ddict.update(fmeta)
+        insert_container_metadata(metadata, ddict, 'metadata')
     if locs is not None and len(locs) > 0:
         if locs.ndim == 1:
             ddict['positions'] = locs

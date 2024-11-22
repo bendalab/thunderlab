@@ -54,6 +54,7 @@ locs, labels = markers('data.wav')
 
 ## Aditional, format specific functions
 
+- `extract_container_metadata()`: extract metadata from dictionary loaded from a container file.
 - `relacs_samplerate_unit()`: retrieve sampling rate and unit from a relacs stimuli.dat file.
 - `relacs_header()`: read key-value pairs from relacs *.dat file headers.
 - `fishgrid_grids()`: retrieve grid sizes from a fishgrid.cfg file.
