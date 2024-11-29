@@ -1,0 +1,767 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.3">
+<title>thunderlab.datawriter API documentation</title>
+<meta name="description" content="Writing numpy arrays of floats to data files …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\(","\\)"] ], processEscapes: true } });</script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>thunderlab.datawriter</code></h1>
+</header>
+<section id="section-intro">
+<p>Writing numpy arrays of floats to data files.</p>
+<ul>
+<li><code><a title="thunderlab.datawriter.write_data" href="#thunderlab.datawriter.write_data">write_data()</a></code>: write data into a file.</li>
+<li><code><a title="thunderlab.datawriter.available_formats" href="#thunderlab.datawriter.available_formats">available_formats()</a></code>: supported data and audio file formats.</li>
+<li><code><a title="thunderlab.datawriter.available_encodings" href="#thunderlab.datawriter.available_encodings">available_encodings()</a></code>: encodings of a data file format.</li>
+<li><code><a title="thunderlab.datawriter.format_from_extension" href="#thunderlab.datawriter.format_from_extension">format_from_extension()</a></code>: deduce data file format from file extension.</li>
+<li><code><a title="thunderlab.datawriter.recode_array" href="#thunderlab.datawriter.recode_array">recode_array()</a></code>: recode array of floats.</li>
+<li><code><a title="thunderlab.datawriter.insert_container_metadata" href="#thunderlab.datawriter.insert_container_metadata">insert_container_metadata()</a></code>: insert flattened metadata to data dictionary for a container file format.</li>
+</ul>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-variables">Global variables</h2>
+<dl>
+<dt id="thunderlab.datawriter.data_modules"><code class="name">var <span class="ident">data_modules</span></code></dt>
+<dd>
+<div class="desc"><p>Dictionary with availability of various modules needed for writing data.
+Keys are the module names, values are booleans.</p></div>
+</dd>
+<dt id="thunderlab.datawriter.data_formats_funcs"><code class="name">var <span class="ident">data_formats_funcs</span></code></dt>
+<dd>
+<div class="desc"><p>List of implemented formats functions.</p>
+<p>Each element of the list is a tuple with the format's name, the
+module's name in <code><a title="thunderlab.datawriter.data_modules" href="#thunderlab.datawriter.data_modules">data_modules</a></code> or None, and the formats function.</p></div>
+</dd>
+<dt id="thunderlab.datawriter.data_encodings_funcs"><code class="name">var <span class="ident">data_encodings_funcs</span></code></dt>
+<dd>
+<div class="desc"><p>List of implemented encodings functions.</p>
+<p>Each element of the list is a tuple with the module's name and the encodings function.</p></div>
+</dd>
+<dt id="thunderlab.datawriter.data_writer_funcs"><code class="name">var <span class="ident">data_writer_funcs</span></code></dt>
+<dd>
+<div class="desc"><p>Dictionary of implemented write functions.</p>
+<p>Keys are the format's name and values the corresponding write
+function.</p></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="thunderlab.datawriter.format_from_extension"><code class="name flex">
+<span>def <span class="ident">format_from_extension</span></span>(<span>filepath)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Deduce data file format from file extension.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of the data file.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code></dt>
+<dd>Data format deduced from file extension.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.datawriter.recode_array"><code class="name flex">
+<span>def <span class="ident">recode_array</span></span>(<span>data, amax, encoding)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Recode array of floats.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>array</code> of <code>floats</code></dt>
+<dd>Data array with values ranging between -1 and 1</dd>
+<dt><strong><code>amax</code></strong> :&ensp;<code>float</code></dt>
+<dd>Maximum amplitude of data range.</dd>
+<dt><strong><code>encoding</code></strong> :&ensp;<code>str</code></dt>
+<dd>Encoding, one of PCM_16, PCM_32, PCM_64, FLOAT or DOUBLE.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>buffer</code></strong> :&ensp;<code>array</code></dt>
+<dd>The data recoded according to <code>encoding</code>.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.datawriter.formats_relacs"><code class="name flex">
+<span>def <span class="ident">formats_relacs</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Data format of the relacs file format.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>formats</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of supported file formats as strings.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.datawriter.encodings_relacs"><code class="name flex">
+<span>def <span class="ident">encodings_relacs</span></span>(<span>format=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Encodings of the relacs file format.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code></dt>
+<dd>The file format.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>encodings</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of supported encodings as strings.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.datawriter.write_relacs"><code class="name flex">
+<span>def <span class="ident">write_relacs</span></span>(<span>filepath,<br>data,<br>rate,<br>amax=1.0,<br>unit=None,<br>metadata=None,<br>locs=None,<br>labels=None,<br>format=None,<br>encoding=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Write data as relacs raw files.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>str</code></dt>
+<dd>Full path of folder where to write relacs files.</dd>
+<dt><strong><code>data</code></strong> :&ensp;<code>1-D</code> or <code>2-D array</code> of <code>floats</code></dt>
+<dd>Array with the data (first index time, optional second index channel).</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>Sampling rate of the data in Hertz.</dd>
+<dt><strong><code>amax</code></strong> :&ensp;<code>float</code></dt>
+<dd>Maximum possible amplitude of the data in <code>unit</code>.</dd>
+<dt><strong><code>unit</code></strong> :&ensp;<code>str</code></dt>
+<dd>Unit of the data.</dd>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Additional metadata saved into <code>info.dat</code>.</dd>
+<dt><strong><code>locs</code></strong> :&ensp;<code>None</code> or <code>1-D</code> or <code>2-D array</code> of <code>ints</code></dt>
+<dd>Marker positions (first column) and spans (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>labels</code></strong> :&ensp;<code>None</code> or <code>2-D array</code> of <code>string objects</code></dt>
+<dd>Labels (first column) and texts (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>File format, only None or 'RELACS' are supported.</dd>
+<dt><strong><code>encoding</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>Encoding of the data. Only None or 'FLOAT' are supported.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>On success, the actual file name used for writing the data.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ValueError</code></dt>
+<dd>Invalid <code>filepath</code>.</dd>
+<dt><code>ValueError</code></dt>
+<dd>File format or encoding not supported.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.datawriter.formats_fishgrid"><code class="name flex">
+<span>def <span class="ident">formats_fishgrid</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Data format of the fishgrid file format.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>formats</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of supported file formats as strings.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.datawriter.encodings_fishgrid"><code class="name flex">
+<span>def <span class="ident">encodings_fishgrid</span></span>(<span>format=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Encodings of the fishgrid file format.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code></dt>
+<dd>The file format.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>encodings</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of supported encodings as strings.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.datawriter.write_fishgrid"><code class="name flex">
+<span>def <span class="ident">write_fishgrid</span></span>(<span>filepath,<br>data,<br>rate,<br>amax=1.0,<br>unit=None,<br>metadata=None,<br>locs=None,<br>labels=None,<br>format=None,<br>encoding=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Write data as fishgrid raw files.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>str</code></dt>
+<dd>Full path of the folder where to write fishgrid files.</dd>
+<dt><strong><code>data</code></strong> :&ensp;<code>1-D</code> or <code>2-D array</code> of <code>floats</code></dt>
+<dd>Array with the data (first index time, optional second index channel).</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>Sampling rate of the data in Hertz.</dd>
+<dt><strong><code>amax</code></strong> :&ensp;<code>float</code></dt>
+<dd>Maximum possible amplitude of the data in <code>unit</code>.</dd>
+<dt><strong><code>unit</code></strong> :&ensp;<code>str</code></dt>
+<dd>Unit of the data.</dd>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Additional metadata saved into the <code>fishgrid.cfg</code>.</dd>
+<dt><strong><code>locs</code></strong> :&ensp;<code>None</code> or <code>1-D</code> or <code>2-D array</code> of <code>ints</code></dt>
+<dd>Marker positions (first column) and spans (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>labels</code></strong> :&ensp;<code>None</code> or <code>2-D array</code> of <code>string objects</code></dt>
+<dd>Labels (first column) and texts (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>File format, only None or 'FISHGRID' are supported.</dd>
+<dt><strong><code>encoding</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>Encoding of the data. Only None or 'FLOAT' are supported.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>On success, the actual file name used for writing the data.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ValueError</code></dt>
+<dd>Invalid <code>filepath</code>.</dd>
+<dt><code>ValueError</code></dt>
+<dd>File format or encoding not supported.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.datawriter.formats_pickle"><code class="name flex">
+<span>def <span class="ident">formats_pickle</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Data formats supported by pickle.dump().</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>formats</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of supported file formats as strings.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.datawriter.encodings_pickle"><code class="name flex">
+<span>def <span class="ident">encodings_pickle</span></span>(<span>format=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Encodings of the pickle format.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code></dt>
+<dd>The file format.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>encodings</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of supported encodings as strings.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.datawriter.write_pickle"><code class="name flex">
+<span>def <span class="ident">write_pickle</span></span>(<span>filepath,<br>data,<br>rate,<br>amax=1.0,<br>unit=None,<br>metadata=None,<br>locs=None,<br>labels=None,<br>format=None,<br>encoding=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Write data into python pickle file.</p>
+<h2 id="documentation">Documentation</h2>
+<p><a href="https://docs.python.org/3/library/pickle.html">https://docs.python.org/3/library/pickle.html</a></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>str</code></dt>
+<dd>Full path and name of the file to write.</dd>
+<dt><strong><code>data</code></strong> :&ensp;<code>1-D</code> or <code>2-D array</code> of <code>floats</code></dt>
+<dd>Array with the data (first index time, optional second index channel).
+Stored under the key "data".</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>Sampling rate of the data in Hertz.
+Stored under the key "rate".</dd>
+<dt><strong><code>amax</code></strong> :&ensp;<code>float</code></dt>
+<dd>Maximum possible amplitude of the data in <code>unit</code>.
+Stored under the key "amax".</dd>
+<dt><strong><code>unit</code></strong> :&ensp;<code>str</code></dt>
+<dd>Unit of the data.
+Stored under the key "unit".</dd>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Additional metadata saved into the pickle.
+Stored under the key "metadata".</dd>
+<dt><strong><code>locs</code></strong> :&ensp;<code>None</code> or <code>1-D</code> or <code>2-D array</code> of <code>ints</code></dt>
+<dd>Marker positions (first column) and spans (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>labels</code></strong> :&ensp;<code>None</code> or <code>2-D array</code> of <code>string objects</code></dt>
+<dd>Labels (first column) and texts (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>File format, only None or 'PKL' are supported.</dd>
+<dt><strong><code>encoding</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>Encoding of the data.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>On success, the actual file name used for writing the data.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ImportError</code></dt>
+<dd>The pickle module is not available.</dd>
+<dt><code>ValueError</code></dt>
+<dd>Invalid <code>filepath</code>.</dd>
+<dt><code>ValueError</code></dt>
+<dd>File format or encoding not supported.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.datawriter.insert_container_metadata"><code class="name flex">
+<span>def <span class="ident">insert_container_metadata</span></span>(<span>metadata, data_dict, metadatakey='metadata')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Insert flattened metadata to data dictionary for a container file format.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Nested dictionary with key-value pairs of the meta data.</dd>
+<dt><strong><code>data_dict</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Dictionary of the data items contained in the container to
+which the metadata should be added.</dd>
+<dt><strong><code>metadatakey</code></strong> :&ensp;<code>str</code> or <code>list</code> of <code>str</code></dt>
+<dd>Name of the variable holding the metadata.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.datawriter.formats_numpy"><code class="name flex">
+<span>def <span class="ident">formats_numpy</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Data formats supported by numpy.savez().</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>formats</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of supported file formats as strings.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.datawriter.encodings_numpy"><code class="name flex">
+<span>def <span class="ident">encodings_numpy</span></span>(<span>format=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Encodings of the numpy file format.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code></dt>
+<dd>The file format.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>encodings</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of supported encodings as strings.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.datawriter.write_numpy"><code class="name flex">
+<span>def <span class="ident">write_numpy</span></span>(<span>filepath,<br>data,<br>rate,<br>amax=1.0,<br>unit=None,<br>metadata=None,<br>locs=None,<br>labels=None,<br>format=None,<br>encoding=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Write data into numpy npz file.</p>
+<h2 id="documentation">Documentation</h2>
+<p><a href="https://numpy.org/doc/stable/reference/generated/numpy.savez.html">https://numpy.org/doc/stable/reference/generated/numpy.savez.html</a></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>str</code></dt>
+<dd>Full path and name of the file to write.</dd>
+<dt><strong><code>data</code></strong> :&ensp;<code>1-D</code> or <code>2-D array</code> of <code>floats</code></dt>
+<dd>Array with the data (first index time, optional second index channel).
+Stored under the key "data".</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>Sampling rate of the data in Hertz.
+Stored under the key "rate".</dd>
+<dt><strong><code>amax</code></strong> :&ensp;<code>float</code></dt>
+<dd>Maximum possible amplitude of the data in <code>unit</code>.
+Stored under the key "amax".</dd>
+<dt><strong><code>unit</code></strong> :&ensp;<code>str</code></dt>
+<dd>Unit of the data.
+Stored under the key "unit".</dd>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Additional metadata saved into the numpy file.
+Flattened dictionary entries stored under keys
+starting with "metadata__".</dd>
+<dt><strong><code>locs</code></strong> :&ensp;<code>None</code> or <code>1-D</code> or <code>2-D array</code> of <code>ints</code></dt>
+<dd>Marker positions (first column) and spans (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>labels</code></strong> :&ensp;<code>None</code> or <code>2-D array</code> of <code>string objects</code></dt>
+<dd>Labels (first column) and texts (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>File format, only None or 'NPZ' are supported.</dd>
+<dt><strong><code>encoding</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>Encoding of the data.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>On success, the actual file name used for writing the data.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ImportError</code></dt>
+<dd>The numpy module is not available.</dd>
+<dt><code>ValueError</code></dt>
+<dd>Invalid <code>filepath</code>.</dd>
+<dt><code>ValueError</code></dt>
+<dd>File format or encoding not supported.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.datawriter.formats_mat"><code class="name flex">
+<span>def <span class="ident">formats_mat</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Data formats supported by scipy.io.savemat().</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>formats</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of supported file formats as strings.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.datawriter.encodings_mat"><code class="name flex">
+<span>def <span class="ident">encodings_mat</span></span>(<span>format=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Encodings of the matlab format.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code></dt>
+<dd>The file format.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>encodings</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of supported encodings as strings.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.datawriter.write_mat"><code class="name flex">
+<span>def <span class="ident">write_mat</span></span>(<span>filepath,<br>data,<br>rate,<br>amax=1.0,<br>unit=None,<br>metadata=None,<br>locs=None,<br>labels=None,<br>format=None,<br>encoding=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Write data into matlab file.</p>
+<h2 id="documentation">Documentation</h2>
+<p><a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.io.savemat.html">https://docs.scipy.org/doc/scipy/reference/generated/scipy.io.savemat.html</a></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>str</code></dt>
+<dd>Full path and name of the file to write.
+Stored under the key "data".</dd>
+<dt><strong><code>data</code></strong> :&ensp;<code>1-D</code> or <code>2-D array</code> of <code>floats</code></dt>
+<dd>Array with the data (first index time, optional second index channel).
+Stored under the key "data".</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>Sampling rate of the data in Hertz.
+Stored under the key "rate".</dd>
+<dt><strong><code>amax</code></strong> :&ensp;<code>float</code></dt>
+<dd>Maximum possible amplitude of the data in <code>unit</code>.
+Stored under the key "amax".</dd>
+<dt><strong><code>unit</code></strong> :&ensp;<code>str</code></dt>
+<dd>Unit of the data.
+Stored under the key "unit".</dd>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Additional metadata saved into the mat file.
+Stored under the key "metadata".</dd>
+<dt><strong><code>locs</code></strong> :&ensp;<code>None</code> or <code>1-D</code> or <code>2-D array</code> of <code>ints</code></dt>
+<dd>Marker positions (first column) and spans (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>labels</code></strong> :&ensp;<code>None</code> or <code>2-D array</code> of <code>string objects</code></dt>
+<dd>Labels (first column) and texts (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>File format, only None or 'MAT' are supported.</dd>
+<dt><strong><code>encoding</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>Encoding of the data.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>On success, the actual file name used for writing the data.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ImportError</code></dt>
+<dd>The scipy.io module is not available.</dd>
+<dt><code>ValueError</code></dt>
+<dd>Invalid <code>filepath</code>.</dd>
+<dt><code>ValueError</code></dt>
+<dd>File format or encoding not supported.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.datawriter.formats_audioio"><code class="name flex">
+<span>def <span class="ident">formats_audioio</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Data formats supported by audioio.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>formats</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of supported file formats as strings.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.datawriter.encodings_audio"><code class="name flex">
+<span>def <span class="ident">encodings_audio</span></span>(<span>format)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Encodings of any audio format.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code></dt>
+<dd>The file format.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>encodings</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of supported encodings as strings.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.datawriter.write_audioio"><code class="name flex">
+<span>def <span class="ident">write_audioio</span></span>(<span>filepath,<br>data,<br>rate,<br>amax=1.0,<br>unit=None,<br>metadata=None,<br>locs=None,<br>labels=None,<br>format=None,<br>encoding=None,<br>gainkey=['AIMaxVolt', 'gain'],<br>sep='.')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Write data into audio file.</p>
+<p>If a gain setting is available in the metadata, then the data are divided
+by the gain before they are stored in the audio file.
+After this operation, the data values need to range between -1 and 1,
+in particular if the data are encoded as integers
+(i.e. PCM_16, PCM_32 and PCM_64).
+Note, that this function does not check for this requirement!</p>
+<h2 id="documentation">Documentation</h2>
+<p><a href="https://bendalab.github.io/audioio/">https://bendalab.github.io/audioio/</a></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>str</code></dt>
+<dd>Full path and name of the file to write.</dd>
+<dt><strong><code>data</code></strong> :&ensp;<code>1-D</code> or <code>2-D array</code> of <code>floats</code></dt>
+<dd>Array with the data (first index time, optional second index channel).</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>Sampling rate of the data in Hertz.</dd>
+<dt><strong><code>amax</code></strong> :&ensp;<code>float</code></dt>
+<dd>Maximum possible amplitude of the data in <code>unit</code>.</dd>
+<dt><strong><code>unit</code></strong> :&ensp;<code>str</code></dt>
+<dd>Unit of the data. If supplied and a gain is found in the metadata it
+has to match the unit of the gain. If no gain is found in the metadata
+and metadata is not None, then a gain of one with this unit is added
+to the metadata using the first key in <code>gainkey</code>.</dd>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Metadata saved into the audio file. If it contains a gain,
+the gain factor is used to divide the data down into a
+range between -1 and 1.</dd>
+<dt><strong><code>locs</code></strong> :&ensp;<code>None</code> or <code>1-D</code> or <code>2-D array</code> of <code>ints</code></dt>
+<dd>Marker positions (first column) and spans (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>labels</code></strong> :&ensp;<code>None</code> or <code>2-D array</code> of <code>string objects</code></dt>
+<dd>Labels (first column) and texts (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>File format. If None deduce file format from filepath.
+See <code><a title="thunderlab.datawriter.available_formats" href="#thunderlab.datawriter.available_formats">available_formats()</a></code> for possible values.</dd>
+<dt><strong><code>encoding</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>Encoding of the data. See <code><a title="thunderlab.datawriter.available_encodings" href="#thunderlab.datawriter.available_encodings">available_encodings()</a></code> for possible values.
+If None or empty string use 'PCM_16'.</dd>
+<dt><strong><code>gainkey</code></strong> :&ensp;<code>str</code> or <code>list</code> of <code>str</code></dt>
+<dd>Key in the file's metadata that holds some gain information.
+If found, the data will be multiplied with the gain,
+and if available, the corresponding unit is returned.
+See the <a href="https://bendalab.github.io/audioio/api/audiometadata.html#audioio.audiometadata.get_gain">audioio.get_gain()</a> function for details.</dd>
+<dt><strong><code>sep</code></strong> :&ensp;<code>str</code></dt>
+<dd>String that separates section names in <code>gainkey</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>On success, the actual file name used for writing the data.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ImportError</code></dt>
+<dd>The audioio module is not available.</dd>
+<dt><code>ValueError</code></dt>
+<dd>Invalid <code>filepath</code> or <code>unit</code> does not match gain in metadata.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.datawriter.available_formats"><code class="name flex">
+<span>def <span class="ident">available_formats</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Data and audio file formats supported by any of the installed modules.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>formats</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of supported file formats as strings.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.datawriter.available_encodings"><code class="name flex">
+<span>def <span class="ident">available_encodings</span></span>(<span>format)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Encodings of a data file format.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code></dt>
+<dd>The file format.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>encodings</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>List of supported encodings as strings.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.datawriter.write_data"><code class="name flex">
+<span>def <span class="ident">write_data</span></span>(<span>filepath,<br>data,<br>rate,<br>amax=1.0,<br>unit=None,<br>metadata=None,<br>locs=None,<br>labels=None,<br>format=None,<br>encoding=None,<br>verbose=0,<br>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Write data into a file.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>str</code></dt>
+<dd>Full path and name of the file to write.
+File format is determined from extension.</dd>
+<dt><strong><code>data</code></strong> :&ensp;<code>1-D</code> or <code>2-D array</code> of <code>floats</code></dt>
+<dd>Array with the data (first index time, second index channel).</dd>
+<dt><strong><code>rate</code></strong> :&ensp;<code>float</code></dt>
+<dd>Sampling rate of the data in Hertz.</dd>
+<dt><strong><code>amax</code></strong> :&ensp;<code>float</code></dt>
+<dd>Maximum possible amplitude of the data in <code>unit</code>.</dd>
+<dt><strong><code>unit</code></strong> :&ensp;<code>str</code></dt>
+<dd>Unit of the data.</dd>
+<dt><strong><code>metadata</code></strong> :&ensp;<code>nested dict</code></dt>
+<dd>Additional metadata.</dd>
+<dt><strong><code>locs</code></strong> :&ensp;<code>None</code> or <code>1-D</code> or <code>2-D array</code> of <code>ints</code></dt>
+<dd>Marker positions (first column) and spans (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>labels</code></strong> :&ensp;<code>None</code> or <code>2-D array</code> of <code>string objects</code></dt>
+<dd>Labels (first column) and texts (optional second column)
+for each marker (rows).</dd>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>File format. If None deduce file format from filepath.
+See <code><a title="thunderlab.datawriter.available_formats" href="#thunderlab.datawriter.available_formats">available_formats()</a></code> for possible values.</dd>
+<dt><strong><code>encoding</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>Encoding of the data. See <code><a title="thunderlab.datawriter.available_encodings" href="#thunderlab.datawriter.available_encodings">available_encodings()</a></code> for possible values.
+If None or empty string use 'PCM_16'.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>int</code></dt>
+<dd>If &gt;0 show detailed error/warning messages.</dd>
+<dt><strong><code>kwargs</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Additional, file format specific keyword arguments.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>On success, the actual file name used for writing the data.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ValueError</code></dt>
+<dd><code>filepath</code> is empty string or unspecified format.</dd>
+<dt><code>IOError</code></dt>
+<dd>Requested file format not supported.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>import numpy as np
+from thunderlab.datawriter import write_data
+
+rate = 28000.0
+freq = 800.0
+time = np.arange(0.0, 1.0, 1/rate)     # one second
+data = 2.5*np.sin(2.0*np.p*freq*time)        # 800Hz sine wave
+md = dict(Artist='underscore_')          # metadata
+write_data('audio/file.npz', data, rate, 'mV', md)
+</code></pre></div>
+</dd>
+<dt id="thunderlab.datawriter.demo"><code class="name flex">
+<span>def <span class="ident">demo</span></span>(<span>file_path, channels=2, format=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Demo of the datawriter functions.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>file_path</code></strong> :&ensp;<code>str</code></dt>
+<dd>File path of a data file.</dd>
+<dt><strong><code>format</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>File format to be used.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.datawriter.main"><code class="name flex">
+<span>def <span class="ident">main</span></span>(<span>*cargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Call demo with command line arguments.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>cargs</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>Command line arguments as provided by sys.argv[1:]</dd>
+</dl></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="thunderlab" href="index.html">thunderlab</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-variables">Global variables</a></h3>
+<ul class="">
+<li><code><a title="thunderlab.datawriter.data_modules" href="#thunderlab.datawriter.data_modules">data_modules</a></code></li>
+<li><code><a title="thunderlab.datawriter.data_formats_funcs" href="#thunderlab.datawriter.data_formats_funcs">data_formats_funcs</a></code></li>
+<li><code><a title="thunderlab.datawriter.data_encodings_funcs" href="#thunderlab.datawriter.data_encodings_funcs">data_encodings_funcs</a></code></li>
+<li><code><a title="thunderlab.datawriter.data_writer_funcs" href="#thunderlab.datawriter.data_writer_funcs">data_writer_funcs</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="thunderlab.datawriter.format_from_extension" href="#thunderlab.datawriter.format_from_extension">format_from_extension</a></code></li>
+<li><code><a title="thunderlab.datawriter.recode_array" href="#thunderlab.datawriter.recode_array">recode_array</a></code></li>
+<li><code><a title="thunderlab.datawriter.formats_relacs" href="#thunderlab.datawriter.formats_relacs">formats_relacs</a></code></li>
+<li><code><a title="thunderlab.datawriter.encodings_relacs" href="#thunderlab.datawriter.encodings_relacs">encodings_relacs</a></code></li>
+<li><code><a title="thunderlab.datawriter.write_relacs" href="#thunderlab.datawriter.write_relacs">write_relacs</a></code></li>
+<li><code><a title="thunderlab.datawriter.formats_fishgrid" href="#thunderlab.datawriter.formats_fishgrid">formats_fishgrid</a></code></li>
+<li><code><a title="thunderlab.datawriter.encodings_fishgrid" href="#thunderlab.datawriter.encodings_fishgrid">encodings_fishgrid</a></code></li>
+<li><code><a title="thunderlab.datawriter.write_fishgrid" href="#thunderlab.datawriter.write_fishgrid">write_fishgrid</a></code></li>
+<li><code><a title="thunderlab.datawriter.formats_pickle" href="#thunderlab.datawriter.formats_pickle">formats_pickle</a></code></li>
+<li><code><a title="thunderlab.datawriter.encodings_pickle" href="#thunderlab.datawriter.encodings_pickle">encodings_pickle</a></code></li>
+<li><code><a title="thunderlab.datawriter.write_pickle" href="#thunderlab.datawriter.write_pickle">write_pickle</a></code></li>
+<li><code><a title="thunderlab.datawriter.insert_container_metadata" href="#thunderlab.datawriter.insert_container_metadata">insert_container_metadata</a></code></li>
+<li><code><a title="thunderlab.datawriter.formats_numpy" href="#thunderlab.datawriter.formats_numpy">formats_numpy</a></code></li>
+<li><code><a title="thunderlab.datawriter.encodings_numpy" href="#thunderlab.datawriter.encodings_numpy">encodings_numpy</a></code></li>
+<li><code><a title="thunderlab.datawriter.write_numpy" href="#thunderlab.datawriter.write_numpy">write_numpy</a></code></li>
+<li><code><a title="thunderlab.datawriter.formats_mat" href="#thunderlab.datawriter.formats_mat">formats_mat</a></code></li>
+<li><code><a title="thunderlab.datawriter.encodings_mat" href="#thunderlab.datawriter.encodings_mat">encodings_mat</a></code></li>
+<li><code><a title="thunderlab.datawriter.write_mat" href="#thunderlab.datawriter.write_mat">write_mat</a></code></li>
+<li><code><a title="thunderlab.datawriter.formats_audioio" href="#thunderlab.datawriter.formats_audioio">formats_audioio</a></code></li>
+<li><code><a title="thunderlab.datawriter.encodings_audio" href="#thunderlab.datawriter.encodings_audio">encodings_audio</a></code></li>
+<li><code><a title="thunderlab.datawriter.write_audioio" href="#thunderlab.datawriter.write_audioio">write_audioio</a></code></li>
+<li><code><a title="thunderlab.datawriter.available_formats" href="#thunderlab.datawriter.available_formats">available_formats</a></code></li>
+<li><code><a title="thunderlab.datawriter.available_encodings" href="#thunderlab.datawriter.available_encodings">available_encodings</a></code></li>
+<li><code><a title="thunderlab.datawriter.write_data" href="#thunderlab.datawriter.write_data">write_data</a></code></li>
+<li><code><a title="thunderlab.datawriter.demo" href="#thunderlab.datawriter.demo">demo</a></code></li>
+<li><code><a title="thunderlab.datawriter.main" href="#thunderlab.datawriter.main">main</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.3</a>.</p>
+</footer>
+</body>
+</html>
