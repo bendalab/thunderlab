@@ -1929,13 +1929,13 @@ class DataLoader(AudioLoader):
         # recode:
         if self.dtype == np.dtype('int16'):
             data = raw_data.astype('float32')
-            data *= amax/2**15
+            data *= self.ampl_max/2**15
         elif self.dtype == np.dtype('int32'):
             data = raw_data.astype(float)
-            data *= amax/2**31
+            data *= self.ampl_max/2**31
         elif self.dtype == np.dtype('int64'):
             data = raw_data.astype(float)
-            data *= amax/2**63
+            data *= self.ampl_max/2**63
         else:
             data = raw_data
         buffer[:, :] = data
@@ -2056,7 +2056,7 @@ class DataLoader(AudioLoader):
                     print(f'  sampling rate: {self.rate} Hz')
                     print(f'  channels     : {self.channels}')
                     print(f'  frames       : {self.frames}')
-                    print(f'  range        : {amax:g}{unit}')
+                    print(f'  range        : {self.ampl_max:g}{self.unit}')
                 break
         return self
 

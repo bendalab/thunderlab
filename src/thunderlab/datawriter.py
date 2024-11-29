@@ -332,7 +332,7 @@ def write_fishgrid(filepath, data, rate, amax=1.0, unit=None,
         if span > 0:
             df.write(f'  Span1: {span}\n')
         df.write(f'   Date: {datetime.date().isoformat()}\n')
-        df.write(f'   Time: {datetime.time().isoformat("seconds")}\n')
+        df.write(f'   Time: {datetime.time().isoformat(timespec="seconds")}\n')
         if label:
             df.write(f'  Label: {label}\n')
         df.write(f'Comment: {comment}\n')
@@ -394,7 +394,7 @@ def write_fishgrid(filepath, data, rate, amax=1.0, unit=None,
         starttime = get_datetime(smd, remove=True)
         if not starttime is None:
             gm['StartDate'] = starttime.date().isoformat()
-            gm['StartTime'] = starttime.time().isoformat(timespec=seconds)
+            gm['StartTime'] = starttime.time().isoformat(timespec='seconds')
         move_metadata(smd, gm, 'Location')
         move_metadata(smd, gm, 'Position')
         move_metadata(smd, gm, 'WaterTemperature')
