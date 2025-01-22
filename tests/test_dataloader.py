@@ -1,7 +1,9 @@
 import pytest
 import os
 import sys
+import glob
 import numpy as np
+from datetime import datetime, timedelta
 import thunderlab.datawriter as dw
 import thunderlab.dataloader as dl
 
@@ -66,11 +68,19 @@ def check_reading(filename, data):
     tolerance = rmax*2.0**(-15)
     assert np.all(data.shape == full_data.shape), 'full load failed: shape'
     assert np.all(np.abs(data - full_data)<tolerance), 'full load failed: data'
+    
+    check_random_reading(filename, data)
 
-    # load on demand:
+    
+def check_random_reading(filename, full_data):
     data = dl.DataLoader(filename, 10.0, 2.0)
-    tolerance = data.ampl_max*2.0**(-15)
 
+    assert data.channels == full_data.shape[1], 'channels differ'
+    assert data.frames == full_data.shape[0], 'frames differ'
+    assert np.all(data.shape == full_data.shape), 'shape differs'
+    assert data.ndim == full_data.ndim, 'ndim differs'
+    
+    tolerance = data.ampl_max*2.0**(-15)
     nframes = int(1.5*data.rate)
     # check access:
     ntests = 1000
@@ -221,6 +231,39 @@ def test_audioio():
     assert unit == 'mV'
     check_reading(filename, data)
     os.remove(filename)
+
+
+def test_multiple():
+    # data:
+    data, rate, amax, info = generate_data()
+    locs, labels = generate_markers(len(data))
+    start_time = datetime.now()
+    filename = 'test{}.npz'
+    nfiles = 4
+    n = len(data) // nfiles
+    for k in range(nfiles):
+        i0 = k*n
+        i1 = (k+1)*n
+        md = dict(DateTimeOriginal=start_time.isoformat())
+        mlocs = locs[(locs[:,0] >= i0) & (locs[:,0] < i1),:]
+        mlocs[:,0] -= i0
+        mlabels = labels[(locs[:,0] >= i0) & (locs[:,0] < i1),:]
+        dw.write_numpy(filename.format(k + 1), data[i0:i1,:],
+                       rate, amax, 'mV',
+                       encoding='PCM_16', metadata=md,
+                       locs=mlocs, labels=mlabels)
+        start_time += timedelta(seconds=n/rate)
+    # check:
+    files = sorted(glob.glob(filename.replace('{}', '*')))
+    check_random_reading(files, data)
+    with dl.DataLoader(files) as sf:
+        llocs, llabels = sf.markers()
+        assert len(locs) == len(llocs), 'number of marker locs differ'
+        assert len(labels) == len(llabels), 'number of marker labels differ'
+        assert np.all(locs == llocs), 'fishgrid same locs'
+        assert np.all(labels == llabels), 'fishgrid same labels'
+    for k in range(nfiles):
+        os.remove(filename.format(k+1))
 
     
 def test_main(remove_fishgrid_files):
