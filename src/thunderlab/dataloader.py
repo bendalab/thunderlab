@@ -2045,8 +2045,9 @@ class DataLoader(AudioLoader):
             try:
                 a = DataLoader(filepath, buffersize, backsize, verbose)
                 self.data_files. append(a)
-            except:
-                pass
+            except Exception as e:
+                if verbose > 0:
+                    print(e)
         if len(self.data_files) == 0:
             raise FileNotFoundError('input argument filepaths does not contain any valid audio file!')
         # check contingency and set start indices:
