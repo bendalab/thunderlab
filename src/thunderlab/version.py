@@ -1,7 +1,7 @@
-__version__='1.3.1'
+__version__='1.4.0'
 """Current version of the thunderlab package."""
 
-__year__ = '2024'
+__year__ = '2025'
 """Current year for copyright messages."""
 
 __pdoc__ = {}
