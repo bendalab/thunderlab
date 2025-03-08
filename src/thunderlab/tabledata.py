@@ -31,8 +31,9 @@ import numpy as np
 from io import StringIO
 try:
     import pandas as pd
+    has_pandas = True
 except ImportError:
-    pass
+    has_pandas = False
 
 
 __pdoc__ = {}
@@ -381,6 +382,11 @@ class TableData(object):
                     self.data.append([])
                     for d in data.data[c]:
                         self.data[c].append(d)
+            elif has_pandas and isinstance(data, pd.DataFrame):
+                for k in data.keys():
+                    values = data[k].tolist()
+                    f = '%s' if isinstance(values[0], str) else '%g'
+                    self.append(k, '', f, value=values)
             elif isinstance(data, (list, tuple, np.ndarray)):
                 if isinstance(data[0], (list, tuple, np.ndarray)):
                     # 2D list, rows first:
@@ -2172,6 +2178,8 @@ class TableData(object):
                             s = fs % v
                         except ValueError:
                             s = missing
+                        except TypeError:
+                            s = str(v)
                     if w < len(s):
                         w = len(s)
             widths.append(w)
@@ -2433,6 +2441,8 @@ class TableData(object):
                         ds = f % self.data[c][k]
                     except ValueError:
                         ds = missing
+                    except TypeError:
+                        ds = str(self.data[c][k])
                     if not align_columns:
                         ds = ds.strip()
                     fh.write(ds)
