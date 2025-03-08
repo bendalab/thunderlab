@@ -137,6 +137,10 @@ def test_container():
         llocs, llabels = sf.markers()
         assert np.all(locs == llocs), 'pickle same locs'
         assert np.all(labels == llabels), 'pickle same labels'
+        for inx in np.random.randint(0, len(sf), 50):
+            fname, i = sf.get_file_index(inx)
+            assert fname == filename, 'returned wrong file name'
+            assert i == inx, 'returned wrong index'
     os.remove(filename)
 
     # numpy:
@@ -159,6 +163,10 @@ def test_container():
         llocs, llabels = sf.markers()
         assert np.all(locs == llocs), 'numpy same locs'
         assert np.all(labels == llabels), 'numpy same labels'
+        for inx in np.random.randint(0, len(sf), 50):
+            fname, i = sf.get_file_index(inx)
+            assert fname == filename, 'returned wrong file name'
+            assert i == inx, 'returned wrong index'
     os.remove(filename)
 
     # mat:
@@ -181,6 +189,10 @@ def test_container():
         llocs, llabels = sf.markers()
         assert np.all(locs == llocs), 'mat same locs'
         assert np.all(labels == llabels), 'mat same labels'
+        for inx in np.random.randint(0, len(sf), 50):
+            fname, i = sf.get_file_index(inx)
+            assert fname == filename, 'returned wrong file name'
+            assert i == inx, 'returned wrong index'
     os.remove(filename)
     
     
@@ -262,6 +274,10 @@ def test_multiple():
         assert len(labels) == len(llabels), 'number of marker labels differ'
         assert np.all(locs == llocs), 'fishgrid same locs'
         assert np.all(labels == llabels), 'fishgrid same labels'
+        for inx in np.random.randint(0, len(sf), 50):
+            fname, i = sf.get_file_index(inx)
+            assert fname == filename.format(1 + inx//n), 'returned wrong file name'
+            assert i == inx%n, 'returned wrong index'
     for k in range(nfiles):
         os.remove(filename.format(k+1))
 

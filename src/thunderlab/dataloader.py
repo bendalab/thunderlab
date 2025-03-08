@@ -1546,6 +1546,8 @@ class DataLoader(AudioLoader):
         self.filepath = None
         if len(trace_filepaths) > 0:
             self.filepath = os.path.dirname(trace_filepaths[0])
+        self.file_paths = [self.filepath]
+        self.file_indices = [0]
         for path in sorted(trace_filepaths):
             if path[-3:] == '.gz':
                 raise ValueError('.gz files not supported')
@@ -1656,6 +1658,8 @@ class DataLoader(AudioLoader):
         self.filepath = None
         if len(trace_filepaths) > 0:
             self.filepath = os.path.dirname(trace_filepaths[0])
+        self.file_paths = [self.filepath]
+        self.file_indices = [0]
         self._load_metadata = metadata_fishgrid
         self._load_markers = markers_fishgrid
 
@@ -1819,6 +1823,8 @@ class DataLoader(AudioLoader):
             extract_container_data(data_dict, datakey, samplekey,
                                    timekey, amplkey, unitkey, amax, unit)
         self.filepath = filepath
+        self.file_paths = [self.filepath]
+        self.file_indices = [0]
         self.channels = self.buffer.shape[1]
         self.frames = self.buffer.shape[0]
         self.shape = self.buffer.shape
@@ -1887,6 +1893,8 @@ class DataLoader(AudioLoader):
         """
         self.verbose = verbose
         self.filepath = filepath
+        self.file_paths = [self.filepath]
+        self.file_indices = [0]
         self.sf = open(filepath, 'rb')
         if verbose > 0:
             print(f'open_raw(filepath) with filepath={filepath}')
@@ -2039,12 +2047,14 @@ class DataLoader(AudioLoader):
             raise TypeError('input argument filepaths is not a sequence!')
         if len(filepaths) == 0:
             raise ValueError('input argument filepaths is empy sequence!')
+        self.file_paths = []
         self.data_files = []
         self.start_indices = []
         for filepath in filepaths:
             try:
                 a = DataLoader(filepath, buffersize, backsize, verbose)
-                self.data_files. append(a)
+                self.data_files.append(a)
+                self.file_paths.append(filepath)
             except Exception as e:
                 if verbose > 0:
                     print(e)
@@ -2106,6 +2116,7 @@ class DataLoader(AudioLoader):
             self.frames += a.frames
             self.end_indices.append(self.frames)
             start_time += timedelta(seconds=a.frames/a.rate)
+        self.file_indices = self.start_indices
         self.start_indices = np.array(self.start_indices)
         self.end_indices = np.array(self.end_indices)
         # set startime from first file:
