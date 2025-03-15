@@ -2048,6 +2048,8 @@ class DataLoader(AudioLoader):
         if len(filepaths) == 0:
             raise ValueError('input argument filepaths is empy sequence!')
         self.file_paths = []
+        self.max_open_files = 10
+        self.open_files = []
         self.data_files = []
         self.start_indices = []
         for filepath in filepaths:
@@ -2055,6 +2057,10 @@ class DataLoader(AudioLoader):
                 a = DataLoader(filepath, buffersize, backsize, verbose)
                 self.data_files.append(a)
                 self.file_paths.append(filepath)
+                if len(self.open_files) < self.max_open_files:
+                    self.open_files.append(a)
+                else:
+                    a.close()
             except Exception as e:
                 if verbose > 0:
                     print(e)
@@ -2164,6 +2170,11 @@ class DataLoader(AudioLoader):
             n = ai1 - ai0
             self.data_files[ai].load_audio_buffer(ai0, n,
                                                   buffer[boffs:boffs + n,:])
+            if self.data_files[ai] in self.open_files:
+                self.open_files.pop(self.open_files.index(self.data_files[ai]))
+            self.open_files.append(self.data_files[ai])
+            if len(self.open_files) > self.max_open_files:
+                self.open_files.pop(0)
             boffs += n
             offs += n
             size -= n

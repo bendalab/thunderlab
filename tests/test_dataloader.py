@@ -12,9 +12,8 @@ relacs_path = 'test_relacs'
 fishgrid_path = 'test_fishgrid'
 
 
-def generate_data():
+def generate_data(duration=100.0):
     rate = 44100.0
-    duration = 100.0
     channels = 4
     amax = 20.0
     t = np.arange(int(duration*rate))/rate
@@ -247,11 +246,11 @@ def test_audioio():
 
 def test_multiple():
     # data:
-    data, rate, amax, info = generate_data()
+    nfiles = 4
+    data, rate, amax, info = generate_data(nfiles*20.0)
     locs, labels = generate_markers(len(data))
     start_time = datetime.now()
-    filename = 'test{}.npz'
-    nfiles = 4
+    filename = 'test{:02d}.npz'
     n = len(data) // nfiles
     for k in range(nfiles):
         i0 = k*n
@@ -266,7 +265,7 @@ def test_multiple():
                        locs=mlocs, labels=mlabels)
         start_time += timedelta(seconds=n/rate)
     # check:
-    files = sorted(glob.glob(filename.replace('{}', '*')))
+    files = sorted(glob.glob(filename.replace('{:02d}', '??')))
     check_random_reading(files, data)
     with dl.DataLoader(files) as sf:
         llocs, llabels = sf.markers()
