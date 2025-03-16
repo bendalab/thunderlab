@@ -347,12 +347,16 @@ def load_relacs(filepath, amax=1.0):
 
     Raises
     ------
+    FileNotFoundError:
+        Invalid or non existing relacs files.
     ValueError:
         - Invalid name for relacs trace-*.raw file.
         - Sampling rates of traces differ.
         - Unit of traces differ.
     """
     trace_filepaths = relacs_trace_files(filepath)
+    if len(trace_filepaths) == 0:
+        raise FileNotFoundError(f'no relacs files found')
     # load trace*.raw files:
     nchannels = len(trace_filepaths)
     data = None
@@ -550,11 +554,11 @@ def load_fishgrid(filepath):
     Raises
     ------
     FileNotFoundError:
-        Invalid or not existing fishgrid files.
+        Invalid or non existing fishgrid files.
     """
     trace_filepaths = fishgrid_trace_files(filepath)
     if len(trace_filepaths) == 0:
-        raise FileNotFoundError(f'no fishgrid files specified')
+        raise FileNotFoundError(f'no fishgrid files found')
     md = metadata_fishgrid(filepath)
     grids = fishgrid_grids(md)
     grid_sizes = [r*c for r, c in grids]
@@ -1529,26 +1533,25 @@ class DataLoader(AudioLoader):
 
         Raises
         ------
-        ValueError: .gz files not supported.
+        FileNotFoundError:
+            Invalid or non existing fishgrid files.
+        ValueError:
+            .gz files not supported.
         """
         self.verbose = verbose
-        
-        if self.sf is not None:
-            self._close_relacs()
-
-        trace_filepaths = relacs_trace_files(filepath)
 
         # open trace files:
+        self.trace_filepaths = relacs_trace_files(filepath)
+        if len(self.trace_filepaths) == 0:
+            raise FileNotFoundError(f'no relacs files found')
         self.sf = []
         self.frames = None
         self.rate = None
         self.unit = ''
-        self.filepath = None
-        if len(trace_filepaths) > 0:
-            self.filepath = os.path.dirname(trace_filepaths[0])
+        self.filepath = os.path.dirname(self.trace_filepaths[0])
         self.file_paths = [self.filepath]
         self.file_indices = [0]
-        for path in sorted(trace_filepaths):
+        for path in self.trace_filepaths:
             if path[-3:] == '.gz':
                 raise ValueError('.gz files not supported')
             sf = open(path, 'rb')
@@ -1601,10 +1604,9 @@ class DataLoader(AudioLoader):
     def _close_relacs(self):
         """Close the relacs data files.
         """
-        if self.sf is not None:
-            for file in self.sf:
-                file.close()
-            self.sf = None
+        for file in self.sf:
+            file.close()
+        self.sf = []
 
     def _load_buffer_relacs(self, r_offset, r_size, buffer):
         """Load new data from relacs data file.
@@ -1618,6 +1620,9 @@ class DataLoader(AudioLoader):
         buffer: ndarray
            Buffer where to store the loaded data.
         """
+        if len(self.sf) == 0 and len(self.trace_filepaths) > 0:
+            for path in self.trace_filepaths:
+                self.sf.append(open(path, 'rb'))
         for i, file in enumerate(self.sf):
             file.seek(r_offset*4)
             data = file.read(r_size*4)
@@ -1648,16 +1653,18 @@ class DataLoader(AudioLoader):
             Part of the buffer to be loaded before the requested start index in seconds.
         verbose: int
             If > 0 show detailed error/warning messages.
+
+        Raises
+        ------
+        FileNotFoundError:
+            Invalid or non existing fishgrid files.
         """
         self.verbose = verbose
-        
-        if self.sf is not None:
-            self._close_fishgrid()
 
-        trace_filepaths = fishgrid_trace_files(filepath)
-        self.filepath = None
-        if len(trace_filepaths) > 0:
-            self.filepath = os.path.dirname(trace_filepaths[0])
+        self.trace_filepaths = fishgrid_trace_files(filepath)
+        if len(self.trace_filepaths) == 0:
+            raise FileNotFoundError(f'no fishgrid files found')
+        self.filepath = os.path.dirname(self.trace_filepaths[0])
         self.file_paths = [self.filepath]
         self.file_indices = [0]
         self._load_metadata = metadata_fishgrid
@@ -1667,7 +1674,7 @@ class DataLoader(AudioLoader):
         grids = fishgrid_grids(self.metadata())
         grid_sizes = [r*c for r,c in grids]
         self.channels = 0
-        for g, path in enumerate(trace_filepaths):
+        for g, path in enumerate(self.trace_filepaths):
             self.channels += grid_sizes[g]
         self.sf = []
         self.grid_channels = []
@@ -1680,7 +1687,7 @@ class DataLoader(AudioLoader):
             self.ampl_min = -v
             self.ampl_max = +v
             
-        for g, path in enumerate(trace_filepaths):
+        for g, path in enumerate(self.trace_filepaths):
             sf = open(path, 'rb')
             self.sf.append(sf)
             if verbose > 0:
@@ -1717,10 +1724,9 @@ class DataLoader(AudioLoader):
     def _close_fishgrid(self):
         """Close the fishgrid data files.
         """
-        if self.sf is not None:
-            for file in self.sf:
-                file.close()
-            self.sf = None
+        for file in self.sf:
+            file.close()
+        self.sf = []
 
     def _load_buffer_fishgrid(self, r_offset, r_size, buffer):
         """Load new data from relacs data file.
@@ -1734,6 +1740,9 @@ class DataLoader(AudioLoader):
         buffer: ndarray
            Buffer where to store the loaded data.
         """
+        if len(self.sf) == 0 and len(self.trace_filepaths) > 0:
+            for path in self.trace_filepaths:
+                self.sf.append(open(path, 'rb'))
         for file, gchannels, goffset in zip(self.sf, self.grid_channels, self.grid_offs):
             file.seek(r_offset*4*gchannels)
             data = file.read(r_size*4*gchannels)
@@ -1895,7 +1904,7 @@ class DataLoader(AudioLoader):
         self.filepath = filepath
         self.file_paths = [self.filepath]
         self.file_indices = [0]
-        self.sf = open(filepath, 'rb')
+        self.sf = open(self.filepath, 'rb')
         if verbose > 0:
             print(f'open_raw(filepath) with filepath={filepath}')
         self.dtype = np.dtype(dtype)
@@ -1932,6 +1941,8 @@ class DataLoader(AudioLoader):
 
     def _load_buffer_raw(self, r_offset, r_size, buffer):
         """Load new data from container."""
+        if self.sf is None:
+            self.sf = open(self.filepath, 'rb')
         self.sf.seek(r_offset*self.dtype.itemsize)
         raw_data = self.sf.read(r_size*self.dtype.itemsize)
         raw_data = np.frombuffer(raw_data, dtype=self.dtype)
@@ -2048,7 +2059,6 @@ class DataLoader(AudioLoader):
         if len(filepaths) == 0:
             raise ValueError('input argument filepaths is empy sequence!')
         self.file_paths = []
-        self.max_open_files = 10
         self.open_files = []
         self.data_files = []
         self.start_indices = []
@@ -2057,7 +2067,7 @@ class DataLoader(AudioLoader):
                 a = DataLoader(filepath, buffersize, backsize, verbose)
                 self.data_files.append(a)
                 self.file_paths.append(filepath)
-                if len(self.open_files) < self.max_open_files:
+                if len(self.open_files) < AudioLoader.max_open_files:
                     self.open_files.append(a)
                 else:
                     a.close()
@@ -2173,7 +2183,7 @@ class DataLoader(AudioLoader):
             if self.data_files[ai] in self.open_files:
                 self.open_files.pop(self.open_files.index(self.data_files[ai]))
             self.open_files.append(self.data_files[ai])
-            if len(self.open_files) > self.max_open_files:
+            if len(self.open_files) > AudioLoader.max_open_files:
                 self.open_files.pop(0)
             boffs += n
             offs += n
