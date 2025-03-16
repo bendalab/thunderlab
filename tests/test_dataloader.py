@@ -71,9 +71,7 @@ def check_reading(filename, data):
     check_random_reading(filename, data)
 
     
-def check_random_reading(filename, full_data):
-    data = dl.DataLoader(filename, 10.0, 2.0)
-
+def check_random_reading(data, full_data):
     assert data.channels == full_data.shape[1], 'channels differ'
     assert data.frames == full_data.shape[0], 'frames differ'
     assert np.all(data.shape == full_data.shape), 'shape differs'
@@ -88,6 +86,7 @@ def check_random_reading(filename, full_data):
     print('  check random single frame access...')
     for inx in np.random.randint(0, len(full_data), ntests):
         if np.any(np.abs(full_data[inx] - data[inx]) > tolerance):
+            print(inx, full_data[inx] - data[inx])
             success = inx
             break
     assert success < 0, 'single random frame access failed at index %d' % (success)
@@ -109,8 +108,6 @@ def check_random_reading(filename, full_data):
             success = inx
             break
     assert success < 0, 'frame slice access backward failed at index %d' % (success)
-
-    data.close()
 
     
 def test_container():
@@ -268,17 +265,23 @@ def test_multiple():
         start_time += timedelta(seconds=n/rate)
     # check:
     files = sorted(glob.glob(filename.replace('{:02d}', '??')))
-    check_random_reading(files, data)
-    with dl.DataLoader(files) as sf:
-        llocs, llabels = sf.markers()
-        assert len(locs) == len(llocs), 'number of marker locs differ'
-        assert len(labels) == len(llabels), 'number of marker labels differ'
-        assert np.all(locs == llocs), 'fishgrid same locs'
-        assert np.all(labels == llabels), 'fishgrid same labels'
+    sf1 = dl.DataLoader(files, 10.0, 2.0)
+    llocs, llabels = sf1.markers()
+    assert len(locs) == len(llocs), 'number of marker locs differ'
+    assert len(labels) == len(llabels), 'number of marker labels differ'
+    assert np.all(locs == llocs), 'multiple same locs'
+    assert np.all(labels == llabels), 'multiple same labels'
+    sf2 = dl.DataLoader(sf1.file_paths, 10.0, 2.0, verbose=0,
+                        rate=sf1.rate, channels=sf1.channels,
+                        unit=sf1.unit, amax=sf1.ampl_max,
+                        end_indices=sf1.end_indices)
+    for sf in [sf1, sf2]:
+        check_random_reading(sf, data)
         for inx in np.random.randint(0, len(sf), 50):
             fname, i = sf.get_file_index(inx)
             assert fname == filename.format(1 + inx//n), 'returned wrong file name'
             assert i == inx%n, 'returned wrong index'
+        sf.close()
     for k in range(nfiles):
         os.remove(filename.format(k+1))
 
