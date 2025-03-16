@@ -62,6 +62,7 @@ locs, labels = markers('data.wav')
 
 """
 
+import gc
 import os
 import sys
 import glob
@@ -2058,100 +2059,122 @@ class DataLoader(AudioLoader):
             raise TypeError('input argument filepaths is not a sequence!')
         if len(filepaths) == 0:
             raise ValueError('input argument filepaths is empy sequence!')
+        self.buffersize = buffersize
+        self.backsize = backsize
+        self.filepath = None
         self.file_paths = []
         self.open_files = []
+        self.open_loaders = []
         self.data_files = []
+        self.frames = 0
         self.start_indices = []
+        self.end_indices = []
+        self.start_time = None
+        start_time = None
+        self._metadata = {}
+        self._locs = np.zeros((0, 2), dtype=int)
+        self._labels = np.zeros((0, 2), dtype=object)
         for filepath in filepaths:
             try:
                 a = DataLoader(filepath, buffersize, backsize, verbose)
-                self.data_files.append(a)
+                # collect metadata:
+                md = a.metadata()
+                fmd = flatten_metadata(md, True)
+                add_metadata(self._metadata, fmd)
+                if self.filepath is None:
+                    # first file:
+                    self.filepath = a.filepath
+                    self.format = a.format
+                    self.encoding = a.encoding
+                    self.rate = a.rate
+                    self.channels = a.channels
+                    self.unit = a.unit
+                    self.ampl_max = a.ampl_max
+                    self.ampl_min = a.ampl_min
+                    self.start_time = get_datetime(md)
+                    start_time = self.start_time
+                else:
+                    # check channels, rate, and amplitudes:
+                    if a.channels != self.channels:
+                        raise ValueError(f'number of channels differs: '
+                                         f'{a.channels} in {a.filepath} versus '
+                                         f'{self.channels} in {self.filepath}')
+                    if a.rate != self.rate:
+                        raise ValueError(f'sampling rates differ: '
+                                         f'{a.rate} in {a.filepath} versus '
+                                         f'{self.rate} in {self.filepath}')
+                    if a.ampl_min != self.ampl_min:
+                        raise ValueError(f'minimum amplitudes differ: '
+                                         f'{a.ampl_min} in {a.filepath} versus '
+                                         f'{self.ampl_min} in {self.filepath}')
+                    if a.ampl_max != self.ampl_max:
+                        raise ValueError(f'maximum amplitudes differ: '
+                                         f'{a.ampl_max} in {a.filepath} versus '
+                                         f'{self.ampl_max} in {self.filepath}')
+                    # check start time of recording:
+                    stime = get_datetime(md)
+                    if start_time is not None and stime is not None and \
+                       abs(start_time - stime) > timedelta(seconds=1):
+                        raise ValueError(f'start time does not indicate continuous recording: '
+                                         f'expected {start_time} instead of '
+                                         f'{stime} in {a.filepath}')
+                # markers:
+                locs, labels = a.markers()
+                locs[:,0] += self.frames
+                self._locs = np.vstack((self._locs, locs))
+                self._labels = np.vstack((self._labels, labels))
+                # indices:
+                self.start_indices.append(self.frames)
+                self.frames += a.frames
+                self.end_indices.append(self.frames)
+                if start_time is not None:
+                    start_time += timedelta(seconds=a.frames/a.rate)
+                # add file to lists:
                 self.file_paths.append(filepath)
                 if len(self.open_files) < AudioLoader.max_open_files:
                     self.open_files.append(a)
                 else:
                     a.close()
+                if len(self.open_loaders) < AudioLoader.max_open_loaders:
+                    self.data_files.append(a)
+                    self.open_loaders.append(a)
+                else:
+                    a.close()
+                    del a
+                    self.data_files.append(None)
             except Exception as e:
                 if verbose > 0:
                     print(e)
         if len(self.data_files) == 0:
             raise FileNotFoundError('input argument filepaths does not contain any valid audio file!')
-        # check contingency and set start indices:
-        a0 = self.data_files[0]
-        self.filepath = a0.filepath
-        self.format = a0.format
-        self.encoding = a0.encoding
-        self.rate = a0.rate
-        self.channels = a0.channels
-        self.unit = a0.unit
-        self.ampl_max = a0.ampl_max
-        self.ampl_min = a0.ampl_min
-        self.frames = 0
-        self.start_indices = []
-        self.end_indices = []
-        md = a0.metadata()
-        start_time = get_datetime(md)
-        self._metadata = {}
-        self._locs = np.zeros((0, 2), dtype=int)
-        self._labels = np.zeros((0, 2), dtype=object)
-        for a in self.data_files:
-            if a.channels != self.channels:
-                raise ValueError(f'number of channels differs: '
-                                 f'{a.channels} in {a.filepath} versus '
-                                 f'{self.channels} in {self.filepath}')
-            if a.rate != self.rate:
-                raise ValueError(f'sampling rates differ: '
-                                 f'{a.rate} in {a.filepath} versus '
-                                 f'{self.rate} in {self.filepath}')
-            if a.ampl_min != self.ampl_min:
-                raise ValueError(f'minimum amplitudes differ: '
-                                 f'{a.ampl_min} in {a.filepath} versus '
-                                 f'{self.ampl_min} in {self.filepath}')
-            if a.ampl_max != self.ampl_max:
-                raise ValueError(f'maximum amplitudes differ: '
-                                 f'{a.ampl_max} in {a.filepath} versus '
-                                 f'{self.ampl_max} in {self.filepath}')
-            # metadata:
-            md = a.metadata()
-            fmd = flatten_metadata(md, True)
-            add_metadata(self._metadata, fmd)
-            # check start time of recording:
-            stime = get_datetime(md)
-            if start_time is not None and stime is not None and \
-               abs(start_time - stime) > timedelta(seconds=1):
-                raise ValueError(f'start time does not indicate continuous recording: '
-                                 f'expected {start_time} instead of '
-                                 f'{stime} in {a.filepath}')
-            # markers:
-            locs, labels = a.markers()
-            locs[:,0] += self.frames
-            self._locs = np.vstack((self._locs, locs))
-            self._labels = np.vstack((self._labels, labels))
-            # indices:
-            self.start_indices.append(self.frames)
-            self.frames += a.frames
-            self.end_indices.append(self.frames)
-            start_time += timedelta(seconds=a.frames/a.rate)
+        # set startime from first file:
+        if self.start_time is not None:
+            set_starttime(self._metadata, self.start_time)
+        # setup infrastructure:
         self.file_indices = self.start_indices
         self.start_indices = np.array(self.start_indices)
         self.end_indices = np.array(self.end_indices)
-        # set startime from first file:
-        start_time = get_datetime(a0.metadata())
-        set_starttime(self._metadata, start_time)
-        # setup infrastructure:
+        self.collect_counter = 0
         self.shape = (self.frames, self.channels)
         self.bufferframes = int(buffersize*self.rate)
         self.backframes = int(backsize*self.rate)
         self.init_buffer()
         self.close = self._close_multiple
         self.load_audio_buffer = self._load_buffer_multiple
+        self._load_metadata = None
+        self._load_markers = None
         return self
 
     def _close_multiple(self):
         """Close all the data files. """
+        self.open_files = []
+        self.open_loaders = []
         for a in self.data_files:
-            a.close()
+            if a is not None:
+                a.close()
         self.data_files = []
+        self.filepath = None
+        self.file_paths = []
         self.start_indices = []
         self.end_indices = []
 
@@ -2172,6 +2195,26 @@ class DataLoader(AudioLoader):
         boffs = 0
         ai = np.searchsorted(self.end_indices, offs, side='right')
         while size > 0:
+            if self.data_files[ai] is None:
+                a = DataLoader(self.file_paths[ai],
+                                self.buffersize, self.backsize, 0)
+                self.data_files[ai] = a
+                self.open_loaders.append(a)
+                self.open_files.append(a)
+                if len(self.open_files) > AudioLoader.max_open_files:
+                    self.open_files.pop(0)
+                if len(self.open_loaders) > AudioLoader.max_open_loaders:
+                    a = self.open_loaders.pop(0)
+                    self.data_files[self.data_files.index(a)] = None
+                    a.close()
+                    del a
+                    self.collect_counter += 1
+                    if self.collect_counter > AudioLoader.max_open_loaders//2:
+                        gc.collect()   # takes time!
+                        self.collect_counter = 0
+            else:
+                self.open_loaders.pop(self.open_loaders.index(self.data_files[ai]))
+                self.open_loaders.append(self.data_files[ai])
             ai0 = offs - self.start_indices[ai]
             ai1 = offs + size
             if ai1 > self.end_indices[ai]:
@@ -2184,6 +2227,7 @@ class DataLoader(AudioLoader):
                 self.open_files.pop(self.open_files.index(self.data_files[ai]))
             self.open_files.append(self.data_files[ai])
             if len(self.open_files) > AudioLoader.max_open_files:
+                self.open_files[0].close()
                 self.open_files.pop(0)
             boffs += n
             offs += n

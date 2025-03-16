@@ -246,7 +246,9 @@ def test_audioio():
 
 def test_multiple():
     # data:
-    nfiles = 4
+    nfiles = 20
+    dl.DataLoader.max_open_files = 4
+    dl.DataLoader.max_open_loaders = 8
     data, rate, amax, info = generate_data(nfiles*20.0)
     locs, labels = generate_markers(len(data))
     start_time = datetime.now()
