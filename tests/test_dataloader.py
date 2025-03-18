@@ -60,16 +60,6 @@ def remove_fishgrid_files():
     yield
     remove_files(fishgrid_path)
 
-
-def check_reading(filename, data):
-    # load full data:
-    full_data, rate, unit, rmax = dl.load_data(filename)
-    tolerance = rmax*2.0**(-15)
-    assert np.all(data.shape == full_data.shape), 'full load failed: shape'
-    assert np.all(np.abs(data - full_data)<tolerance), 'full load failed: data'
-    
-    check_random_reading(filename, data)
-
     
 def check_random_reading(data, full_data):
     assert data.channels == full_data.shape[1], 'channels differ'
@@ -108,6 +98,15 @@ def check_random_reading(data, full_data):
             success = inx
             break
     assert success < 0, 'frame slice access backward failed at index %d' % (success)
+
+
+def check_reading(filename, data):
+    # load full data:
+    full_data, rate, unit, rmax = dl.load_data(filename)
+    tolerance = rmax*2.0**(-15)
+    assert np.all(data.shape == full_data.shape), 'full load failed: shape'
+    assert np.all(np.abs(data - full_data)<tolerance), 'full load failed: data'
+    check_random_reading(dl.DataLoader(filename), data)
 
     
 def test_container():
