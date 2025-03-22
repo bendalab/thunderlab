@@ -387,7 +387,8 @@ def spectrogram(data, ratetime, freq_resolution=0.2, min_nfft=16,
 
 
 def plot_decibel_psd(ax, freqs, power, ref_power=1.0, min_power=1e-20,
-                     log_freq=False, min_freq=0.0, max_freq=2000.0, ymarg=0.0, **kwargs):
+                     log_freq=False, min_freq=0.0, max_freq=2000.0,
+                     ymarg=0.0, sstyle=dict(color='#1040C0')):
     """Plot the powerspectum in decibel relative to `ref_power`.
 
     Parameters
@@ -413,11 +414,11 @@ def plot_decibel_psd(ax, freqs, power, ref_power=1.0, min_power=1e-20,
         if `max_freq` is greater than zero
     ymarg: float
         Add this to the maximum decibel power for setting the ylim.
-    kwargs: dict
+    sstyle: dict
         Plot parameter that are passed on to the `plot()` function.
     """
     decibel_psd = decibel(power, ref_power=ref_power, min_power=min_power)
-    ax.plot(freqs, decibel_psd, **kwargs)
+    ax.plot(freqs, decibel_psd, **sstyle)
     ax.set_xlabel('Frequency [Hz]')
     if max_freq > 0.0:
         if log_freq and min_freq < 1e-8:
