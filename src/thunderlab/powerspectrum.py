@@ -388,7 +388,7 @@ def spectrogram(data, ratetime, freq_resolution=0.2, min_nfft=16,
 
 def plot_decibel_psd(ax, freqs, power, ref_power=1.0, min_power=1e-20,
                      log_freq=False, min_freq=0.0, max_freq=2000.0,
-                     ymarg=0.0, sstyle=dict(color='#1040C0')):
+                     ymarg=0.0, sstyle=dict(color='tab:blue', lw=1)):
     """Plot the powerspectum in decibel relative to `ref_power`.
 
     Parameters
