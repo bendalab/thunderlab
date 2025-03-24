@@ -2329,12 +2329,15 @@ class DataLoader(AudioLoader):
         if not filepath:
             raise ValueError('input argument filepath is empty string.')
         if isinstance(filepath, (list, tuple, np.ndarray)):
-            self.open_multiple(filepath, buffersize, backsize,
-                               verbose, **kwargs)
-            if len(self.file_paths) > 1:
-                return self
-            filepath = self.file_paths[0]
-            self.close()
+            if len(filepath) > 1:
+                self.open_multiple(filepath, buffersize, backsize,
+                                   verbose, **kwargs)
+                if len(self.file_paths) > 1:
+                    return self
+                filepath = self.file_paths[0]
+                self.close()
+            else:
+                filepath = filepath[0]
         # open data:
         for name, check_file, open_file, v in  data_open_funcs:
             if check_file is None or check_file(filepath):
