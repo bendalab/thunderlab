@@ -388,7 +388,7 @@ class TableData(object):
                     f = '%s' if isinstance(values[0], str) else '%g'
                     self.append(k, '', f, value=values)
             elif isinstance(data, (list, tuple, np.ndarray)):
-                if isinstance(data[0], (list, tuple, np.ndarray)):
+                if len(data) > 0 and isinstance(data[0], (list, tuple, np.ndarray)):
                     # 2D list, rows first:
                     for row in data:
                         for c, val in enumerate(row):
@@ -1446,14 +1446,15 @@ class TableData(object):
         column = self.index(column)
         if column is None:
             column = self.setcol
-        if isinstance(data, (list, tuple, np.ndarray)):
-            if isinstance(data[0], (list, tuple, np.ndarray)):
+        if isinstance(data, (list, tuple, np.ndarray)) and not \
+           (isinstance(data, np.ndarray) and len(data.shape) == 0):
+            if len(data) > 0 and isinstance(data[0], (list, tuple, np.ndarray)):
                 # 2D list, rows first:
                 for row in data:
                     for i, val in enumerate(row):
                         self.data[column+i].append(val)
                 self.setcol = column + len(data[0])
-            elif isinstance(data[0], dict):
+            elif len(data) > 0 and isinstance(data[0], dict):
                 # list of dictionaries:
                 for row in data:
                     for key in row:
