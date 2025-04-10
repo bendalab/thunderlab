@@ -75,6 +75,10 @@ class TableData(object):
         given, then all columns are initialized with this format string.
     missing: list of str
         Missing data are indicated by one of these strings.
+    sep: str or None
+        If `data` is a file, force `sep` as column separator.
+    stop: str or None
+        If the beginning of a line matches `stop`, then stop reading the file.
 
     Manipulate table header
     -----------------------
@@ -347,7 +351,7 @@ class TableData(object):
     """dict: Mapping of file extensions to the output formats."""
 
     def __init__(self, data=None, header=None, units=None, formats=None,
-                 missing=default_missing_inputs, stop=None):
+                 missing=default_missing_inputs, sep=None, stop=None):
         self.data = []
         self.shape = (0, 0)
         self.header = []
@@ -398,7 +402,7 @@ class TableData(object):
                     for c, val in enumerate(data):
                         self.data[c].append(val)
             else:
-                self.load(data, missing, stop)
+                self.load(data, missing, sep, stop)
         
     def append(self, label, unit=None, formats=None, value=None,
                fac=None, key=None):
@@ -441,8 +445,8 @@ class TableData(object):
             self.units.append(unit or '')
             self.hidden.append(False)
             self.data.append([])
-            if self.nsecs < len(self.header[-1])-1:
-                self.nsecs = len(self.header[-1])-1
+            if self.nsecs < len(self.header[-1]) - 1:
+                self.nsecs = len(self.header[-1]) - 1
         else:
             if isinstance(label, (list, tuple, np.ndarray)):
                 self.header[self.addcol] = list(reversed(label)) + self.header[self.addcol]
@@ -451,8 +455,8 @@ class TableData(object):
                 self.header[self.addcol] = [label] + self.header[self.addcol]
             self.units[self.addcol] = unit or ''
             self.formats[self.addcol] = formats or '%g'
-            if self.nsecs < len(self.header[self.addcol])-1:
-                self.nsecs = len(self.header[self.addcol])-1
+            if self.nsecs < len(self.header[self.addcol]) - 1:
+                self.nsecs = len(self.header[self.addcol]) - 1
         if not key:
             key = label
         if value is not None:
@@ -467,7 +471,7 @@ class TableData(object):
                 self.data[-1][k] *= fac
         self.addcol = len(self.data)
         self.shape = (self.rows(), self.columns())
-        return self.addcol-1
+        return self.addcol - 1
         
     def insert(self, column, label, unit=None, formats=None, value=None):
         """Insert a table column at a given position.
@@ -515,8 +519,8 @@ class TableData(object):
         self.units.insert(col, unit or '')
         self.hidden.insert(col, False)
         self.data.insert(col, [])
-        if self.nsecs < len(self.header[col])-1:
-            self.nsecs = len(self.header[col])-1
+        if self.nsecs < len(self.header[col]) - 1:
+            self.nsecs = len(self.header[col]) - 1
         if value is not None:
             if isinstance(value, (list, tuple, np.ndarray)):
                 self.data[col].extend(value)
@@ -645,7 +649,7 @@ class TableData(object):
                 self.header[self.addcol] = [label] + self.header[self.addcol]
         if self.nsecs < len(self.header[self.addcol]):
             self.nsecs = len(self.header[self.addcol])
-        self.addcol = len(self.data)-1
+        self.addcol = len(self.data) - 1
         self.shape = (self.rows(), self.columns())
         return self.addcol
         
@@ -677,8 +681,8 @@ class TableData(object):
                 column = '%d' % column
             raise IndexError('Cannot insert at non-existing column ' + column)
         self.header[col].append(section)
-        if self.nsecs < len(self.header[col])-1:
-            self.nsecs = len(self.header[col])-1
+        if self.nsecs < len(self.header[col]) - 1:
+            self.nsecs = len(self.header[col]) - 1
         return col
 
     def label(self, column):
@@ -1216,14 +1220,18 @@ class TableData(object):
         """
         rows, cols = self.__setupkey(key)
         if len(cols) == 1:
+            if cols[0] >= self.columns():
+                return None
             if rows is None:
                 return None
             elif isinstance(rows, slice):
                 return np.asarray(self.data[cols[0]][rows])
             elif isinstance(rows, (list, tuple, np.ndarray)):
-                return np.asarray([self.data[cols[0]][r] for r in rows])
-            else:
+                return np.asarray([self.data[cols[0]][r] for r in rows if r < len(self.data[cols[0]])])
+            elif rows < len(self.data[cols[0]]):
                 return self.data[cols[0]][rows]
+            else:
+                return None
         else:
             data = TableData()
             sec_indices = [-1] * self.nsecs
@@ -1240,10 +1248,14 @@ class TableData(object):
                     for r in rows:
                         data.data[-1].append(self.data[c][r])
                 else:
-                    if isinstance(self.data[c][rows], (list, tuple, np.ndarray)):
-                        data.data[-1].extend(self.data[c][rows])
-                    else:
-                        data.data[-1].append(self.data[c][rows])
+                    try:
+                        if isinstance(self.data[c][rows],
+                                      (list, tuple, np.ndarray)):
+                            data.data[-1].extend(self.data[c][rows])
+                        else:
+                            data.data[-1].append(self.data[c][rows])
+                    except IndexError:
+                        data.data[-1].append(np.nan)
             data.nsecs = self.nsecs
             return data
 
@@ -1336,7 +1348,8 @@ class TableData(object):
             elif len(row_indices) > 0:
                 for r in reversed(sorted(row_indices)):
                     for c in cols:
-                        del self.data[c][r]
+                        if r < len(self.data[c]):
+                            del self.data[c][r]
                 self.shape = (self.rows(), self.columns())
         else:
             for c in cols:
@@ -2117,7 +2130,7 @@ class TableData(object):
             unit_style = 'none'
         # find std columns:
         stdev_col = np.zeros(len(self.header), dtype=bool)
-        for c in range(len(self.header)-1):
+        for c in range(len(self.header) - 1):
             if self.header[c+1][0].lower() in ['sd', 'std', 's.d.', 'stdev'] and \
                not self.hidden[c+1]:
                 stdev_col[c] = True
@@ -2267,7 +2280,7 @@ class TableData(object):
                         fh.write(header_sep)
                     first = False
                     if table_format[0] == 'c':
-                        sw -= len(header_sep)*(columns-1)
+                        sw -= len(header_sep)*(columns - 1)
                     elif table_format[0] == 'h':
                         if columns>1:
                             fh.write(' colspan="%d"' % columns)
@@ -2296,7 +2309,7 @@ class TableData(object):
                         fh.write(hs)
                     if table_format[0] == 'c':
                         if not last:
-                            fh.write(header_sep*(columns-1))
+                            fh.write(header_sep*(columns - 1))
                     elif table_format[0] == 't':
                         if latex_label_command:
                             fh.write('}')
@@ -2382,7 +2395,7 @@ class TableData(object):
                     elif formats[c][1] == '-':
                         fh.write(w*'-' + '|')
                     else:
-                        fh.write((w-1)*'-' + ':|')
+                        fh.write((w - 1)*'-' + ':|')
                 fh.write('\n')
             elif table_format[0] == 't':
                 fh.write('  \\hline \\\\[-2ex]\n')
@@ -2517,7 +2530,7 @@ class TableData(object):
         return stream.getvalue()
                 
 
-    def load(self, fh, missing=default_missing_inputs, stop=None):
+    def load(self, fh, missing=default_missing_inputs, sep=None, stop=None):
         """Load table from file or stream.
 
         File type and properties are automatically inferred.
@@ -2529,6 +2542,8 @@ class TableData(object):
         missing: str or list of str
             Missing data are indicated by this string and
             are translated to np.nan.
+        sep: str or None
+            Column separator.
         stop: str or None
             If the beginning of a line matches `stop`, then stop reading the file.
 
@@ -2543,7 +2558,6 @@ class TableData(object):
                 cols, indices = zip(*[(m.group(0), m.start()) for m in re.finditer(r'( ?[\S]+)+(?=[ ][ ]+|\Z)', line.strip())])
             elif table_format == 'csv':
                 cols, indices = zip(*[(c.strip(), i) for i, c in enumerate(line.strip().split(sep)) if c.strip()])
-                return cols, indices
             else:
                 seps = r'[^'+re.escape(sep)+']+'
                 cols, indices = zip(*[(m.group(0), m.start()) for m in re.finditer(seps, line.strip())])
@@ -2564,11 +2578,14 @@ class TableData(object):
                         i += 1
             else:
                 for k, (c, i) in enumerate(zip(cols, indices)):
-                    if k == 0:
-                        c = c.lstrip('|')
-                    if k == len(cols)-1:
-                        c = c.rstrip('|')
+                    if table_format != 'csv':
+                        if k == 0:
+                            c = c.lstrip('|')
+                        if k == len(cols) - 1:
+                            c = c.rstrip('|')
                     cs = c.strip()
+                    if len(cs) >= 2 and cs[0] == '"' and cs[-1] == '"':
+                        cs = cs.strip('"')
                     colss.append(cs)
                     indicess.append(i)
             return colss, indicess
@@ -2626,7 +2643,10 @@ class TableData(object):
                         strf[k] = True
                         if alld[k] < len(c):
                             alld[k] = len(c)
-                        v = c
+                        if len(c) >= 2 and c[0] == '"' and c[-1] == '"':
+                            v = c.strip('"')
+                        else:
+                            v = c
                 self.append_data(v, k)
 
         # initialize:
@@ -2708,6 +2728,8 @@ class TableData(object):
                 break
         # find column separator of data and number of columns:
         col_seps = ['|', ',', ';', ':', '\t', '&', None]
+        if sep is not None:
+            col_seps = [sep]
         colstd = np.zeros(len(col_seps))
         colnum = np.zeros(len(col_seps), dtype=int)
         for k, sep in enumerate(col_seps):
@@ -2728,7 +2750,7 @@ class TableData(object):
             sep = None
             colnum = 1
         else:
-            ci = np.where(np.array(colnum)>1.5)[0]
+            ci = np.where(np.array(colnum) > 1.5)[0]
             ci = ci[np.argmin(colstd[ci])]
             sep = col_seps[ci]
             colnum = int(colnum[ci])
@@ -2753,15 +2775,20 @@ class TableData(object):
                         v = float(c)
                         numbers += 1
                     except ValueError:
-                        pass
+                        break
                 if numbers == 0:
                     key_cols.append(cols)
                     key_indices.append(indices)
                     key_num += 1
                 else:
                     break
+            if len(key_cols) == len(data):
+                key_num = 1
+                key_cols = key_cols[:1]
+                key_indices = key_indices[:1]
+                colnum = len(key_cols[0])
             data = data[key_num:]
-        kr = len(key_cols)-1
+        kr = len(key_cols) - 1
         # check for key with column indices:
         if kr >= 0:
             cols = key_cols[kr]
@@ -2789,7 +2816,7 @@ class TableData(object):
                 kr -= 1
         # check for unit line:
         units = None
-        if kr > 0 and len(key_cols[kr]) == len(key_cols[kr-1]):
+        if kr > 0 and len(key_cols[kr]) == len(key_cols[kr - 1]):
             units = key_cols[kr]
             kr -= 1
         # column labels:
@@ -2824,8 +2851,8 @@ class TableData(object):
             for sec_label, sec_inx in zip(key_cols[kr], key_indices[kr]):
                 col_inx = indices.index(sec_inx)
                 self.header[col_inx].append(sec_label)
-                if self.nsecs < len(self.header[col_inx])-1:
-                    self.nsecs = len(self.header[col_inx])-1
+                if self.nsecs < len(self.header[col_inx]) - 1:
+                    self.nsecs = len(self.header[col_inx]) - 1
         # read data:
         post = np.zeros(colnum)
         precd = np.zeros(colnum)
@@ -3078,8 +3105,8 @@ def latex_unit(unit):
                 units = si_units[uss] + units
                 j = j+k
                 k = 0
-                if j-1 >= 0:
-                    uss = unit[j-1:j]
+                if j - 1 >= 0:
+                    uss = unit[j - 1:j]
                     if uss in si_prefixes:
                         units = si_prefixes[uss] + units
                         k = -1
@@ -3113,7 +3140,7 @@ def index2aa(n, a='a'):
     """
     d, m = divmod(n, 26)
     bm = chr(ord(a)+m)
-    return index2aa(d-1, a) + bm if d else bm
+    return index2aa(d - 1, a) + bm if d else bm
 
 
 def aa2index(s):
@@ -3145,7 +3172,7 @@ def aa2index(s):
         if ord(c) < ord('a') or ord(c) > ord('z'):
             raise ValueError('invalid character "%s" in string.' % c)
         index += ord(c) - ord('a') + 1
-    return index-1
+    return index - 1
 
         
 class IndentStream(object):
