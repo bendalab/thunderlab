@@ -402,7 +402,7 @@ class TableData(object):
                     for key in data[0].keys():
                         if '/' in key:
                             p = key.split('/')
-                            self.append('/'.join(p[:-1]), p[-1].strip())
+                            self.append(p[0].strip(), '/'.join(p[1:]))
                         else:
                             self.append(key)
                     for row in data:
@@ -1491,7 +1491,7 @@ class TableData(object):
                     for key in row:
                         if '/' in key:
                             p = key.split('/')
-                            column = self.index('/'.join(p[:-1]))
+                            column = self.index(p[0].strip())
                         else:
                             column = self.index(key)
                         self.data[column].append(row[key])
