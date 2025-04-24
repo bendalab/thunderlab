@@ -400,10 +400,18 @@ class TableData(object):
                 elif len(data) > 0 and isinstance(data[0], dict):
                     # list of dictionaries:
                     for key in data[0].keys():
-                        self.append(key)
+                        if '/' in key:
+                            p = key.split('/')
+                            self.append('/'.join(p[:-1]), p[-1].strip())
+                        else:
+                            self.append(key)
                     for row in data:
                         for key in row:
-                            column = self.index(key)
+                            if '/' in key:
+                                p = key.split('/')
+                                column = self.index('/'.join(p[:-1]))
+                            else:
+                                column = self.index(key)
                             self.data[column].append(row[key])
                         self.fill_data()
                 else:
@@ -1481,7 +1489,11 @@ class TableData(object):
                 self.fill_data()
                 for row in data:
                     for key in row:
-                        column = self.index(key)
+                        if '/' in key:
+                            p = key.split('/')
+                            column = self.index('/'.join(p[:-1]))
+                        else:
+                            column = self.index(key)
                         self.data[column].append(row[key])
                     self.fill_data()
             else:
