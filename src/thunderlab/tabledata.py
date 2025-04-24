@@ -397,6 +397,15 @@ class TableData(object):
                     for row in data:
                         for c, val in enumerate(row):
                             self.data[c].append(val)
+                elif len(data) > 0 and isinstance(data[0], dict):
+                    # list of dictionaries:
+                    for key in data[0].keys():
+                        self.append(key)
+                    for row in data:
+                        for key in row:
+                            column = self.index(key)
+                            self.data[column].append(row[key])
+                        self.fill_data()
                 else:
                     # 1D list:
                     for c, val in enumerate(data):
@@ -1469,10 +1478,12 @@ class TableData(object):
                 self.setcol = column + len(data[0])
             elif len(data) > 0 and isinstance(data[0], dict):
                 # list of dictionaries:
+                self.fill_data()
                 for row in data:
                     for key in row:
-                        column = self.index(k)
-                        self.data[column].append(data[k])
+                        column = self.index(key)
+                        self.data[column].append(row[key])
+                    self.fill_data()
             else:
                 # 1D list:
                 for val in data:
