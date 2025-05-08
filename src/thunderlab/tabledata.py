@@ -535,7 +535,7 @@ class TableData(object):
 
         Parameters
         -----------
-        columns: int or str or list of int of str
+        columns: int or str or list of int or str
             Columns can be specified by index or name,
             see `index()` for details.
 
@@ -1209,7 +1209,7 @@ class TableData(object):
         -------
         data:
             - A single data value if a single row and a single column is specified.
-            - A ndarray of data elements if a single single column is specified.
+            - A ndarray of data elements if a single column is specified.
             - A TableData object for multiple columns.
             - None if no row is selected (e.g. by a logical index that nowhere is True)
 
@@ -1439,28 +1439,41 @@ class TableData(object):
 
         Parameters
         ----------
-        data: float, int, str, etc. or list thereof or list of list thereof or dict or list of dict
+        data: float, int, str, etc. or list thereof or list of list thereof or dict or list of dict or TableData
             Data values to be appended to successive columns:
-            - A single value is simply appened to the specified column of the table.
+            - A single value is simply appended to the specified
+              column of the table.
             - A 1D-list of values is appended to successive columns of the table
               starting with the specified column.
-            - The columns of a 2D-list of values (second index) are appended
-              to successive columns of the table starting with the specified column.
-            - Values or list of values of a dictionary are added to the
-              columns specified by the keys. Does not affect the current column.
-            - The values of dictionaries in a list are appended to the
-              columns specified by the keys. Does not affect the current column.
+            - The columns (second index) of a 2D-list of values are
+              appended to successive columns of the table starting
+              with the specified column.
+            - Values of a dictionary or of a list of dictionaries are
+              added to the columns specified by the keys. Dictionary
+              values can also be lists of values. Their values are
+              added to successive rows of the columns specified by the
+              dictionary keys. Does not affect the current column.
+            - All elements of a TableData are added to matching columns.
         column: None, int, or str
             The first column to which the data should be appended,
             if `data` does not specify columns.
             If None, append to the current column.
             See self.index() for more information on how to specify a column.
+
         """
         column = self.index(column)
         if column is None:
             column = self.setcol
-        if isinstance(data, (list, tuple, np.ndarray)) and not \
-           (isinstance(data, np.ndarray) and len(data.shape) == 0):
+        if isinstance(data, TableData):
+            for k in data.keys():
+                column = self.index(k)
+                if column is None:
+                    continue
+                c = data.index(k)
+                for r in data.rows():
+                    self.data[column].append(data[r, c])
+        elif isinstance(data, (list, tuple, np.ndarray)) and not \
+             (isinstance(data, np.ndarray) and len(data.shape) == 0):
             if len(data) > 0 and isinstance(data[0], (list, tuple, np.ndarray)):
                 # 2D list, rows first:
                 for row in data:
@@ -1469,10 +1482,13 @@ class TableData(object):
                 self.setcol = column + len(data[0])
             elif len(data) > 0 and isinstance(data[0], dict):
                 # list of dictionaries:
-                for row in data:
-                    for key in row:
+                for d in data:
+                    for key in d:
                         column = self.index(k)
-                        self.data[column].append(data[k])
+                        if isinstance(d[key], (list, tuple, np.ndarray)):
+                            self.data[column].extend(d[k])
+                        else:
+                            self.data[column].append(d[k])
             else:
                 # 1D list:
                 for val in data:
