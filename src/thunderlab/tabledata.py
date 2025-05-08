@@ -1197,9 +1197,12 @@ class TableData(object):
                     raise IndexError('"%s" is not a valid column index' % cols.start)
             stop = cols.stop
             if stop is not None:
+                stop_str = isinstance(stop, str)
                 stop = self.index(stop)
                 if stop is None:
                     raise IndexError('"%s" is not a valid column index' % cols.stop)
+                if stop_str:
+                    stop += 1
             cols = slice(start, stop, cols.step)
             cols = range(self.columns())[cols]
         else:
@@ -1224,6 +1227,8 @@ class TableData(object):
             First key specifies row, (optional) second one the column.
             Columns can be specified by index or name,
             see `index()` for details.
+            If a stop column is specified by name,
+            it is inclusively!
 
         Returns
         -------
@@ -1288,6 +1293,8 @@ class TableData(object):
             First key specifies row, (optional) second one the column.
             Columns can be specified by index or name,
             see `index()` for details.
+            If a stop column is specified by name,
+            it is inclusively!
         value: TableData, list, ndarray, float, ...
             Value(s) used to assing to the table elements as specified by `key`.
 
@@ -1347,6 +1354,8 @@ class TableData(object):
             First key specifies row, (optional) second one the column.
             Columns can be specified by index or name,
             see `index()` for details.
+            If a stop column is specified by name,
+            it is inclusively!
             If all rows are selected, then the specified columns are removed from the table.
             Otherwise only data values are removed.
             If all columns are selected than entire rows of data values are removed.
@@ -1474,6 +1483,7 @@ class TableData(object):
               added to successive rows of the columns specified by the
               dictionary keys. Does not affect the current column.
             - All elements of a TableData are added to matching columns.
+              Does not affect the current column.
         column: None, int, or str
             The first column to which the data should be appended,
             if `data` does not specify columns.
