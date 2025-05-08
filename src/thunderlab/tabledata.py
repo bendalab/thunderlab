@@ -1490,8 +1490,7 @@ class TableData(object):
                 if column is None:
                     continue
                 c = data.index(k)
-                for r in data.rows():
-                    self.data[column].append(data[r, c])
+                self.data[column].extend(data.data[c])
         elif isinstance(data, (list, tuple, np.ndarray)) and not \
              (isinstance(data, np.ndarray) and len(data.shape) == 0):
             if len(data) > 0 and isinstance(data[0], (list, tuple, np.ndarray)):
