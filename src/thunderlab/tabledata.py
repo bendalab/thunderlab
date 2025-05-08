@@ -397,6 +397,26 @@ class TableData(object):
                     for row in data:
                         for c, val in enumerate(row):
                             self.data[c].append(val)
+                elif len(data) > 0 and isinstance(data[0], dict):
+                    # list of dictionaries:
+                    for key in data[0].keys():
+                        if '/' in key:
+                            p = key.split('/')
+                            self.append(p[0].strip(), '/'.join(p[1:]))
+                        else:
+                            self.append(key)
+                    for d in data:
+                        for key in d:
+                            if '/' in key:
+                                p = key.split('/')
+                                column = self.index('/'.join(p[:-1]))
+                            else:
+                                column = self.index(key)
+                            if isinstance(d[key], (list, tuple, np.ndarray)):
+                                self.data[column].extend(d[key])
+                            else::
+                                self.data[column].append(d[key])
+                        self.fill_data()
                 else:
                     # 1D list:
                     for c, val in enumerate(data):
@@ -1484,11 +1504,15 @@ class TableData(object):
                 # list of dictionaries:
                 for d in data:
                     for key in d:
-                        column = self.index(k)
-                        if isinstance(d[key], (list, tuple, np.ndarray)):
-                            self.data[column].extend(d[k])
+                        if '/' in key:
+                            p = key.split('/')
+                            column = self.index(p[0].strip())
                         else:
-                            self.data[column].append(d[k])
+                            column = self.index(key)
+                        if isinstance(d[key], (list, tuple, np.ndarray)):
+                            self.data[column].extend(d[key])
+                        else::
+                            self.data[column].append(d[key])
             else:
                 # 1D list:
                 for val in data:
