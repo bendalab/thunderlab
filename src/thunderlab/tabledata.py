@@ -414,7 +414,7 @@ class TableData(object):
                                 column = self.index(key)
                             if isinstance(d[key], (list, tuple, np.ndarray)):
                                 self.data[column].extend(d[key])
-                            else::
+                            else:
                                 self.data[column].append(d[key])
                         self.fill_data()
                 else:
@@ -1511,7 +1511,7 @@ class TableData(object):
                             column = self.index(key)
                         if isinstance(d[key], (list, tuple, np.ndarray)):
                             self.data[column].extend(d[key])
-                        else::
+                        else:
                             self.data[column].append(d[key])
             else:
                 # 1D list:
