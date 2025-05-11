@@ -2189,7 +2189,7 @@ class TableData(object):
         # find std columns:
         stdev_col = np.zeros(len(self.header), dtype=bool)
         for c in range(len(self.header) - 1):
-            if self.header[c+1][0].lower() in stdev_labels and \
+            if self.header[c+1][0].lower() in self.stdev_labels and \
                not self.hidden[c+1]:
                 stdev_col[c] = True
         # begin table:
@@ -3289,6 +3289,8 @@ def main():
         print('      ```')
         print('')
 
+    df.write(table_format='tex')
+    
         
 if __name__ == "__main__":
     main()
