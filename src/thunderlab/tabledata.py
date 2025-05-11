@@ -337,18 +337,24 @@ class TableData(object):
     
     formats = ['dat', 'ascii', 'csv', 'rtai', 'md', 'tex', 'html']
     """list of strings: Supported output formats."""
+    
     descriptions = {'dat': 'data text file', 'ascii': 'ascii-art table',
                     'csv': 'comma separated values', 'rtai': 'rtai-style table',
                     'md': 'markdown', 'tex': 'latex tabular',
                     'html': 'html markup'}
     """dict: Decription of output formats corresponding to `formats`."""
+    
     extensions = {'dat': 'dat', 'ascii': 'txt', 'csv': 'csv', 'rtai': 'dat',
                   'md': 'md', 'tex': 'tex', 'html': 'html'}
     """dict: Default file extensions for the output `formats`. """
+    
     ext_formats = {'dat': 'dat', 'DAT': 'dat', 'txt': 'dat', 'TXT': 'dat',
                    'csv': 'csv', 'CSV': 'csv', 'md': 'md', 'MD': 'md',
                    'tex': 'tex', 'TEX': 'tex', 'html': 'html', 'HTML': 'html'}
     """dict: Mapping of file extensions to the output formats."""
+
+    stdev_labels = ['sd', 'std', 's.d.', 'stdev', 'error']
+    """list: column labels recognized as standard deviations."""
 
     def __init__(self, data=None, header=None, units=None, formats=None,
                  missing=default_missing_inputs, sep=None, stop=None):
@@ -1860,8 +1866,10 @@ class TableData(object):
             LaTeX command for formatting header labels.
             E.g. 'textbf' for making the header labels bold.
         latex_merge_std: str
-            Merge header of columns with standard deviations with previous column
-            (LaTeX tables only).
+            Merge header of columns with standard deviations with
+            previous column (LaTeX tables only), but separate them
+            with $\pm$. Valid labels for standrad deviations are
+            listed in `TableData.stdev_labels`.
 
         Returns
         -------
@@ -1979,6 +1987,7 @@ class TableData(object):
         </tbody>
         </table>
         ```
+
         """
         # fix parameter:
         if table_format == 'auto':
@@ -2180,7 +2189,7 @@ class TableData(object):
         # find std columns:
         stdev_col = np.zeros(len(self.header), dtype=bool)
         for c in range(len(self.header) - 1):
-            if self.header[c+1][0].lower() in ['sd', 'std', 's.d.', 'stdev'] and \
+            if self.header[c+1][0].lower() in stdev_labels and \
                not self.hidden[c+1]:
                 stdev_col[c] = True
         # begin table:
