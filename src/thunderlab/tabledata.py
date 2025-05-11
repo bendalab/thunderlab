@@ -499,7 +499,8 @@ class TableData(object):
         self.shape = (self.rows(), self.columns())
         return self.addcol - 1
         
-    def insert(self, column, label, unit=None, formats=None, value=None):
+    def insert(self, column, label, unit=None, formats=None, value=None,
+               fac=None, key=None):
         """Insert a table column at a given position.
 
         .. WARNING::
@@ -519,8 +520,17 @@ class TableData(object):
             The C-style format string used for printing out the column content, e.g.
             '%g', '%.2f', '%s', etc.
             If None, the format is set to '%g'.
-        value: None, float, int, str, etc. or list thereof
+        value: None, float, int, str, etc. or list thereof, or list of dict
             If not None, data for the column.
+            If list of dictionaries, extract from each dictionary in the list
+            the value specified by `key`. If `key` is `None` use `label` as
+            the key.
+        fac: float
+            If not None, multiply the data values by this number.
+        key: None or key of a dictionary
+            If not None and `value` is a list of dictionaries,
+            extract from each dictionary in the list the value specified
+            by `key` and assign the resulting list as data to the column.
 
         Returns
         -------
@@ -547,11 +557,18 @@ class TableData(object):
         self.data.insert(col, [])
         if self.nsecs < len(self.header[col]) - 1:
             self.nsecs = len(self.header[col]) - 1
+        if not key:
+            key = label
         if value is not None:
             if isinstance(value, (list, tuple, np.ndarray)):
+                if key and len(value) > 0 and isinstance(value[0], dict):
+                    value = [d[key] if key in d else float('nan') for d in value]
                 self.data[col].extend(value)
             else:
                 self.data[col].append(value)
+        if fac:
+            for k in range(len(self.data[col])):
+                self.data[col][k] *= fac
         self.addcol = len(self.data)
         self.shape = (self.rows(), self.columns())
         return col
@@ -1817,7 +1834,8 @@ class TableData(object):
               unit_style=None, column_numbers=None, sections=None,
               align_columns=None, shrink_width=True,
               missing=default_missing_str, center_columns=False,
-              latex_label_command='', latex_merge_std=False):
+              latex_unit_package=None, latex_label_command='',
+              latex_merge_std=False):
         """Write the table to a file or stream.
 
         Parameters
@@ -1862,6 +1880,11 @@ class TableData(object):
             Indicate missing data by this string.
         center_columns: boolean
             If True center all columns (markdown, html, and latex).
+        latex_unit_package: None or 'siunitx' or 'SIunit'
+            Translate units for the specified LaTeX package.
+            If None set sub- and superscripts in text mode.
+            If 'siunitx', also use `S` columns for numbers to align
+            them on the decimal point.
         latex_label_command: str
             LaTeX command for formatting header labels.
             E.g. 'textbf' for making the header labels bold.
@@ -2212,7 +2235,11 @@ class TableData(object):
                 elif f[1] == '-':
                     fh.write('l')
                 else:
-                    fh.write('r')
+                    if latex_unit_package is not None and \
+                       latex_unit_package.lower() == 'siunitx':
+                        fh.write('S')
+                    else:
+                        fh.write('r')
             fh.write('}\n')
         # retrieve column formats and widths:
         widths = []
@@ -2392,11 +2419,11 @@ class TableData(object):
                 if table_format[0] == 't':
                     if latex_merge_std and stdev_col[c]:
                         merged = True
-                        fh.write('\\multicolumn{2}{c}{%s}' % latex_unit(unit))
+                        fh.write('\\multicolumn{2}{c}{%s}' % latex_unit(unit, latex_unit_package))
                     elif center_columns:
-                        fh.write('\\multicolumn{1}{c}{%s}' % latex_unit(unit))
+                        fh.write('\\multicolumn{1}{c}{%s}' % latex_unit(unit, latex_unit_package))
                     else:
-                        fh.write('\\multicolumn{1}{l}{%s}' % latex_unit(unit))
+                        fh.write('\\multicolumn{1}{l}{%s}' % latex_unit(unit, latex_unit_package))
                 else:
                     if align_columns and not table_format[0] in 'h':
                         f = '%%-%ds' % widths[c]
@@ -3066,13 +3093,16 @@ writing a table to a file.
     return d
 
 
-def latex_unit(unit):
-    """Translate unit string into SIunit LaTeX code.
+def latex_unit(unit, unit_package=None):
+    """Translate unit string into LaTeX code.
     
     Parameters
     ----------
     unit: str
-        String enoting a unit.
+        String denoting a unit.
+    unit_package: None or 'siunitx' or 'SIunit'
+        Translate unit string for the specified LaTeX package.
+        If None set sub- and superscripts in text mode.
         
     Returns
     -------
@@ -3104,6 +3134,7 @@ def latex_unit(unit):
                'A': '\\ampere',
                'K': '\\kelvin',
                'mol': '\\mole',
+               'M': '\\mole',
                'cd': '\\candela',
                'Hz': '\\hertz',
                'N': '\\newton',
@@ -3144,35 +3175,61 @@ def latex_unit(unit):
               '^-1': '\\power{}{-1}',
               '^-2': '\\rpsquared',
               '^-3': '\\rpcubed'}
-    if '\\' in unit:   # this string is already translated!
-        return unit
-    units = ''
-    j = len(unit)
-    while j >= 0:
-        for k in range(-3, 0):
-            if j+k < 0:
-                continue
-            uss = unit[j+k:j]
-            if uss in unit_powers:
-                units = unit_powers[uss] + units
-                break
-            elif uss in other_units:
-                units = other_units[uss] + units
-                break
-            elif uss in si_units:
-                units = si_units[uss] + units
-                j = j+k
-                k = 0
-                if j - 1 >= 0:
-                    uss = unit[j - 1:j]
-                    if uss in si_prefixes:
-                        units = si_prefixes[uss] + units
-                        k = -1
-                break
-        else:
-            k = -1
-            units = unit[j+k:j] + units
-        j = j + k
+    if unit_package is None:
+        # without any unit package:
+        units = ''
+        k = 0
+        while k < len(unit):
+            if unit[k] == '^':
+                j = k + 1
+                while j < len(unit) and (unit[j] == '-' or unit[j].isdigit()):
+                    j += 1
+                units = units + '$^{\\text{' + unit[k + 1:j] + '}}$'
+                k = j
+            elif unit[k] == '_':
+                j = k + 1
+                while j < len(unit) and not unit[j].isspace():
+                    j += 1
+                units = units + '$_{\\text{' + unit[k + 1:j] + '}}$'
+                k = j
+            else:
+                units = units + unit[k]
+                k += 1
+    elif unit_package.lower() in ['siunit', 'siunitx']:
+        # use SIunit package:
+        if '\\' in unit:   # this string is already translated!
+            return unit
+        units = ''
+        j = len(unit)
+        while j >= 0:
+            for k in range(-3, 0):
+                if j+k < 0:
+                    continue
+                uss = unit[j+k:j]
+                if uss in unit_powers:
+                    units = unit_powers[uss] + units
+                    break
+                elif uss in other_units:
+                    units = other_units[uss] + units
+                    break
+                elif uss in si_units:
+                    units = si_units[uss] + units
+                    j = j+k
+                    k = 0
+                    if j - 1 >= 0:
+                        uss = unit[j - 1:j]
+                        if uss in si_prefixes:
+                            units = si_prefixes[uss] + units
+                            k = -1
+                    break
+            else:
+                k = -1
+                units = unit[j+k:j] + units
+            j = j + k
+        if unit_package.lower() == 'siunitx':
+            units = '\\unit{' + units + '}'
+    else:
+        raise ValueError(f'latex_unit(): invalid unit_package={unit_package}!')
     return units
 
 
@@ -3279,17 +3336,17 @@ def main():
     a = 0.5*np.arange(1, 6)*np.random.randn(5, 5) + 10.0 + np.arange(5)
     df.append_data(a.T, 1) # rest of table
     df[3:6,'weight'] = [11.0]*3
+    df.insert('median', 's.d.', 'm/s', '%.3g', 2*np.random.rand(df.rows()))
     
     # write out in all formats:
     for tf in TableData.formats:
         print('    - `%s`: %s' % (tf, TableData.descriptions[tf]))
         print('      ```')
         iout = IndentStream(sys.stdout, 4+2)
-        df.write(iout, table_format=tf)
+        df.write(iout, table_format=tf, latex_unit_package='siunitx',
+                 latex_merge_std=True)
         print('      ```')
         print('')
-
-    df.write(table_format='tex')
     
         
 if __name__ == "__main__":
