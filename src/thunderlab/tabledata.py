@@ -408,16 +408,23 @@ class TableData(object):
                     for key in data[0].keys():
                         if '/' in key:
                             p = key.split('/')
-                            self.append(p[0].strip(), '/'.join(p[1:]))
+                            self.append(p[0].strip(), '/'.join(p[1:]).strip())
                         else:
-                            self.append(key)
+                            self.append(key.strip())
                     for d in data:
                         for key in d:
                             if '/' in key:
                                 p = key.split('/')
-                                column = self.index('/'.join(p[:-1]))
+                                k = p[0].strip()
+                                column = self.index(k)
+                                if column is None:
+                                    self.append(k, '/'.join(p[1:]).strip())
+                                    column = self.index(k)
                             else:
                                 column = self.index(key)
+                                if column is None:
+                                    self.append(key.strip())
+                                    column = self.index(key)
                             if isinstance(d[key], (list, tuple, np.ndarray)):
                                 self.data[column].extend(d[key])
                             else:
@@ -1519,11 +1526,11 @@ class TableData(object):
             column = self.setcol
         if isinstance(data, TableData):
             for k in data.keys():
-                column = self.index(k)
-                if column is None:
+                col = self.index(k)
+                if col is None:
                     continue
                 c = data.index(k)
-                self.data[column].extend(data.data[c])
+                self.data[col].extend(data.data[c])
         elif isinstance(data, (list, tuple, np.ndarray)) and not \
              (isinstance(data, np.ndarray) and len(data.shape) == 0):
             if len(data) > 0 and isinstance(data[0], (list, tuple, np.ndarray)):
@@ -1538,13 +1545,15 @@ class TableData(object):
                     for key in d:
                         if '/' in key:
                             p = key.split('/')
-                            column = self.index(p[0].strip())
+                            col = self.index(p[0].strip())
                         else:
-                            column = self.index(key)
+                            col = self.index(key)
+                        if col is None:
+                            continue
                         if isinstance(d[key], (list, tuple, np.ndarray)):
-                            self.data[column].extend(d[key])
+                            self.data[col].extend(d[key])
                         else:
-                            self.data[column].append(d[key])
+                            self.data[col].append(d[key])
             else:
                 # 1D list:
                 for val in data:
@@ -1554,11 +1563,13 @@ class TableData(object):
         elif isinstance(data, dict):
             # dictionary with values:
             for key in data:
-                column = self.index(key)
+                col = self.index(key)
+                if col is None:
+                    continue
                 if isinstance(data[key], (list, tuple, np.ndarray)):
-                    self.data[column].extend(data[key])
+                    self.data[col].extend(data[key])
                 else:
-                    self.data[column].append(data[key])
+                    self.data[col].append(data[key])
         else:
             # single value:
             self.data[column].append(data)
@@ -1891,7 +1902,7 @@ class TableData(object):
         latex_merge_std: str
             Merge header of columns with standard deviations with
             previous column (LaTeX tables only), but separate them
-            with $\pm$. Valid labels for standrad deviations are
+            with $\\pm$. Valid labels for standrad deviations are
             listed in `TableData.stdev_labels`.
 
         Returns
