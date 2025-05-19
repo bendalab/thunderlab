@@ -266,6 +266,7 @@ class TableData(object):
     - `size`: number of elements (sum of length of all data columns).
     - `shape`: number of rows and columns.
     - `row()`: a single row of the table as TableData.
+    - `row_list()`: a single row of the table as list.
     - `row_dict()`: a single row of the table as dictionary.
     - `col()`: a single column of the table as TableData.
     - `__call__()`: a single column of the table as ndarray.
@@ -1139,7 +1140,7 @@ class TableData(object):
         return len(self.header)
 
     def row(self, index):
-        """A single row of the table.
+        """A single row of the table as TableData.
 
         Parameters
         ----------
@@ -1164,8 +1165,26 @@ class TableData(object):
         data.nsecs = self.nsecs
         return data
 
+    def row_list(self, index):
+        """A single row of the table as list.
+
+        Parameters
+        ----------
+        index: int
+            The index of the row to be returned.
+
+        Returns
+        -------
+        data: list
+            A list wit data values of each column of row `index`.
+        """
+        data = []
+        for c in range(self.columns()):
+            data.append(self.data[c][index])
+        return data
+
     def row_dict(self, index):
-        """A single row of the table.
+        """A single row of the table as dictionary.
 
         Parameters
         ----------
@@ -1180,7 +1199,7 @@ class TableData(object):
         """
         data = {}
         for c in range(self.columns()):
-            data[self.label(c)] = self.data[c][index]
+            data[self.column_spec(c)] = self.data[c][index]
         return data
 
     def column(self, col):

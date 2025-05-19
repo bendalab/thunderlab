@@ -246,6 +246,11 @@ def test_read_access():
         assert np.array_equal(df[r,:].array(0), data[r,:]), 'slicing of full row failed'
         assert np.array_equal(df.row(r)[0,:].array(0), data[r,:]), 'slicing of full row failed'
         d = df.row_dict(r)
+        for i, k in enumerate(d):
+            assert d[k] == data[r, i], 'row_dict() failed'
+        d = df.row_list(r)
+        for i, v in enumerate(d):
+            assert v == data[r, i], 'row_list() failed'
 
 
 def test_write_access():
