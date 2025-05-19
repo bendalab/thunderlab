@@ -2982,7 +2982,6 @@ class TableData(object):
                            strf, missing, nans)
         # set formats:
         for k in range(len(alld)):
-            print(self.header[k][0], '\t', alld[k], strf[k], exped[k], fixed[k])
             if strf[k]:
                 self.set_format('%%-%ds' % alld[k], k)
                 # make sure all elements are strings:
