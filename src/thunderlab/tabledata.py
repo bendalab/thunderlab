@@ -182,9 +182,9 @@ class TableData(object):
     
     - `keys()`: list of unique column keys for all available columns.
     - `values()`: list of column data corresponding to keys().
-    - `items()`: list of tuples with unique column specifications and the corresponding data.
+    - `items()`: generator over column names and the corresponding data.
     - `__iter__()`: initialize iteration over data columns.
-    - `__next__()`: return data of next column as a list.
+    - `__next__()`: return unique column key of next column.
     - `data`: the table data as a list over columns each containing a list of data elements.
 
     For example:
@@ -446,7 +446,7 @@ class TableData(object):
                 self.load(data, missing, sep, stop)
 
     def __recompute_shape(self):
-        self.size = np.sum([len(d) for d in self.data])
+        self.size = sum(map(len, self.data))
         self.shape = (self.rows(), self.columns())
         
     def append(self, label, unit=None, formats=None, value=None,
@@ -924,7 +924,7 @@ class TableData(object):
         Returns
         -------
         s: str
-            Full specification of the column by all its section names and its header name.
+            Full specification of the column by all its section names and its header label.
         """
         c = self.index(column)
         fh = [self.header[c][0]]
@@ -1049,7 +1049,7 @@ class TableData(object):
         return [self.column_spec(c) for c in range(self.columns())]
 
     def values(self):
-        """List of column data corresponding to keys().
+        """List of column data corresponding to keys(). Same as `self.data`.
 
         Returns
         -------
@@ -1059,14 +1059,15 @@ class TableData(object):
         return self.data
 
     def items(self):
-        """Column names and corresponding data.
+        """Generator over column names and corresponding data.
 
         Returns
         -------
         items: list of tuples
             Unique column specifications and the corresponding data.
         """
-        return [(self.column_spec(c), self.data[c]) for c in range(self.columns())]
+        for c in range(self.columns()):
+            yield self.column_spec(c), self.data[c]
         
     def __len__(self):
         """The number of rows.
@@ -1085,27 +1086,18 @@ class TableData(object):
         return self
 
     def __next__(self):
-        """Next column of data.
+        """Next unique column key.
 
         Returns
         -------
-        data: list of values
-            Table data of next column.
+        s: str
+            Full specification of the column by all its section names and its header label.
         """
         self.iter_counter += 1
         if self.iter_counter >= self.columns():
             raise StopIteration
         else:
-            return self.data[self.iter_counter]
-
-    def next(self):
-        """Return next data columns.  (python2 syntax)
-
-        See also:
-        ---------
-        `__next__()`
-        """
-        return self.__next__()
+            return self.column_spec(self.iter_counter)
 
     def rows(self):
         """The number of rows.

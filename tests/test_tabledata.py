@@ -58,6 +58,9 @@ def test_columns():
         assert k in df, 'key %s not found in table' % k
         assert not ('xx'+k) in df, 'key %s found in table' % k
         assert not (k+'xx') in df, 'key %s found in table' % k
+    for c, k in enumerate(df):
+        assert c == df.index(k), 'index %s is not %d' % (k, c)
+        assert k in df, 'key %s not found in table' % k
     for c in range(df.columns()):
         k = df.column_spec(c)
         assert c == df.index(k), 'index %s is not %d' % (k, c)
@@ -234,8 +237,6 @@ def test_read_access():
         assert np.array_equal(df(c), data[:,c]), 'slicing of full column failed'
         assert np.array_equal(df[:,c], data[:,c]), 'slicing of full column failed'
         assert np.array_equal(df.col(c)[:,0], data[:,c]), 'slicing of full column failed'
-    for c, d in enumerate(df):
-        assert np.array_equal(d, data[:,c]), 'iterating of full column failed'
     # reading full row slices:
     for r in range(df.rows()):
         assert np.array_equal(df[r,:].array(0), data[r,:]), 'slicing of full row failed'
