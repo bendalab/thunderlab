@@ -2276,12 +2276,12 @@ class TableData(object):
             # adapt width to data:
             if f[-1] == 's':
                 for v in self.data[c]:
-                    if not isinstance(v, (float, np.floating)) and w < len(v):
+                    if isinstance(v, str) and w < len(v):
                         w = len(v)
             else:
                 fs = f[:i0] + str(0) + f[i1:]
                 for v in self.data[c]:
-                    if isinstance(v, (float, np.floating)) and m.isnan(v):
+                    if v is None or (isinstance(v, (float, np.floating)) and m.isnan(v)):
                         s = missing
                     else:
                         try:
@@ -2531,7 +2531,7 @@ class TableData(object):
                     else:
                         fh.write(' align="right"')
                 fh.write(data_close)
-                if k >= len(self.data[c]) or \
+                if k >= len(self.data[c]) or self.data[c][k] is None or \
                    (isinstance(self.data[c][k], (float, np.floating)) and m.isnan(self.data[c][k])):
                     # missing data:
                     if table_format[0] == 't' and latex_merge_std and stdev_col[c]:
@@ -2735,6 +2735,8 @@ class TableData(object):
                     if c in missing:
                         v = np.nan
                         nans[k] = c
+                    elif len(c) == 0 and not strf[k]:
+                        v = np.nan
                     else:
                         strf[k] = True
                         if alld[k] < len(c):
@@ -2744,6 +2746,7 @@ class TableData(object):
                         else:
                             v = c
                 self.append_data(v, k)
+            self.fill_data()
 
         # initialize:
         if isinstance(missing, str):
@@ -2950,14 +2953,14 @@ class TableData(object):
                 if self.nsecs < len(self.header[col_inx]) - 1:
                     self.nsecs = len(self.header[col_inx]) - 1
         # read data:
-        post = np.zeros(colnum)
-        precd = np.zeros(colnum)
-        alld = np.zeros(colnum)
+        post = np.zeros(colnum, dtype=int)
+        precd = np.zeros(colnum, dtype=int)
+        alld = np.zeros(colnum, dtype=int)
         numc = [False] * colnum
         exped = [True] * colnum
         fixed = [True] * colnum
         strf = [False] * colnum
-        nans = [None] * colnum
+        nans = [None] * colnum   # for each column the missing string that was encountered.
         for line in data:
             read_data_line(line, sep, post, precd, alld, numc, exped, fixed,
                            strf, missing, nans)
@@ -2979,6 +2982,7 @@ class TableData(object):
                            strf, missing, nans)
         # set formats:
         for k in range(len(alld)):
+            print(self.header[k][0], '\t', alld[k], strf[k], exped[k], fixed[k])
             if strf[k]:
                 self.set_format('%%-%ds' % alld[k], k)
                 # make sure all elements are strings:
