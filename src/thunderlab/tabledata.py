@@ -192,6 +192,9 @@ class TableData(object):
     print('column specifications:')
     for c in range(df.columns()):
         print(df.column_spec(c))
+    print('iterating over column specifications:')
+    for c, k in enumerate(df):
+        print(f'{c}: {k}')
     print('keys():')
     for c, k in enumerate(df.keys()):
         print(f'{c}: {k}')
@@ -210,6 +213,12 @@ class TableData(object):
     data>complete reaction>speed
     data>complete reaction>median jitter
     data>complete reaction>size
+    iterating over column specifications:
+    0: data>partial information>size
+    1: data>partial information>full weight
+    2: data>complete reaction>speed
+    3: data>complete reaction>median jitter
+    4: data>complete reaction>size
     keys():
     0: data>partial information>size
     1: data>partial information>full weight
@@ -235,9 +244,13 @@ class TableData(object):
 
     In contrast to the iterator functions the [] operator treats the
     table as a 2D-array where the first index indicates the row and
-    the second index the column.
+    the second index the column. 
 
-    Like a numpy aray the table can be sliced, and logical indexing can
+    A single index selects rows, unless it is specified by
+    strings. Since strings can only specify column names, this selects
+    whole columns.
+
+    Like a numpy array the table can be sliced, and logical indexing can
     be used to select specific parts of the table.
     
     As for any function, columns can be specified as indices or strings.
@@ -1218,8 +1231,15 @@ class TableData(object):
             If an invalid column was specified.
         """
         if type(key) is not tuple:
-            rows = key
-            cols = range(self.columns())
+            if isinstance(key, str):
+                cols = key
+                rows = slice(0, self.rows(), 1)
+            elif isinstance(key, slice) and isinstance(key.start, str) and isinstance(key.stop, str):
+                cols = key
+                rows = slice(0, self.rows(), 1)
+            else:
+                rows = key
+                cols = range(self.columns())
         else:
             rows = key[0]
             cols = key[1]
@@ -1258,9 +1278,10 @@ class TableData(object):
         Parameters
         -----------
         key:
-            First key specifies row, (optional) second one the column.
+            First key specifies row, (optional) second key the column.
             Columns can be specified by index or name,
             see `index()` for details.
+            A single key of strings selects columns by their names: `td[:, 'col'] == td['col']`
             If a stop column is specified by name,
             it is inclusively!
 
@@ -1327,6 +1348,7 @@ class TableData(object):
             First key specifies row, (optional) second one the column.
             Columns can be specified by index or name,
             see `index()` for details.
+            A single key of strings selects columns by their names: `td[:, 'col'] == td['col']`
             If a stop column is specified by name,
             it is inclusively!
         value: TableData, list, ndarray, float, ...
@@ -1388,6 +1410,7 @@ class TableData(object):
             First key specifies row, (optional) second one the column.
             Columns can be specified by index or name,
             see `index()` for details.
+            A single key of strings selects columns by their names: `td[:, 'col'] == td['col']`
             If a stop column is specified by name,
             it is inclusively!
             If all rows are selected, then the specified columns are removed from the table.

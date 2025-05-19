@@ -237,6 +237,10 @@ def test_read_access():
         assert np.array_equal(df(c), data[:,c]), 'slicing of full column failed'
         assert np.array_equal(df[:,c], data[:,c]), 'slicing of full column failed'
         assert np.array_equal(df.col(c)[:,0], data[:,c]), 'slicing of full column failed'
+    # reading full column slices by name:
+    for k in df:
+        assert np.array_equal(df(k), df[:,k]), f'slicing of full column failed'
+        assert np.array_equal(df[k], df[:,k]), 'slicing of full column failed'
     # reading full row slices:
     for r in range(df.rows()):
         assert np.array_equal(df[r,:].array(0), data[r,:]), 'slicing of full row failed'
