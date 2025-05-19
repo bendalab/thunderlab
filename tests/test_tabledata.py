@@ -251,6 +251,9 @@ def test_read_access():
         d = df.row_list(r)
         for i, v in enumerate(d):
             assert v == data[r, i], 'row_list() failed'
+    for r, d in enumerate(df.row_data()):
+        for i, v in enumerate(d):
+            assert v == data[r, i], 'row_data() failed'
 
 
 def test_write_access():

@@ -267,6 +267,7 @@ class TableData(object):
     - `shape`: number of rows and columns.
     - `row()`: a single row of the table as TableData.
     - `row_list()`: a single row of the table as list.
+    - `row_data()`: a generator for iterating over rows of the table.
     - `row_dict()`: a single row of the table as dictionary.
     - `col()`: a single column of the table as TableData.
     - `__call__()`: a single column of the table as ndarray.
@@ -1081,9 +1082,9 @@ class TableData(object):
     def items(self):
         """Generator over column names and corresponding data.
 
-        Returns
-        -------
-        items: list of tuples
+        Yields
+        ------
+        item: tuple
             Unique column specifications and the corresponding data.
         """
         for c in range(self.columns()):
@@ -1176,12 +1177,23 @@ class TableData(object):
         Returns
         -------
         data: list
-            A list wit data values of each column of row `index`.
+            A list with data values of each column of row `index`.
         """
         data = []
         for c in range(self.columns()):
             data.append(self.data[c][index])
         return data
+
+    def row_data(self):
+        """A generator for iterating over rows of the table.
+
+        Yields
+        ------
+        data: list
+            A list with data values of each column.
+        """
+        for r in range(self.rows()):
+            yield self.row_list(r)
 
     def row_dict(self, index):
         """A single row of the table as dictionary.
