@@ -41,10 +41,12 @@ def test_write():
 
 def test_properties():
     df = setup_table()
-    assert len(df) == 5, 'len() failed %d' % len(df)
+    assert len(df) == 8, 'len() failed %d' % len(df)
     assert df.columns() == 5, 'columns() failed %d' % df.columns()
     assert df.rows() == 8, 'rows() failed %d' % df.rows()
     assert df.shape == (8, 5), 'shape failed %d %d' % df.shape
+    assert df.ndim == 2, 'ndim failed %d' % df.ndim
+    assert df.size == 8*5, 'size failed %d' % df.ndim
 
 def test_columns():
     df = setup_table(False)

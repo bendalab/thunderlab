@@ -158,7 +158,7 @@ class TableData(object):
     table headers with sections the colum can be specified by the
     section names and the column name separated by '>'.
     
-    - `index()`: the index of a column.
+    - `index()`: the column index of a column specifier.
     - `__contains__()`: check for existence of a column.
     - `find_col()`: find the start and end index of a column specification.
     - `column_spec()`: full specification of a column with all its section names.
@@ -177,11 +177,12 @@ class TableData(object):
     A table behaves like an ordered dictionary with column names as
     keys and the data of each column as values.
     Iterating over a table goes over columns.
+    Note, however, that the len() of a table is the number of rows,
+    not the number of columns!
     
     - `keys()`: list of unique column keys for all available columns.
     - `values()`: list of column data corresponding to keys().
     - `items()`: list of tuples with unique column specifications and the corresponding data.
-    - `__len__()`: the number of columns.
     - `__iter__()`: initialize iteration over data columns.
     - `__next__()`: return data of next column as a list.
     - `data`: the table data as a list over columns each containing a list of data elements.
@@ -193,7 +194,7 @@ class TableData(object):
         print(df.column_spec(c))
     print('keys():')
     for c, k in enumerate(df.keys()):
-        print('%d: %s' % (c, k))
+        print(f'{c}: {k}')
     print('values():')
     for c, v in enumerate(df.values()):
         print(v)
@@ -243,6 +244,9 @@ class TableData(object):
     
     - `rows()`: the number of rows.
     - `columns()`: the number of columns.
+    - `__len__()`: the number of rows.
+    - `ndim`: always 2.
+    - `size`: number of elements (sum of length of all data columns).
     - `shape`: number of rows and columns.
     - `row()`: a single row of the table as TableData.
     - `row_dict()`: a single row of the table as dictionary.
@@ -359,6 +363,8 @@ class TableData(object):
     def __init__(self, data=None, header=None, units=None, formats=None,
                  missing=default_missing_inputs, sep=None, stop=None):
         self.data = []
+        self.ndim = 2
+        self.size = 0
         self.shape = (0, 0)
         self.header = []
         self.nsecs = 0
@@ -378,6 +384,8 @@ class TableData(object):
                 self.append(h, u, f)            
         if data is not None:
             if isinstance(data, TableData):
+                self.ndim = data.ndim
+                self.size = data.size
                 self.shape = data.shape
                 self.nsecs = data.nsecs
                 self.setcol = data.setcol
@@ -436,6 +444,10 @@ class TableData(object):
                         self.data[c].append(val)
             else:
                 self.load(data, missing, sep, stop)
+
+    def __recompute_shape(self):
+        self.size = np.sum([len(d) for d in self.data])
+        self.shape = (self.rows(), self.columns())
         
     def append(self, label, unit=None, formats=None, value=None,
                fac=None, key=None):
@@ -503,7 +515,7 @@ class TableData(object):
             for k in range(len(self.data[-1])):
                 self.data[-1][k] *= fac
         self.addcol = len(self.data)
-        self.shape = (self.rows(), self.columns())
+        self.__recompute_shape()
         return self.addcol - 1
         
     def insert(self, column, label, unit=None, formats=None, value=None,
@@ -577,7 +589,7 @@ class TableData(object):
             for k in range(len(self.data[col])):
                 self.data[col][k] *= fac
         self.addcol = len(self.data)
-        self.shape = (self.rows(), self.columns())
+        self.__recompute_shape()
         return col
 
     def remove(self, columns):
@@ -616,7 +628,7 @@ class TableData(object):
             del self.data[c]
         if self.setcol >= len(self.data):
             self.setcol = 0
-        self.shape = (self.rows(), self.columns())
+        self.__recompute_shape()
 
     def section(self, column, level):
         """The section name of a specified column.
@@ -700,7 +712,7 @@ class TableData(object):
         if self.nsecs < len(self.header[self.addcol]):
             self.nsecs = len(self.header[self.addcol])
         self.addcol = len(self.data) - 1
-        self.shape = (self.rows(), self.columns())
+        self.__recompute_shape()
         return self.addcol
         
     def insert_section(self, column, section):
@@ -989,7 +1001,7 @@ class TableData(object):
         return c0, c1
 
     def index(self, column):
-        """The index of a column.
+        """The column index of a column specifier.
         
         Parameters
         ----------
@@ -1057,14 +1069,14 @@ class TableData(object):
         return [(self.column_spec(c), self.data[c]) for c in range(self.columns())]
         
     def __len__(self):
-        """The number of columns.
+        """The number of rows.
         
         Returns
         -------
-        columns: int
-            The number of columns contained in the table.
+        rows: int
+            The number of rows contained in the table.
         """
-        return self.columns()
+        return self.rows()
 
     def __iter__(self):
         """Initialize iteration over data columns.
@@ -1409,11 +1421,11 @@ class TableData(object):
                     for c in cols:
                         if r < len(self.data[c]):
                             del self.data[c][r]
-                self.shape = (self.rows(), self.columns())
+            self.__recompute_shape()
         else:
             for c in cols:
                 del self.data[c][row_indices]
-            self.shape = (self.rows(), self.columns())
+            self.__recompute_shape()
 
     def array(self, row=None):
         """The table data as a ndarray.
@@ -1576,7 +1588,7 @@ class TableData(object):
             self.setcol = column + 1
         if self.setcol >= len(self.data):
             self.setcol = 0
-        self.shape = (self.rows(), self.columns())
+        self.__recompute_shape()
 
     def append_data_column(self, data, column=None):
         """Append data elements to a column.
@@ -1604,7 +1616,7 @@ class TableData(object):
             self.setcol = column+1
         if self.setcol >= len(self.data):
             self.setcol = 0
-        self.shape = (self.rows(), self.columns())
+        self.__recompute_shape()
 
     def set_column(self, column):
         """Set the column where to add data.
@@ -1639,7 +1651,7 @@ class TableData(object):
             while len(self.data[c]) < maxr:
                 self.data[c].append(np.nan)
         self.setcol = 0
-        self.shape = (self.rows(), self.columns())
+        self.__recompute_shape()
 
     def clear_data(self):
         """Clear content of the table but keep header.
@@ -1647,7 +1659,7 @@ class TableData(object):
         for c in range(len(self.data)):
             self.data[c] = []
         self.setcol = 0
-        self.shape = (self.rows(), self.columns())
+        self.__recompute_shape()
                 
     def sort(self, columns, reverse=False):
         """Sort the table rows in place.
@@ -2752,6 +2764,7 @@ class TableData(object):
         if isinstance(missing, str):
             missing = [missing]
         self.data = []
+        self.ndim = 2
         self.shape = (0, 0)
         self.header = []
         self.nsecs = 0
