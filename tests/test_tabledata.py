@@ -91,7 +91,7 @@ def test_columns():
     for dc, vc in zip(df.data, df.values()):
         assert np.all(dc == vc), 'data and value columns differ'
     for k, v in df.items():
-        assert np.all(df.col(k).array()[:,0] == v), 'data and value for column %s differ' % k
+        assert np.all(df.column(k).array()[:,0] == v), 'data and value for column %s differ' % k
 
 def test_removal():
     for i in range(20):
@@ -236,7 +236,7 @@ def test_read_access():
     for c in range(df.columns()):
         assert np.array_equal(df(c), data[:,c]), 'slicing of full column failed'
         assert np.array_equal(df[:,c], data[:,c]), 'slicing of full column failed'
-        assert np.array_equal(df.col(c)[:,0], data[:,c]), 'slicing of full column failed'
+        assert np.array_equal(df.column(c)[:,0], data[:,c]), 'slicing of full column failed'
     # reading full column slices by name:
     for k in df:
         assert np.array_equal(df(k), df[:,k]), f'slicing of full column failed'

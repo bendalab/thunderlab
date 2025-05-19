@@ -244,7 +244,11 @@ class TableData(object):
 
     In contrast to the iterator functions the [] operator treats the
     table as a 2D-array where the first index indicates the row and
-    the second index the column. 
+    the second index the column.
+
+    Rows are indexed by integer row numbers or boolean arrays.
+    Columns are also indexed by integer column numbers, but in
+    addition can be index by their names.
 
     A single index selects rows, unless it is specified by
     strings. Since strings can only specify column names, this selects
@@ -285,12 +289,13 @@ class TableData(object):
     For example:
     ```
     # single column:    
-    df('size')     # data of 'size' column as ndarray
-    df[:,'size']   # data of 'size' column as ndarray
-    df.col('size') # table with the single column 'size'
+    df('size')      # data of 'size' column as ndarray
+    df['size']      # data of 'size' column as ndarray
+    df[:, 'size']   # data of 'size' column as ndarray
+    df.col('size')  # table with the single column 'size'
 
     # single row:    
-    df[2,:]    # table with data of only the third row
+    df[2, :]   # table with data of only the third row
     df.row(2)  # table with data of only the third row
 
     # slices:
@@ -298,12 +303,13 @@ class TableData(object):
     df[2:5,['size','jitter']].array()  # ndarray with data only
 
     # logical indexing:
-    df[df('speed') > 100.0, 'size'] = 0.0 # set size to 0 if speed is > 100
+    df[df['speed'] > 100.0, 'size'] = 0.0 # set size to 0 if speed is > 100
 
     # delete:
     del df[3:6, 'weight']  # delete rows 3-6 from column 'weight'
-    del df[3:5,:]          # delete rows 3-5 completeley
-    del df[:,'speed']      # remove column 'speed' from table
+    del df[3:5, :]         # delete rows 3-5 completeley
+    del df[:, 'speed']     # remove column 'speed' from table
+    del df['speed']        # remove column 'speed' from table
     df.remove('weight')    # remove column 'weigth' from table
 
     # sort and statistics:
@@ -1177,12 +1183,12 @@ class TableData(object):
             data[self.label(c)] = self.data[c][index]
         return data
 
-    def col(self, column):
+    def column(self, col):
         """A single column of the table.
 
         Parameters
         ----------
-        column: None, int, or str
+        col: None, int, or str
             The column to be returned.
             See self.index() for more information on how to specify a column.
 
@@ -1192,7 +1198,7 @@ class TableData(object):
             A TableData object with a single column.
         """
         data = TableData()
-        c = self.index(column)
+        c = self.index(col)
         data.append(*self.column_head(c))
         data.data = [self.data[c]]
         data.nsecs = 0
