@@ -285,6 +285,7 @@ class TableData(object):
     - `fill_data()`: fill up all columns with missing data.
     - `clear_data()`: clear content of the table but keep header.
     - `key_value()`: a data element returned as a key-value pair.
+    - `aggregate()`: apply functions to columns.
     - `groupby()`: iterate through unique values of columns.
     
     - `sort()`: sort the table rows in place.
@@ -505,8 +506,19 @@ class TableData(object):
         """
         if self.addcol >= len(self.data):
             if isinstance(label, (list, tuple, np.ndarray)):
-                self.header.append(list(reversed(label)))
-                label = label[-1]
+                label = list(reversed(label))
+                s = 1
+                while s < len(label):
+                    c = len(self.header) - 1
+                    while c >= 0:
+                        if len(self.header[c]) > s and \
+                           self.header[c][s] == label[s]:
+                            label = label[:s]
+                            break
+                        c -= 1
+                    s += 1
+                self.header.append(label)
+                label = label[0]
             else:
                 self.header.append([label])
             self.formats.append(formats or '%g')
@@ -586,9 +598,7 @@ class TableData(object):
         """
         col = self.index(column)
         if col is None:
-            if isinstance(column, (np.integer, int)):
-                column = '%d' % column
-            raise IndexError('Cannot insert before non-existing column ' + column)
+            raise IndexError(f'Cannot insert before non-existing column "{column}"')
         if isinstance(label, (list, tuple, np.ndarray)):
             self.header.insert(col, list(reversed(label)))
         else:
@@ -914,7 +924,7 @@ class TableData(object):
         data.nsecs = self.nsecs
         return data
 
-    def column_head(self, column):
+    def column_head(self, column, secs=False):
         """The name, unit, and format of a column.
 
         Parameters
@@ -922,18 +932,29 @@ class TableData(object):
         column: None, int, or str
             A specification of a column.
             See self.index() for more information on how to specify a column.
+        secs: bool
+            If True, return all section names in addition to the column label.
 
         Returns
         -------
-        name: str
-            The column label.
+        name: str or list of str
+            The column label or the label with all its sections.
         unit: str
             The unit.
         format: str
             The format string.
         """
         column = self.index(column)
-        return self.header[column][0], self.units[column], self.formats[column]
+        if secs:
+            header = self.header[column]
+            c = column - 1
+            while len(header) < self.nsecs + 1 and c >= 0:
+                if len(self.header[c]) > len(header):
+                    header.extend(self.header[c][len(header):])
+                c -= 1
+            return list(reversed(header)), self.units[column], self.formats[column]
+        else:
+            return self.header[column][0], self.units[column], self.formats[column]
 
     def column_spec(self, column):
         """Full specification of a column with all its section names.
@@ -1754,61 +1775,6 @@ class TableData(object):
         for c in range(self.columns()):
             self.data[c] = [self.data[c][r] for r in row_inx]
 
-    def statistics(self):
-        """Descriptive statistics of each column.
-        """
-        ds = TableData()
-        if self.nsecs > 0:
-            ds.append_section('statistics')
-            for l in range(1,self.nsecs):
-                ds.append_section('-')
-            ds.append('-', '-', '%-10s')
-        else:
-            ds.append('statistics', '-', '%-10s')
-        ds.append_data('mean', 0)
-        ds.append_data('std', 0)
-        ds.append_data('min', 0)
-        ds.append_data('quartile1', 0)
-        ds.append_data('median', 0)
-        ds.append_data('quartile3', 0)
-        ds.append_data('max', 0)
-        ds.append_data('count', 0)
-        dc = 1
-        for c in range(self.columns()):
-            if len(self.data[c]) > 0 and isinstance(self.data[c][0], (float, int, np.floating, np.integer)):
-                ds.hidden.append(False)
-                ds.header.append(self.header[c])
-                ds.units.append(self.units[c])
-                # integer data still make floating point statistics:
-                if isinstance(self.data[c][0], (float, np.floating)):
-                    f = self.formats[c]
-                    i0 = f.find('.')
-                    if i0 > 0:
-                        p = int(f[i0+1:-1])
-                        if p <= 0:
-                            f = '%.1f'
-                    ds.formats.append(f)
-                else:
-                    ds.formats.append('%.1f')
-                # remove nans:
-                data = np.asarray(self.data[c], float)
-                data = data[np.isfinite(data)]
-                # compute statistics:
-                ds.data.append([])
-                ds.append_data(np.mean(data), dc)
-                ds.append_data(np.std(data), dc)
-                ds.append_data(np.min(data), dc)
-                q1, m, q3 = np.percentile(data, [25., 50., 75.])
-                ds.append_data(q1, dc)
-                ds.append_data(m, dc)
-                ds.append_data(q3, dc)
-                ds.append_data(np.max(data), dc)
-                ds.append_data(len(data), dc)
-                dc += 1
-        ds.nsecs = self.nsecs
-        ds.shape = (ds.rows(), ds.columns())
-        return ds
-
     def key_value(self, row, col, missing=default_missing_str):
         """A data element returned as a key-value pair.
 
@@ -1842,6 +1808,110 @@ class TableData(object):
             v = (self.formats[col] % self.data[col][row]) + u
         return self.header[col][0], v
 
+    def aggregate(self, columns=None, label=None, numbers_only=False,
+                  remove_nans=False, **kwargs):
+        """Apply functions to columns.
+
+        Parameter
+        ---------
+        columns: None, int or str or list of int or str
+            Columns of the table on which functions are applied.
+            If None apply functions on all columns.
+        label: str or list of str
+            Column label and optional section names of the first
+            column with the function labels.
+        numbers_only: bool
+            Skip columns that do not contain numbers.
+        remove_nans: bool
+            Remove nans before passing column values to function.
+        kwargs: dict
+            Keys are function labels that are added to the first column,
+            values are functions that take a single list as the only argument
+            and return a single value.
+
+        Returns
+        -------
+        dest: TableData
+            A new table with the column headers specified by `columns`.
+            A first column is inserted with the function labels.
+            The functions are applied to all columns specified by `columns`
+            and their return values are written into the new table.
+        """
+        if columns is None:
+            columns = np.arange(self.shape[1])
+        if not isinstance(columns, (list, tuple, np.ndarray)):
+            columns = [columns]
+        if numbers_only:
+            cols = []
+            for c in columns:
+                c = self.index(c)
+                if len(self.data[c]) > 0 and isinstance(self.data[c][0], (float, int, np.floating, np.integer)):
+                    cols.append(c)
+            columns = cols
+        dest = TableData()
+        for c in columns:
+            dest.append(*self.column_head(c, secs=True))
+        if label is None:
+            label = 'property'
+        if not isinstance(label, (list, tuple)) and dest.nsecs > 0:
+            label = [label] + ['-']*dest.nsecs
+        dest.insert(0, label, '', '%-s')
+        for k in kwargs:
+            dest.append_data(k, 0)
+            for c in columns:
+                values = self[:, c]
+                if remove_nans:
+                    values = values[np.isfinite(values)]
+                dest.append_data(kwargs[k](values))
+            dest.fill_data()
+        return dest
+
+    def statistics(self, columns=None, label=None):
+        """Descriptive statistics of each column.
+        
+        Parameter
+        ---------
+        columns: None, int or str or list of int or str
+            Columns of the table on which statistics should be computed.
+            If None apply functions on all columns.
+        label: str or list of str
+            Column label and optional section names of the first
+            column with the function labels.
+
+        Returns
+        -------
+        dest: TableData
+            A new table with the column headers specified by `columns`.
+            For each column that contains numbers some basic
+            descriptive statistics is computed.
+        """
+        def quartile1(x):
+            return np.quantile(x, 0.25)
+        
+        def quartile2(x):
+            return np.quantile(x, 0.75)
+        
+        if label is None:
+            label = 'statistics'
+        ds = self.aggregate(columns, label,
+                            numbers_only=True, remove_nans=True,
+                            mean=np.mean, std=np.std,
+                            min=np.min, quartile1=quartile1,
+                            median=np.median, quartile2=quartile2,
+                            max=np.max, count=len)
+        ds.set_format('%-10s', 0)
+        for c in range(1, ds.shape[1]):
+            f = ds.formats[c]
+            if f[-1] in 'fge':
+                i0 = f.find('.')
+                if i0 > 0:
+                    p = int(f[i0+1:-1])
+                    f = f'{f[:i0+1]}{p+1}{f[-1]}'
+                ds.set_format(f, c)
+            else:
+                ds.set_format('%.1f', c)
+        return ds
+        
     def groupby(self, *columns):
         """ Iterate through unique values of a column.
 
@@ -3452,6 +3522,16 @@ def main():
     df.append_data(a.T, 1) # rest of table
     df[3:6,'weight'] = [11.0]*3
     df.insert('median', 's.d.', 'm/s', '%.3g', 2*np.random.rand(df.rows()))
+
+    """
+    print(df)
+    print()
+    #ad = df.aggregate(['size', 'weight', 'speed'], 'statistics', remove_nans=True, mean=np.mean, len=len, max=max)
+    #ad = df.aggregate(numbers_only=True, len=len, max=max)
+    ad = df.statistics()
+    print(ad)
+    exit()
+    """
     
     # write out in all formats:
     for tf in TableData.formats:
