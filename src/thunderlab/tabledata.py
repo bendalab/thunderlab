@@ -28,6 +28,7 @@ import os
 import re
 import math as m
 import numpy as np
+from itertools import product
 from io import StringIO
 try:
     import pandas as pd
@@ -284,6 +285,7 @@ class TableData(object):
     - `fill_data()`: fill up all columns with missing data.
     - `clear_data()`: clear content of the table but keep header.
     - `key_value()`: a data element returned as a key-value pair.
+    - `groupby()`: iterate through unique values of columns.
     
     - `sort()`: sort the table rows in place.
     - `statistics()`: descriptive statistics of each column.
@@ -1297,7 +1299,7 @@ class TableData(object):
             cols = slice(start, stop, cols.step)
             cols = range(self.columns())[cols]
         else:
-            if not isinstance(cols, (list, tuple, np.ndarray)):
+            if not isinstance(cols, (list, tuple, np.ndarray, range)):
                 cols = [cols]
             c = [self.index(inx) for inx in cols]
             if None in c:
@@ -1839,6 +1841,40 @@ class TableData(object):
                 u = self.units[col]
             v = (self.formats[col] % self.data[col][row]) + u
         return self.header[col][0], v
+
+    def groupby(self, *columns):
+        """ Iterate through unique values of a column.
+
+        Parameter
+        ---------
+        columns: int or str
+            One or several columns used to group the data.
+            See self.index() for more information on how to specify a column.
+
+        Yields
+        ------
+        values: float or str or tuple of float or str
+            The values of the specified columns.
+        data: TableData
+            The sub table where the specified columns equals `values`.
+        """
+        # check column indices and values:
+        cols = []
+        vals = []
+        for col in columns:
+            c = self.index(col)
+            if c is None:
+                raise StopIteration
+            cols.append(c)
+            vals.append(np.unique(self.data[c]))
+        for values in product(*vals):
+            mask = np.ones(len(self), dtype=bool)
+            for c, v in zip(cols, values):
+                mask &= self[:, c] == v
+            if len(cols) == 1:
+                yield values[0], self[mask]
+            else:
+                yield values, self[mask]
 
     def hide(self, column):
         """Hide a column or a range of columns.
