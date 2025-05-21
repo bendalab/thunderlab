@@ -51,7 +51,11 @@ Click on the modules for more information.
 
 - [`dataloader`](https://bendalab.github.io/thunderlab/api/dataloader.html): Load time-series data from files.
 - [`datawriter`](https://bendalab.github.io/thunderlab/api/datawriter.html): Write time-series data to files.
-- [`tabledata`](https://bendalab.github.io/thunderlab/api/tabledata.html): Read and write tables with a rich hierarchical header including units and formats.
+- [`tabledata`](https://bendalab.github.io/thunderlab/api/tabledata.html):
+  Tables with hierarchical header including units and column-specific
+  formats. Kind of similar to a pandas data frame, but without index
+  column and with intuitive numpy-style indexing and nicely formatted
+  output to csv, markdown, html, and latex.
 - [`configfile`](https://bendalab.github.io/thunderlab/api/configfile.html): Configuration file with help texts for analysis parameter.
 - [`consoleinput`](https://bendalab.github.io/thunderlab/api/consoleinput.html): User input from console.
 

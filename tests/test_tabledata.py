@@ -14,13 +14,13 @@ def setup_table(nanvalue=True):
     df.append("median jitter", "mm", "%.1f", 23)
     df.append("size", "g", "%.2e", 1.234)
     if nanvalue:
-        df.append_data(float('NaN'), 1)  # single value
+        df.add(float('NaN'), 1)  # single value
     else:
-        df.append_data(27.56, 1)  # single value
-    df.append_data((0.543, 45, 1.235e2)) # remaining row
-    df.append_data((43.21, 6789.1, 3405, 1.235e-4), 1) # next row
+        df.add(27.56, 1)  # single value
+    df.add((0.543, 45, 1.235e2)) # remaining row
+    df.add((43.21, 6789.1, 3405, 1.235e-4), 1) # next row
     a = 0.5*np.arange(1, 6)*np.random.randn(5, 5) + 10.0 + np.arange(5)
-    df.append_data(a.T, 0) # rest of table
+    df.add(a.T, 0) # rest of table
     df[3:6,'weight'] = [11.0]*3
     return df
 
@@ -205,7 +205,7 @@ def test_read_access():
     df = setup_table()
     df.clear_data()
     data = np.random.randn(10, df.columns())
-    df.append_data(data)
+    df.add(data)
     n = 1000
     # reading values by index:
     for c, r in zip(np.random.randint(0, df.columns(), n), np.random.randint(0, df.rows(), n)):
@@ -260,7 +260,7 @@ def test_write_access():
     df = setup_table()
     df.clear_data()
     data = np.random.randn(10, df.columns())
-    df.append_data(data)
+    df.add(data)
     n = 1000
     # writing and reading values by index:
     for c, r in zip(np.random.randint(0, df.columns(), n), np.random.randint(0, df.rows(), n)):

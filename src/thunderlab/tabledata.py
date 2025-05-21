@@ -1,12 +1,11 @@
-"""
-Tables with hierarchical headers and units
+"""Tables with hierarchical headers and units
 
 ## Classes
 
-- `class TableData`: tables with a rich hierarchical header
-  including units and column-specific formats. Kind of similar to a
-  pandas data frame, but with intuitive numpy-style indexing and nicely
-  formatted output to csv, html, and latex.
+- `class TableData`: tables with hierarchical header including units
+  and column-specific formats. Kind of similar to a pandas data frame,
+  but without index column and with intuitive numpy-style indexing and
+  nicely formatted output to csv, markdown, html, and latex.
 
 
 ## Helper functions
@@ -21,6 +20,7 @@ Tables with hierarchical headers and units
 
 - `add_write_table_config()`: add parameter specifying how to write a table to a file as a new section to a configuration.
 - `write_table_args()`: translates a configuration to the respective parameter names for writing a table to a file.
+
 """
 
 import sys
@@ -58,7 +58,7 @@ default_missing_inputs = ['na', 'NA', 'nan', 'NAN', '-']
 
 
 class TableData(object):
-    """Table with numpy-style indexing and a rich hierarchical header including units and formats.
+    """Table with numpy-style indexing and hierarchical header including units and formats.
     
     Parameters
     ----------
@@ -67,6 +67,7 @@ class TableData(object):
         - a stream/file handle: load table from that stream.
         - 1-D or 2-D ndarray of data: the data of the table.
           Requires als a specified `header`.
+        - pandas data frame.
     header: list of str
         Header labels for each column.
     units: list of str, optional
@@ -79,7 +80,9 @@ class TableData(object):
     sep: str or None
         If `data` is a file, force `sep` as column separator.
     stop: str or None
-        If the beginning of a line matches `stop`, then stop reading the file.
+        If a line matches `stop`, stop reading the file.  `stop`
+        can be an empty string to stop reading at the first empty
+        line.
 
     Manipulate table header
     -----------------------
@@ -135,11 +138,11 @@ class TableData(object):
     df.append("median jitter", "mm", "%.1f", 23)
     df.append("size", "g", "%.2e", 1.234)
     # add a missing value to the second column:
-    df.append_data(np.nan, 1)
+    df.add(np.nan, 1)
     # fill up the remaining columns of the row:
-    df.append_data((0.543, 45, 1.235e2))
-    # append data to the next row starting at the second column:
-    df.append_data((43.21, 6789.1, 3405, 1.235e-4), 1) # next row
+    df.add((0.543, 45, 1.235e2))
+    # add data to the next row starting at the second column:
+    df.add([43.21, 6789.1, 3405, 1.235e-4], 1) # next row
     ```
     results in
     ``` plain
@@ -264,7 +267,7 @@ class TableData(object):
     - `columns()`: the number of columns.
     - `__len__()`: the number of rows.
     - `ndim`: always 2.
-    - `size`: number of elements (sum of length of all data columns).
+    - `size`: number of elements (sum of length of all data columns), can be smaller than `columns()*rows()`.
     - `shape`: number of rows and columns.
     - `row()`: a single row of the table as TableData.
     - `row_list()`: a single row of the table as list.
@@ -279,11 +282,12 @@ class TableData(object):
     - `data_frame()`: the table data as a pandas DataFrame.
     - `dicts()`: the table as a list of dictionaries.
     - `dict()`: the table as a dictionary.
-    - `append_data()`: append data elements to successive columns.
+    - `add()`: add data elements row-wise.
     - `append_data_column()`: append data elements to a column.
     - `set_column()`: set the column where to add data.
     - `fill_data()`: fill up all columns with missing data.
     - `clear_data()`: clear content of the table but keep header.
+    - `clear()`: clear the table of any content and header information.
     - `key_value()`: a data element returned as a key-value pair.
     - `aggregate()`: apply functions to columns.
     - `groupby()`: iterate through unique values of columns.
@@ -386,25 +390,14 @@ class TableData(object):
 
     def __init__(self, data=None, header=None, units=None, formats=None,
                  missing=default_missing_inputs, sep=None, stop=None):
-        self.data = []
-        self.ndim = 2
-        self.size = 0
-        self.shape = (0, 0)
-        self.header = []
-        self.nsecs = 0
-        self.units = []
-        self.formats = []
-        self.hidden = []
-        self.setcol = 0
-        self.addcol = 0
-        if header is not None:
-            if units is None:
-                units = ['']*len(header)
-            if formats is None:
-                formats = ['%g']*len(header)
-            elif not isinstance(formats, (list, tuple, np.ndarray)):
+        self.clear()
+        if header is not None and len(header) > 0:
+            if formats is not None and \
+               not isinstance(formats, (list, tuple, np.ndarray)):
                 formats = [formats]*len(header)
-            for h, u, f in zip(header, units, formats):
+            for k, h in enumerate(header):
+                u = units[k] if units is not None and len(units) > k else None
+                f = formats[k] if formats is not None and len(formats) > k else None
                 self.append(h, u, f)            
         if data is not None:
             if isinstance(data, TableData):
@@ -415,20 +408,39 @@ class TableData(object):
                 self.setcol = data.setcol
                 self.addcol = data.addcol
                 for c in range(data.columns()):
-                    self.header.append([])
-                    for h in data.header[c]:
-                        self.header[c].append(h)
-                    self.units.append(data.units[c])
-                    self.formats.append(data.formats[c])
-                    self.hidden.append(data.hidden[c])
-                    self.data.append([])
-                    for d in data.data[c]:
-                        self.data[c].append(d)
+                    if c < len(self.header):
+                        if len(self.header[c]) < len(data.header[c]):
+                            self.header[c].extend(list(data.header[c][len(self.header[c]):]))
+                        if self.units[c] is None:
+                            self.units[c] = data.units[c]
+                        if self.formats[c] is None:
+                            self.formats[c] = data.formats[c]
+                        self.hidden[c] = data.hidden[c]
+                        self.data[c].extend(list(data.data[c]))
+                    else:
+                        self.header.append(list(data.header[c]))
+                        self.units.append(data.units[c])
+                        self.formats.append(data.formats[c])
+                        self.hidden.append(data.hidden[c])
+                        self.data.append(list(data.data[c]))
             elif has_pandas and isinstance(data, pd.DataFrame):
-                for k in data.keys():
-                    values = data[k].tolist()
-                    f = '%s' if isinstance(values[0], str) else '%g'
-                    self.append(k, '', f, value=values)
+                for c, key in enumerate(data.keys()):
+                    new_key = key
+                    new_unit = ''
+                    if '/' in key:
+                        p = key.split('/')
+                        new_key = p[0].strip()
+                        new_unit = '/'.join(p[1:])
+                    formats = '%s' if isinstance(values[0], str) else '%g'
+                    values = data[key].tolist()
+                    if c < len(self.header):
+                        if self.units[c] is None:
+                            self.units[c] = new_unit
+                        if self.formats[c] is None:
+                            self.formats[c] = formats
+                        self.data[c].extend(values)
+                    else:
+                        self.append(new_key, new_unit, formats, value=values)
             elif isinstance(data, (list, tuple, np.ndarray)):
                 if len(data) > 0 and isinstance(data[0], (list, tuple, np.ndarray)):
                     # 2D list, rows first:
@@ -437,37 +449,24 @@ class TableData(object):
                             self.data[c].append(val)
                 elif len(data) > 0 and isinstance(data[0], dict):
                     # list of dictionaries:
-                    for key in data[0].keys():
-                        if '/' in key:
-                            p = key.split('/')
-                            self.append(p[0].strip(), '/'.join(p[1:]).strip())
-                        else:
-                            self.append(key.strip())
                     for d in data:
-                        for key in d:
-                            if '/' in key:
-                                p = key.split('/')
-                                k = p[0].strip()
-                                column = self.index(k)
-                                if column is None:
-                                    self.append(k, '/'.join(p[1:]).strip())
-                                    column = self.index(k)
-                            else:
-                                column = self.index(key)
-                                if column is None:
-                                    self.append(key.strip())
-                                    column = self.index(key)
-                            if isinstance(d[key], (list, tuple, np.ndarray)):
-                                self.data[column].extend(d[key])
-                            else:
-                                self.data[column].append(d[key])
-                        self.fill_data()
+                        self._add_dict(d, True)
+                    self.fill_data()
                 else:
                     # 1D list:
                     for c, val in enumerate(data):
                         self.data[c].append(val)
+            elif isinstance(data, (dict)):
+                self._add_dict(data, True)
+                self.fill_data()
             else:
                 self.load(data, missing, sep, stop)
+            # fill in missing units and formats:
+            for k in range(len(self.header)):
+                if self.units[k] is None:
+                    self.units[k] = ''
+                if self.formats[k] is None:
+                    self.formats[k] = '%g'
 
     def __recompute_shape(self):
         self.size = sum(map(len, self.data))
@@ -1008,14 +1007,14 @@ class TableData(object):
                 return None, None, None, None
             ns0 = 0
             for ns in range(minns, maxns+1):
-                nsec = maxns-ns
+                nsec = maxns - ns
                 if ss[si] == '':
                     si += 1
                     continue
                 for c in range(c0, len(self.header)):
                     if nsec < len(self.header[c]) and \
-                        ( ( strict and self.header[c][nsec] == ss[si] ) or
-                          ( not strict and ss[si] in self.header[c][nsec] ) ):
+                        ((strict and self.header[c][nsec] == ss[si]) or
+                         (not strict and ss[si] in self.header[c][nsec])):
                         ns0 = ns
                         c0 = c
                         si += 1
@@ -1036,7 +1035,7 @@ class TableData(object):
             column = int(column)
         if isinstance(column, (np.integer, int)):
             if column >= 0 and column < len(self.header):
-                return column, column+1
+                return column, column + 1
             else:
                 return None, None
         # find column by header:
@@ -1582,8 +1581,78 @@ class TableData(object):
         table = {k: v for k, v in self.items()}
         return table
 
-    def append_data(self, data, column=None, add_all=False):
-        """Append data elements to successive columns.
+    def _add_table_data(self, data, add_all):
+        """Add data of a TableData.
+
+        Parameters
+        ----------
+        data: TableData
+            Table with the data to be added.
+        add_all: bool
+            If False, then only data of columns that already exist in
+            the table are added to the table. If the table is empty or
+            `add_all` is set to `True` then all data is added and if
+            necessary new columns are appended to the table.
+        """
+        empty = False
+        if self.shape[1] == 0:
+            add_all = True
+            empty = True
+        maxr = self.rows()
+        for k in data.keys():
+            col = self.index(k)
+            if empty or col is None:
+                if not add_all:
+                    continue
+                self.append(*data.column_head(k, secs=True),
+                            value=[np.nan]*maxr)
+                col = len(self.data) - 1
+            c = data.index(k)
+            self.data[col].extend(data.data[c])
+        self.__recompute_shape()
+
+    def _add_dict(self, data, add_all):
+        """Add data of a TableData.
+
+        Parameters
+        ----------
+        data: dict
+            Keys are column labels and values are single values or
+            lists of values to be added to the corresponding table columns.
+        add_all: bool
+            If False, then only data of columns that already exist in
+            the table are added to the table. If the table is empty or
+            `add_all` is set to `True` then all data is added and if
+            necessary new columns are appended to the table.
+
+        """
+        empty = False
+        if self.shape[1] == 0:
+            add_all = True
+            empty = True
+        maxr = self.rows()
+        for key in data:
+            new_key = key
+            new_unit = ''
+            if '/' in key:
+                p = key.split('/')
+                new_key = p[0].strip()
+                new_unit = '/'.join(p[1:])
+            col = self.index(new_key)
+            if empty or col is None:
+                if not add_all:
+                    continue
+                self.append(new_key, new_unit,
+                            value=[np.nan]*maxr)
+                col = len(self.data) - 1
+            if isinstance(data[key], (list, tuple, np.ndarray)):
+                self.data[col].extend(data[key])
+            else:
+                self.data[col].append(data[key])
+        self.__recompute_shape()
+
+    def add(self, data, column=None, add_all=False):
+        """Add data elements to successive columns.
 
         The current column is set behid the added columns.
 
@@ -1622,48 +1691,20 @@ class TableData(object):
         column = self.index(column)
         if column is None:
             column = self.setcol
-        maxr = self.rows()
         if isinstance(data, TableData):
-            # table:
-            for k in data.keys():
-                col = self.index(k)
-                if col is None:
-                    if not add_all:
-                        continue
-                    self.append(*data.column_head(k, secs=True),
-                                value=[np.nan]*maxr)
-                    col = len(self.data) - 1
-                c = data.index(k)
-                self.data[col].extend(data.data[c])
+            self._add_table_data(data, add_all)
         elif isinstance(data, (list, tuple, np.ndarray)) and not \
              (isinstance(data, np.ndarray) and len(data.shape) == 0):
             if len(data) > 0 and isinstance(data[0], (list, tuple, np.ndarray)):
                 # 2D list, rows first:
                 for row in data:
                     for i, val in enumerate(row):
-                        self.data[column+i].append(val)
+                        self.data[column + i].append(val)
                 self.setcol = column + len(data[0])
             elif len(data) > 0 and isinstance(data[0], dict):
                 # list of dictionaries:
                 for d in data:
-                    for key in d:
-                        new_key = key
-                        new_unit = ''
-                        if '/' in key:
-                            p = key.split('/')
-                            new_key = p[0].strip()
-                            new_unit = '/'.join(p[1:])
-                        col = self.index(new_key)
-                        if col is None:
-                            if not add_all:
-                                continue
-                            self.append(new_key, new_unit,
-                                        value=[np.nan]*maxr)
-                            col = len(self.data) - 1
-                        if isinstance(d[key], (list, tuple, np.ndarray)):
-                            self.data[col].extend(d[key])
-                        else:
-                            self.data[col].append(d[key])
+                    self._add_dict(d, add_all)
             else:
                 # 1D list:
                 for val in data:
@@ -1672,24 +1713,7 @@ class TableData(object):
                 self.setcol = column
         elif isinstance(data, dict):
             # dictionary with values:
-            for key in data:
-                new_key = key
-                new_unit = ''
-                if '/' in key:
-                    p = key.split('/')
-                    new_key = p[0].strip()
-                    new_unit = '/'.join(p[1:])
-                col = self.index(new_key)
-                if col is None:
-                    if not add_all:
-                        continue
-                    self.append(new_key, new_unit,
-                                value=[np.nan]*maxr)
-                    col = len(self.data) - 1
-                if isinstance(d[key], (list, tuple, np.ndarray)):
-                    self.data[col].extend(d[key])
-                else:
-                    self.data[col].append(d[key])
+            self._add_dict(data, add_all)
         else:
             # single value:
             self.data[column].append(data)
@@ -1768,6 +1792,21 @@ class TableData(object):
             self.data[c] = []
         self.setcol = 0
         self.__recompute_shape()
+
+    def clear(self):
+        """Clear the table of any content and header information.
+        """
+        self.ndim = 2
+        self.size = 0
+        self.shape = (0, 0)
+        self.nsecs = 0
+        self.header = []
+        self.units = []
+        self.formats = []
+        self.data = []
+        self.hidden = []
+        self.setcol = 0
+        self.addcol = 0
                 
     def sort(self, columns, reverse=False):
         """Sort the table rows in place.
@@ -1925,12 +1964,12 @@ class TableData(object):
             for c in columns:
                 dest.append(*self.column_head(c, secs=True))
             for k in kwargs:
-                dest.append_data(k, 0)
+                dest.add(k, 0)
                 for c in columns:
                     values = self[:, c]
                     if remove_nans:
                         values = values[np.isfinite(values)]
-                    dest.append_data(kwargs[k](values))
+                    dest.add(kwargs[k](values))
                 dest.fill_data()
         return dest
 
@@ -2889,12 +2928,15 @@ class TableData(object):
         sep: str or None
             Column separator.
         stop: str or None
-            If the beginning of a line matches `stop`, then stop reading the file.
+            If a line matches `stop`, stop reading the file.  `stop`
+            can be an empty string to stop reading at the first empty
+            line.
 
         Raises
         ------
         FileNotFoundError:
             If `fh` is a path that does not exist.
+
         """
 
         def read_key_line(line, sep, table_format):
@@ -2993,7 +3035,7 @@ class TableData(object):
                             v = c.strip('"')
                         else:
                             v = c
-                self.append_data(v, k)
+                self.add(v, k)
             self.fill_data()
 
         # initialize:
@@ -3593,13 +3635,13 @@ def main():
     df.append("speed", "m/s", "%.3g", 98.7)
     df.append("median jitter", "mm", "%.1f", 23)
     df.append("size", "g", "%.2e", 1.234)
-    df.append_data(np.nan, 2)  # single value
-    df.append_data((0.543, 45, 1.235e2)) # remaining row
-    df.append_data((43.21, 6789.1, 3405, 1.235e-4), 2) # next row
+    df.add(np.nan, 2)  # single value
+    df.add([0.543, 45, 1.235e2]) # remaining row
+    df.add([43.21, 6789.1, 3405, 1.235e-4], 2) # next row
     a = 0.5*np.arange(1, 6)*np.random.randn(5, 5) + 10.0 + np.arange(5)
-    df.append_data(a.T, 1) # rest of table
-    df[3:6,'weight'] = [11.0]*3
-    df.insert('median', 's.d.', 'm/s', '%.3g', 2*np.random.rand(df.rows()))
+    df.add(a.T, 1) # rest of table
+    #df[3:6,'weight'] = [11.0]*3
+    df.insert('median jitter', 's.d.', 'm/s', '%.3g', 2*np.random.rand(df.rows()))
     
     # write out in all formats:
     for tf in TableData.formats:
@@ -3614,21 +3656,21 @@ def main():
     # aggregate demos:
     print(df)
     print(df.aggregate(numbers_only=True, len=len, max=max))
-    print(df.aggregate(['size', 'weight', 'speed'], 'statistics',
+    print(df.aggregate(['size', 'full weight', 'speed'], 'statistics',
                        remove_nans=True, single_row=False,
                        keep_columns=['ID', 'jitter'],
                        mean=np.mean, len=len, max=max))
     print(df.statistics(single_row=False))
     print(df.statistics(single_row=True))
 
-    # groupby demos:
+    # groupby demo:
     gd = TableData()
     for name, values in df.groupby('ID'):
         print(name)
         print(values)
         ad = values.aggregate(single_row=True, keep_columns='ID',
-                              mean=np.mean)
-        gd.append_data(ad)
+                              mean=np.mean, median=np.median)
+        gd.add(ad)
         print()
     print(gd)
     
