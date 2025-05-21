@@ -510,18 +510,18 @@ class TableData(object):
                 # number of sections larger than what we have so far:
                 n = max(0, len(label) - 1 - self.nsecs)
                 # find matching sections:
-                s = 1
-                while s < len(label):
-                    c = len(self.header) - 1
-                    while c >= 0:
-                        if s - n >= 0 and \
-                           len(self.header[c]) > s - n and \
-                           self.header[c][s - n] == label[s]:
-                            # remove matchin sections:
-                            label = label[:s]
+                found = False
+                for s in range(1, len(label)):
+                    for c in range(len(self.header) - 1, -1, -1):
+                        if len(self.header[c]) > s - n:
+                            if s - n >= 0 and \
+                               self.header[c][s - n] == label[s]:
+                                # remove matching sections:
+                                label = label[:s]
+                                found = True
                             break
-                        c -= 1
-                    s += 1
+                    if found:
+                        break
                 # add label and unique sections:
                 self.header.append(label)
                 label = label[0]
@@ -1385,12 +1385,7 @@ class TableData(object):
             data = TableData()
             sec_indices = [-1] * self.nsecs
             for c in cols:
-                data.append(*self.column_head(c))
-                for l in range(self.nsecs):
-                    s, i = self.section(c, l+1)
-                    if i != sec_indices[l]:
-                        data.header[-1].append(s)
-                        sec_indices[l] = i
+                data.append(*self.column_head(c, secs=True))
                 if rows is None:
                     continue
                 if isinstance(rows, (list, tuple, np.ndarray)):
@@ -1587,7 +1582,7 @@ class TableData(object):
         table = {k: v for k, v in self.items()}
         return table
 
-    def append_data(self, data, column=None):
+    def append_data(self, data, column=None, add_all=False):
         """Append data elements to successive columns.
 
         The current column is set behid the added columns.
@@ -1615,16 +1610,29 @@ class TableData(object):
             if `data` does not specify columns.
             If None, append to the current column.
             See self.index() for more information on how to specify a column.
-
+        add_all: bool
+            If the data are given as dictionaries or TableData, then
+            only data of columns that already exist in the table are
+            added to the table. If the table is empty or `add_all` is
+            set to `True` then all data is added and if necessary new
+            columns are appended to the table.
         """
+        if self.shape[1] == 0:
+            add_all = True
         column = self.index(column)
         if column is None:
             column = self.setcol
+        maxr = self.rows()
         if isinstance(data, TableData):
+            # table:
             for k in data.keys():
                 col = self.index(k)
                 if col is None:
-                    continue
+                    if not add_all:
+                        continue
+                    self.append(*data.column_head(k, secs=True),
+                                value=[np.nan]*maxr)
+                    col = len(self.data) - 1
                 c = data.index(k)
                 self.data[col].extend(data.data[c])
         elif isinstance(data, (list, tuple, np.ndarray)) and not \
@@ -1639,13 +1647,19 @@ class TableData(object):
                 # list of dictionaries:
                 for d in data:
                     for key in d:
+                        new_key = key
+                        new_unit = ''
                         if '/' in key:
                             p = key.split('/')
-                            col = self.index(p[0].strip())
-                        else:
-                            col = self.index(key)
+                            new_key = p[0].strip()
+                            new_unit = '/'.join(p[1:])
+                        col = self.index(new_key)
                         if col is None:
-                            continue
+                            if not add_all:
+                                continue
+                            self.append(new_key, new_unit,
+                                        value=[np.nan]*maxr)
+                            col = len(self.data) - 1
                         if isinstance(d[key], (list, tuple, np.ndarray)):
                             self.data[col].extend(d[key])
                         else:
@@ -1659,13 +1673,23 @@ class TableData(object):
         elif isinstance(data, dict):
             # dictionary with values:
             for key in data:
-                col = self.index(key)
+                new_key = key
+                new_unit = ''
+                if '/' in key:
+                    p = key.split('/')
+                    new_key = p[0].strip()
+                    new_unit = '/'.join(p[1:])
+                col = self.index(new_key)
                 if col is None:
-                    continue
-                if isinstance(data[key], (list, tuple, np.ndarray)):
-                    self.data[col].extend(data[key])
+                    if not add_all:
+                        continue
+                    self.append(new_key, new_unit,
+                                value=[np.nan]*maxr)
+                    col = len(self.data) - 1
+                if isinstance(d[key], (list, tuple, np.ndarray)):
+                    self.data[col].extend(d[key])
                 else:
-                    self.data[col].append(data[key])
+                    self.data[col].append(d[key])
         else:
             # single value:
             self.data[column].append(data)
@@ -1829,7 +1853,7 @@ class TableData(object):
             If None apply functions on all columns.
         label: str or list of str
             Column label and optional section names of the first
-            column with the function labels.
+            column with the function labels (if `single_row` is `False`).
         numbers_only: bool
             If True, skip columns that do not contain numbers.
         remove_nans: bool
@@ -1855,7 +1879,7 @@ class TableData(object):
             and their return values are written into the new table.
         """
         if columns is None:
-            columns = np.arange(self.shape[1])
+            columns = list(range(self.shape[1]))
         if not isinstance(columns, (list, tuple, np.ndarray)):
             columns = [columns]
         if numbers_only:
@@ -1869,15 +1893,17 @@ class TableData(object):
         if label is None:
             label = 'property'
         dest = TableData()
-        dest.append(label, '', '%-s')
         if single_row:
             if keep_columns is None:
                 keep_columns = []
             elif not isinstance(keep_columns, (list, tuple)):
                 keep_columns = [keep_columns]
+            keep_columns = [self.index(c) for c in keep_columns]
+            columns = [self.index(c) for c in columns]
+            columns = [c for c in columns if not c in keep_columns]
             keep = np.zeros(len(keep_columns) + len(columns), dtype=bool)
             keep[:len(keep_columns)] = True
-            columns = [self.index(c) for c in keep_columns + columns]
+            columns = keep_columns + columns
             idx = np.argsort(columns)
             for i in idx:
                 c = columns[i]
@@ -1895,6 +1921,7 @@ class TableData(object):
                                     value=kwargs[k](values))
             dest.fill_data()
         else:
+            dest.append(label, '', '%-s')
             for c in columns:
                 dest.append(*self.column_head(c, secs=True))
             for k in kwargs:
@@ -1917,7 +1944,7 @@ class TableData(object):
             If None apply functions on all columns.
         label: str or list of str
             Column label and optional section names of the first
-            column with the function labels.
+            column with the function labels (if `single_row` is `False`).
         single_row: bool
             If False, add for each function a row to the table.
             If True, add function values in a single row.
@@ -1944,8 +1971,11 @@ class TableData(object):
                             min=np.min, quartile1=quartile1,
                             median=np.median, quartile2=quartile2,
                             max=np.max, count=len)
-        ds.set_format('%-10s', 0)
-        for c in range(1, ds.shape[1]):
+        c0 = 0
+        if not single_row:
+            ds.set_format('%-10s', 0)
+            c0 = 1
+        for c in range(c0, ds.shape[1]):
             f = ds.formats[c]
             if single_row and ds.label(c) == 'count':
                 ds.set_unit('', c)
@@ -3556,7 +3586,7 @@ class IndentStream(object):
 def main():
     # setup a table:
     df = TableData()
-    df.append(["data", "partial information", "ID"], "", "%-s", list('ABCDEFGH'))
+    df.append(["data", "specimen", "ID"], "", "%-s", list('ABCBAACB'))
     df.append("size", "m", "%6.2f", [2.34, 56.7, 8.9])
     df.append("full weight", "kg", "%.0f", 122.8)
     df.append_section("complete reaction")
@@ -3583,14 +3613,24 @@ def main():
 
     # aggregate demos:
     print(df)
-    print()
-    ad = df.aggregate(['size', 'weight', 'speed'], 'statistics',
-                      remove_nans=True, single_row=True,
-                      keep_columns=['ID', 'jitter'],
-                      mean=np.mean, len=len, max=max)
-    #ad = df.aggregate(numbers_only=True, len=len, max=max)
-    #ad = df.statistics(single_row=False)
-    print(ad)
+    print(df.aggregate(numbers_only=True, len=len, max=max))
+    print(df.aggregate(['size', 'weight', 'speed'], 'statistics',
+                       remove_nans=True, single_row=False,
+                       keep_columns=['ID', 'jitter'],
+                       mean=np.mean, len=len, max=max))
+    print(df.statistics(single_row=False))
+    print(df.statistics(single_row=True))
+
+    # groupby demos:
+    gd = TableData()
+    for name, values in df.groupby('ID'):
+        print(name)
+        print(values)
+        ad = values.aggregate(single_row=True, keep_columns='ID',
+                              mean=np.mean)
+        gd.append_data(ad)
+        print()
+    print(gd)
     
         
 if __name__ == "__main__":
