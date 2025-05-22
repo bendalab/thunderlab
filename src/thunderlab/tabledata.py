@@ -1880,9 +1880,9 @@ class TableData(object):
             v = (self.formats[col] % self.data[col][row]) + u
         return self.header[col][0], v
 
-    def aggregate(self, columns=None, label=None, numbers_only=False,
-                  remove_nans=False, single_row=False,
-                  keep_columns=None, **kwargs):
+    def _aggregate(self, columns=None, label=None, numbers_only=False,
+                   remove_nans=False, single_row=False,
+                   keep_columns=None, **kwargs):
         """Apply functions to columns.
 
         Parameter
@@ -1973,7 +1973,67 @@ class TableData(object):
                 dest.fill_data()
         return dest
 
-    def statistics(self, columns=None, label=None, single_row=False):
+    def aggregate(self, columns=None, label=None, numbers_only=False,
+                  remove_nans=False, single_row=False,
+                  by=None, **kwargs):
+        """Apply functions to columns.
+
+        Parameter
+        ---------
+        columns: None, int or str or list of int or str
+            Columns of the table on which functions are applied.
+            If None apply functions on all columns.
+        label: str or list of str
+            Column label and optional section names of the first
+            column with the function labels (if `single_row` is `False`).
+        numbers_only: bool
+            If True, skip columns that do not contain numbers.
+        remove_nans: bool
+            If True, remove nans before passing column values to function.
+        single_row: bool
+            If False, add for each function a row to the table.
+            If True, add function values in a single row.
+        by: None, int or str or list of int or str
+            Group the table by the specified columns and apply the columns
+            to each resulting sub-table separately.
+        kwargs: dict
+            Keys are function labels that are added to the first column,
+            values are functions that take a single list as the only argument
+            and return a single value.
+
+        Returns
+        -------
+        dest: TableData
+            A new table with the column headers specified by `columns`.
+            A first column is inserted with the function labels
+            (if not `single_row`).
+            The functions are applied to all columns specified by `columns`
+            and their return values are written into the new table.
+        """
+        if by is not None:
+            # aggregate on groupde table:
+            if not isinstance(by, (list, tuple)):
+                by = [by]
+            if len(by) > 0:
+                gd = TableData()
+                for name, values in self.groupby(*by):
+                    ad = values._aggregate(columns, label,
+                                           numbers_only=numbers_only,
+                                           remove_nans=remove_nans,
+                                           single_row=True, keep_columns=by,
+                                           **kwargs)
+                    gd.add(ad)
+                return gd
+        # aggregate on whole table:
+        return self._aggregate(columns, label,
+                               numbers_only=numbers_only,
+                               remove_nans=remove_nans,
+                               single_row=single_row,
+                               keep_columns='',
+                               **kwargs)
+
+    def statistics(self, columns=None, label=None,
+                   remove_nans=False, single_row=False):
         """Descriptive statistics of each column.
         
         Parameter
@@ -1984,6 +2044,8 @@ class TableData(object):
         label: str or list of str
             Column label and optional section names of the first
             column with the function labels (if `single_row` is `False`).
+        remove_nans: bool
+            If True, remove nans before passing column values to function.
         single_row: bool
             If False, add for each function a row to the table.
             If True, add function values in a single row.
@@ -2004,7 +2066,8 @@ class TableData(object):
         if label is None:
             label = 'statistics'
         ds = self.aggregate(columns, label,
-                            numbers_only=True, remove_nans=True,
+                            numbers_only=True,
+                            remove_nans=remove_nans,
                             single_row=single_row,
                             mean=np.mean, std=np.std,
                             min=np.min, quartile1=quartile1,
@@ -3658,21 +3721,18 @@ def main():
     print(df.aggregate(numbers_only=True, len=len, max=max))
     print(df.aggregate(['size', 'full weight', 'speed'], 'statistics',
                        remove_nans=True, single_row=False,
-                       keep_columns=['ID', 'jitter'],
                        mean=np.mean, len=len, max=max))
-    print(df.statistics(single_row=False))
+    print(df.statistics(single_row=False, remove_nans=True))
     print(df.statistics(single_row=True))
 
     # groupby demo:
-    gd = TableData()
     for name, values in df.groupby('ID'):
         print(name)
         print(values)
-        ad = values.aggregate(single_row=True, keep_columns='ID',
-                              mean=np.mean, median=np.median)
-        gd.add(ad)
-        print()
-    print(gd)
+    print()
+
+    # aggregrate on groups demo:
+    print(df.aggregate(by='ID', mean=np.mean, median=np.median))
     
         
 if __name__ == "__main__":
