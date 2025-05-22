@@ -1882,7 +1882,7 @@ class TableData(object):
 
     def _aggregate(self, columns=None, label=None, numbers_only=False,
                    remove_nans=False, single_row=False,
-                   keep_columns=None, **kwargs):
+                   keep_columns=None, args=(), **kwargs):
         """Apply functions to columns.
 
         Parameter
@@ -1904,6 +1904,8 @@ class TableData(object):
             Columns of the table from which to simply keep the first value.
             Only if single_row is True. Usefull for grouped tables.
             Order of columns and keep_columns are kept from the original table.
+        args: tuple
+            Additional arguments passed on to the functions.
         kwargs: dict
             Keys are function labels that are added to the first column,
             values are functions that take a single list as the only argument
@@ -1957,7 +1959,7 @@ class TableData(object):
                         values = values[np.isfinite(values)]
                     for k in kwargs:
                         dest.append(name + [k], unit, format,
-                                    value=kwargs[k](values))
+                                    value=kwargs[k](values, *args))
             dest.fill_data()
         else:
             dest.append(label, '', '%-s')
@@ -1969,13 +1971,13 @@ class TableData(object):
                     values = self[:, c]
                     if remove_nans:
                         values = values[np.isfinite(values)]
-                    dest.add(kwargs[k](values))
+                    dest.add(kwargs[k](values, *args))
                 dest.fill_data()
         return dest
 
     def aggregate(self, columns=None, label=None, numbers_only=False,
                   remove_nans=False, single_row=False,
-                  by=None, **kwargs):
+                  by=None, args=(), **kwargs):
         """Apply functions to columns.
 
         Parameter
@@ -1996,6 +1998,8 @@ class TableData(object):
         by: None, int or str or list of int or str
             Group the table by the specified columns and apply the columns
             to each resulting sub-table separately.
+        args: tuple
+            Additional arguments passed on to the functions.
         kwargs: dict
             Keys are function labels that are added to the first column,
             values are functions that take a single list as the only argument
@@ -2021,7 +2025,7 @@ class TableData(object):
                                            numbers_only=numbers_only,
                                            remove_nans=remove_nans,
                                            single_row=True, keep_columns=by,
-                                           **kwargs)
+                                           args=args, **kwargs)
                     gd.add(ad)
                 return gd
         # aggregate on whole table:
@@ -2029,8 +2033,8 @@ class TableData(object):
                                numbers_only=numbers_only,
                                remove_nans=remove_nans,
                                single_row=single_row,
-                               keep_columns='',
-                               **kwargs)
+                               keep_columns=None,
+                               args=args, **kwargs)
 
     def statistics(self, columns=None, label=None,
                    remove_nans=False, single_row=False):
@@ -3722,13 +3726,14 @@ def main():
     print(df.aggregate(['size', 'full weight', 'speed'], 'statistics',
                        remove_nans=True, single_row=False,
                        mean=np.mean, len=len, max=max))
-    print(df.statistics(single_row=False, remove_nans=True))
-    print(df.statistics(single_row=True))
+    print(df.statistics(single_row=False))
+    print(df.statistics(single_row=True, remove_nans=True))
 
     # groupby demo:
     for name, values in df.groupby('ID'):
         print(name)
         print(values)
+        #print(values.aggregate())
     print()
 
     # aggregrate on groups demo:
