@@ -1880,13 +1880,31 @@ class TableData(object):
             v = (self.formats[col] % self.data[col][row]) + u
         return self.header[col][0], v
 
-    def _aggregate(self, columns=None, label=None, numbers_only=False,
-                   remove_nans=False, single_row=False,
-                   keep_columns=None, args=(), **kwargs):
+    def _aggregate(self, funcs, columns=None, label=None,
+                   numbers_only=False, remove_nans=False, single_row=False,
+                   keep_columns=None):
         """Apply functions to columns.
 
         Parameter
         ---------
+        funcs: function, list of function, dict
+            Functions that are applied to columns of the table.
+            - a single function that is applied to the `columns`.
+              The results are named according to the function's `__name__`.
+            - a list or tuple of functions.
+              The results are named according to the functions' `__name__`.
+            - a dictionary. The results are named after the provided keys,
+              the functions are given by the values.
+              If the function returns more than one value, then the
+              corresponding key in the dictionary needs to be a tuple
+              (not a list!) of names for each of the returned values.
+            Functions in lists or dictionaries can be just a plain
+            function, like `max` or `np.mean`. In case a function
+            needs further arguments, then you need to supply a tuple
+            with the first elements being the function, the second
+            element being another tuple holding positional arguments,
+            and an optional third argument holding a dictionary for
+            key-word arguments.
         columns: None, int or str or list of int or str
             Columns of the table on which functions are applied.
             If None apply functions on all columns.
@@ -1904,12 +1922,6 @@ class TableData(object):
             Columns of the table from which to simply keep the first value.
             Only if single_row is True. Usefull for grouped tables.
             Order of columns and keep_columns are kept from the original table.
-        args: tuple
-            Additional arguments passed on to the functions.
-        kwargs: dict
-            Keys are function labels that are added to the first column,
-            values are functions that take a single list as the only argument
-            and return a single value.
 
         Returns
         -------
@@ -1918,7 +1930,29 @@ class TableData(object):
             A first column is inserted with the function labels.
             The functions are applied to all columns specified by `columns`
             and their return values are written into the new table.
+
         """
+        # standardize functions dictionary:
+        if not isinstance(funcs, (list, tuple, dict)):
+            funcs = [funcs]
+        if isinstance(funcs, (list, tuple)):
+            fs = {}
+            for f in funcs:
+                fs[f.__name__] = f
+            funcs = fs
+        fs = {}
+        for k in funcs:
+            kk = k
+            if not isinstance(k, tuple):
+                kk = (k,)
+            v = funcs[k]
+            if not isinstance(v, tuple):
+                v = (funcs[k], (), {})
+            elif len(v) < 3:
+                v = (v[0], v[1], {})
+            fs[kk] = v
+        funcs = fs
+        # standardize columns:
         if columns is None:
             columns = list(range(self.shape[1]))
         if not isinstance(columns, (list, tuple, np.ndarray)):
@@ -1957,31 +1991,60 @@ class TableData(object):
                     values = self[:, c]
                     if remove_nans:
                         values = values[np.isfinite(values)]
-                    for k in kwargs:
-                        dest.append(name + [k], unit, format,
-                                    value=kwargs[k](values, *args))
+                    for k in funcs:
+                        v = funcs[k][0](values, *funcs[k][1], **funcs[k][2])
+                        if len(k) == 1:
+                            dest.append(name + [k[0]], unit, format, value=v)
+                        else:
+                            for j in range(len(k)):
+                                dest.append(name + [k[j]], unit, format,
+                                            value=v[j])
             dest.fill_data()
         else:
             dest.append(label, '', '%-s')
             for c in columns:
                 dest.append(*self.column_head(c, secs=True))
-            for k in kwargs:
-                dest.add(k, 0)
-                for c in columns:
+            for k in funcs:
+                for j in range(len(k)):
+                    dest.add(k[j], 0)
+                for i, c in enumerate(columns):
                     values = self[:, c]
                     if remove_nans:
                         values = values[np.isfinite(values)]
-                    dest.add(kwargs[k](values, *args))
+                    v = funcs[k][0](values, *funcs[k][1], **funcs[k][2])
+                    if len(k) == 1:
+                        dest.add(v, i + 1)
+                    else:
+                        for j in range(len(k)):
+                            dest.add(v[j], i + 1)
                 dest.fill_data()
         return dest
 
-    def aggregate(self, columns=None, label=None, numbers_only=False,
-                  remove_nans=False, single_row=False,
-                  by=None, args=(), **kwargs):
+    def aggregate(self, funcs, columns=None, label=None,
+                  numbers_only=False, remove_nans=False,
+                  single_row=False, by=None):
         """Apply functions to columns.
 
         Parameter
         ---------
+        funcs: function, list of function, dict
+            Functions that are applied to columns of the table.
+            - a single function that is applied to the `columns`.
+              The results are named according to the function's `__name__`.
+            - a list or tuple of functions.
+              The results are named according to the functions' `__name__`.
+            - a dictionary. The results are named after the provided keys,
+              the functions are given by the values.
+              If the function returns more than one value, then the
+              corresponding key in the dictionary needs to be a tuple
+              (not a list!) of names for each of the returned values.
+            Functions in lists or dictionaries can be just a plain
+            function, like `max` or `np.mean`. In case a function
+            needs further arguments, then you need to supply a tuple
+            with the first elements being the function, the second
+            element being another tuple holding positional arguments,
+            and an optional third argument holding a dictionary for
+            key-word arguments.
         columns: None, int or str or list of int or str
             Columns of the table on which functions are applied.
             If None apply functions on all columns.
@@ -1996,14 +2059,8 @@ class TableData(object):
             If False, add for each function a row to the table.
             If True, add function values in a single row.
         by: None, int or str or list of int or str
-            Group the table by the specified columns and apply the columns
+            Group the table by the specified columns and apply the functions
             to each resulting sub-table separately.
-        args: tuple
-            Additional arguments passed on to the functions.
-        kwargs: dict
-            Keys are function labels that are added to the first column,
-            values are functions that take a single list as the only argument
-            and return a single value.
 
         Returns
         -------
@@ -2015,29 +2072,27 @@ class TableData(object):
             and their return values are written into the new table.
         """
         if by is not None:
-            # aggregate on groupde table:
+            # aggregate on grouped table:
             if not isinstance(by, (list, tuple)):
                 by = [by]
             if len(by) > 0:
                 gd = TableData()
                 for name, values in self.groupby(*by):
-                    ad = values._aggregate(columns, label,
+                    ad = values._aggregate(funcs, columns, label,
                                            numbers_only=numbers_only,
                                            remove_nans=remove_nans,
-                                           single_row=True, keep_columns=by,
-                                           args=args, **kwargs)
+                                           single_row=True, keep_columns=by)
                     gd.add(ad)
                 return gd
         # aggregate on whole table:
-        return self._aggregate(columns, label,
+        return self._aggregate(funcs, columns, label,
                                numbers_only=numbers_only,
                                remove_nans=remove_nans,
                                single_row=single_row,
-                               keep_columns=None,
-                               args=args, **kwargs)
+                               keep_columns=None)
 
     def statistics(self, columns=None, label=None,
-                   remove_nans=False, single_row=False):
+                   remove_nans=False, single_row=False, by=None):
         """Descriptive statistics of each column.
         
         Parameter
@@ -2053,6 +2108,9 @@ class TableData(object):
         single_row: bool
             If False, add for each function a row to the table.
             If True, add function values in a single row.
+        by: None, int or str or list of int or str
+            Group the table by the specified columns and compute statistics
+            to each resulting sub-table separately.
 
         Returns
         -------
@@ -2061,22 +2119,24 @@ class TableData(object):
             For each column that contains numbers some basic
             descriptive statistics is computed.
         """
-        def quartile1(x):
-            return np.quantile(x, 0.25)
-        
-        def quartile2(x):
-            return np.quantile(x, 0.75)
-        
         if label is None:
             label = 'statistics'
-        ds = self.aggregate(columns, label,
+        funcs = {'mean': np.mean,
+                 'std': np.std,
+                 'min': np.min,
+                 ('quartile1', 'median', 'quartile2'):
+                     (np.quantile, ([0.25, 0.5, 0.75],)),
+                 'max': np.max,
+                 'count': len}
+        ds = self.aggregate(funcs, columns, label,
                             numbers_only=True,
                             remove_nans=remove_nans,
-                            single_row=single_row,
-                            mean=np.mean, std=np.std,
-                            min=np.min, quartile1=quartile1,
-                            median=np.median, quartile2=quartile2,
-                            max=np.max, count=len)
+                            single_row=single_row, by=by)
+        if by is not None:
+            if not isinstance(by, (list, tuple)):
+                by = [by]
+            if len(by) > 0:
+                single_row = True
         c0 = 0
         if not single_row:
             ds.set_format('%-10s', 0)
@@ -3722,12 +3782,15 @@ def main():
 
     # aggregate demos:
     print(df)
-    print(df.aggregate(numbers_only=True, len=len, max=max))
-    print(df.aggregate(['size', 'full weight', 'speed'], 'statistics',
-                       remove_nans=True, single_row=False,
-                       mean=np.mean, len=len, max=max))
+    print(df.aggregate(np.mean, numbers_only=True))
+    print(df.aggregate(dict(count=len, maximum=np.max), numbers_only=True))
+    print(df.aggregate([np.mean, len, max],
+                       ['size', 'full weight', 'speed'], 'statistics',
+                       remove_nans=True, single_row=False))
+    print(df.aggregate({('25%', '50%', '75%'): (np.quantile, ([0.25, 0.6, 0.75],))}, numbers_only=True))
     print(df.statistics(single_row=False))
     print(df.statistics(single_row=True, remove_nans=True))
+    print(df.statistics(remove_nans=True, by='ID'))
 
     # groupby demo:
     for name, values in df.groupby('ID'):
@@ -3737,7 +3800,7 @@ def main():
     print()
 
     # aggregrate on groups demo:
-    print(df.aggregate(by='ID', mean=np.mean, median=np.median))
+    print(df.aggregate(np.mean, by='ID'))
     
         
 if __name__ == "__main__":
