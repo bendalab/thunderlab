@@ -441,8 +441,12 @@ class TableData(object):
                         self.data[c].extend(values)
                     else:
                         self.append(new_key, new_unit, formats, value=values)
-            elif isinstance(data, (list, tuple, np.ndarray)):
-                if len(data) > 0 and isinstance(data[0], (list, tuple, np.ndarray)):
+            elif isinstance(data, (list, tuple, np.ndarray)) and not \
+                 (isinstance(data, np.ndarray) and len(data.shape) == 0):
+                if len(data) > 0 and \
+                   isinstance(data[0], (list, tuple, np.ndarray)) and not \
+                   (isinstance(data[0], np.ndarray) and \
+                    len(data[0].shape) == 0):
                     # 2D list, rows first:
                     for row in data:
                         for c, val in enumerate(row):
@@ -1695,7 +1699,9 @@ class TableData(object):
             self._add_table_data(data, add_all)
         elif isinstance(data, (list, tuple, np.ndarray)) and not \
              (isinstance(data, np.ndarray) and len(data.shape) == 0):
-            if len(data) > 0 and isinstance(data[0], (list, tuple, np.ndarray)):
+            if len(data) > 0 and \
+               isinstance(data[0], (list, tuple, np.ndarray)) and not \
+               (isinstance(data[0], np.ndarray) and len(data[0].shape) == 0):
                 # 2D list, rows first:
                 for row in data:
                     for i, val in enumerate(row):
@@ -3787,7 +3793,10 @@ def main():
     print(df.aggregate([np.mean, len, max],
                        ['size', 'full weight', 'speed'], 'statistics',
                        remove_nans=True, single_row=False))
-    print(df.aggregate({('25%', '50%', '75%'): (np.quantile, ([0.25, 0.6, 0.75],))}, numbers_only=True))
+    print(df.aggregate({('25%', '50%', '75%'):
+                        (np.quantile, ([0.25, 0.6, 0.75],))},
+                       numbers_only=True))
+    
     print(df.statistics(single_row=False))
     print(df.statistics(single_row=True, remove_nans=True))
     print(df.statistics(remove_nans=True, by='ID'))
@@ -3796,7 +3805,6 @@ def main():
     for name, values in df.groupby('ID'):
         print(name)
         print(values)
-        #print(values.aggregate())
     print()
 
     # aggregrate on groups demo:
