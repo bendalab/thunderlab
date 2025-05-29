@@ -28,6 +28,7 @@ import os
 import re
 import math as m
 import numpy as np
+from pathlib import Path
 from itertools import product
 from io import StringIO
 try:
@@ -2272,7 +2273,7 @@ class TableData(object):
         Parameters
         ----------
         fh: filename or stream
-            If not a stream, the file with name `fh` is opened.
+            If not a stream, the file with path `fh` is opened.
             If `fh` does not have an extension,
             the `table_format` is appended as an extension.
             Otherwise `fh` is used as a stream for writing.
@@ -2460,14 +2461,18 @@ class TableData(object):
         own_file = False
         file_name = None
         if not hasattr(fh, 'write'):
-            _, ext = os.path.splitext(fh)
+            fh = Path(fh)
+            ext = fh.suffix
             if table_format is None:
                 if len(ext) > 1 and ext[1:] in self.ext_formats:
                     table_format = self.ext_formats[ext[1:]]
             elif not ext or not ext[1:].lower() in self.ext_formats:
-                fh += '.' + self.extensions[table_format]
+                fh = fh.with_suffix('.' + self.extensions[table_format])
             file_name = fh
-            fh = open(fh, 'w')
+            try:
+                fh = open(os.fspath(fh), 'w')
+            except AttributeError:
+                fh = open(str(fh), 'w')
             own_file = True
         if table_format is None:
             table_format = 'dat'
@@ -3053,8 +3058,8 @@ class TableData(object):
 
         Parameters
         ----------
-        fh: str or stream
-            If not a stream, the file with name `fh` is opened for reading.
+        fh: str, Path, or stream
+            If not a stream, the file with path `fh` is opened for reading.
         missing: str or list of str
             Missing data are indicated by this string and
             are translated to np.nan.
@@ -3187,7 +3192,10 @@ class TableData(object):
         # open file:
         own_file = False
         if not hasattr(fh, 'readline'):
-            fh = open(fh, 'r')
+            try:
+                fh = open(os.fspath(fh), 'r')
+            except AttributeError:
+                fh = open(str(fh), 'r')
             own_file = True
         # read inital lines of file:
         key = []
