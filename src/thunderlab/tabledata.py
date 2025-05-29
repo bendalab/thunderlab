@@ -804,8 +804,8 @@ class TableData(object):
 
         Returns
         -------
-        name: str
-            The column label.
+        self: TableData
+            This TableData
         """
         column = self.index(column)
         return self.header[column][0]
@@ -820,10 +820,15 @@ class TableData(object):
         column: None, int, or str
             A specification of a column.
             See self.index() for more information on how to specify a column.
+
+        Returns
+        -------
+        self: TableData
+            This TableData
         """        
         column = self.index(column)
         self.header[column][0] = label
-        return column
+        return self
 
     def unit(self, column):
         """The unit of a column.
@@ -852,21 +857,52 @@ class TableData(object):
         column: None, int, or str
             A specification of a column.
             See self.index() for more information on how to specify a column.
+
+        Returns
+        -------
+        self: TableData
+            This TableData
         """
         column = self.index(column)
         self.units[column] = unit
-        return column
+        return self
 
     def set_units(self, units):
-        """Set the units of all columns.
+        """Set the units of some columns.
 
         Parameters
         ----------
-        units: list of str
+        units: TableData, dict, list of str, str
             The new units to be used.
+            If TableData, take the units of matching column labels.
+            If dict, keys are column labels (see self.index() for more
+            information on how to specify a column), and values are
+            units for the respective columns as str.
+            If list of str, set units of the first successive columns to
+            the list elements.
+            Otherwise, set units of all columns to `units`.
+
+        Returns
+        -------
+        self: TableData
+            This TableData
         """
-        for c, u in enumerate(units):
-            self.units[c] = u
+        if isinstance(units, TableData):
+            for c in units:
+                i = self.index(c)
+                self.units[i] = units.unit(c)
+        elif isinstance(units, dict):
+            for c in units:
+                i = self.index(c)
+                self.units[i] = units[c]
+        elif isinstance(units, (list, tuple, np.ndarray)) and not \
+             (isinstance(units, np.ndarray) and len(units.shape) == 0):
+            for c, u in enumerate(units):
+                self.units[c] = u
+        else:
+            for c in range(len(units)):
+                self.units[c] = units
+        return self
 
     def format(self, column):
         """The format string of the column.
@@ -895,27 +931,52 @@ class TableData(object):
         column: None, int, or str
             A specification of a column.
             See self.index() for more information on how to specify a column.
+
+        Returns
+        -------
+        self: TableData
+            This TableData
         """
         column = self.index(column)
         self.formats[column] = format
-        return column
+        return self
 
     def set_formats(self, formats):
         """Set the format strings of all columns.
 
         Parameters
         ----------
-        formats: str or list of str
+        formats: TableData, dict, list of str, str
             The new format strings to be used.
-            If only a single format is specified,
-            then all columns get the same format.
+            If TableData, take the format strings of matching column labels.
+            If dict, keys are column labels (see self.index() for more
+            information on how to specify a column), and values are
+            format strings for the respective columns as str.
+            If list of str, set format strings of the first successive
+            columns to the list elements.
+            Otherwise, set format strings of all columns to `formats`.
+
+        Returns
+        -------
+        self: TableData
+            This TableData
         """
-        if isinstance(formats, (list, tuple, np.ndarray)):
+        if isinstance(formats, TableData):
+            for c in formats:
+                i = self.index(c)
+                self.formats[i] = formats.format(c)
+        elif isinstance(formats, dict):
+            for c in formats:
+                i = self.index(c)
+                self.formats[i] = formats[c] or '%g'
+        elif isinstance(formats, (list, tuple, np.ndarray)) and not \
+             (isinstance(formats, np.ndarray) and len(formats.shape) == 0):
             for c, f in enumerate(formats):
                 self.formats[c] = f or '%g'
         else:
-            for c in range(len(self.formats)):
+            for c in range(len(formats)):
                 self.formats[c] = formats or '%g'
+        return self
 
     def table_header(self):
         """The header of the table without content.
