@@ -71,11 +71,12 @@ class TableData(object):
         - pandas data frame.
     header: list of str
         Header labels for each column.
-    units: list of str, optional
-        Unit strings for each column.
-    formats: str or list of str, optional
-        Format strings for each column. If only a single format string is
-        given, then all columns are initialized with this format string.
+    units: None, TableData, dict, list of str, str
+        Optional unit strings for each column.
+        See `set_units()' for details.
+    formats: None, TableData, dict, list of str, str
+        Optional format strings for each column.
+        See `set_formats()' for details.
     missing: list of str
         Missing data are indicated by one of these strings.
     sep: str or None
@@ -409,21 +410,15 @@ class TableData(object):
                 self.setcol = data.setcol
                 self.addcol = data.addcol
                 for c in range(data.columns()):
-                    if c < len(self.header):
-                        if len(self.header[c]) < len(data.header[c]):
-                            self.header[c].extend(list(data.header[c][len(self.header[c]):]))
-                        if self.units[c] is None:
-                            self.units[c] = data.units[c]
-                        if self.formats[c] is None:
-                            self.formats[c] = data.formats[c]
-                        self.hidden[c] = data.hidden[c]
-                        self.data[c].extend(list(data.data[c]))
-                    else:
-                        self.header.append(list(data.header[c]))
-                        self.units.append(data.units[c])
-                        self.formats.append(data.formats[c])
-                        self.hidden.append(data.hidden[c])
-                        self.data.append(list(data.data[c]))
+                    self.header.append(list(data.header[c]))
+                    self.units.append(data.units[c])
+                    self.formats.append(data.formats[c])
+                    self.hidden.append(data.hidden[c])
+                    self.data.append(list(data.data[c]))
+                if units is not None:
+                    self.set_units(units)
+                if formats is not None:
+                    self.set_formats(formats)
             elif has_pandas and isinstance(data, pd.DataFrame):
                 for c, key in enumerate(data.keys()):
                     new_key = key
@@ -434,14 +429,11 @@ class TableData(object):
                         new_unit = '/'.join(p[1:])
                     formats = '%s' if isinstance(values[0], str) else '%g'
                     values = data[key].tolist()
-                    if c < len(self.header):
-                        if self.units[c] is None:
-                            self.units[c] = new_unit
-                        if self.formats[c] is None:
-                            self.formats[c] = formats
-                        self.data[c].extend(values)
-                    else:
-                        self.append(new_key, new_unit, formats, value=values)
+                    self.append(new_key, new_unit, formats, value=values)
+                if units is not None:
+                    self.set_units(units)
+                if formats is not None:
+                    self.set_formats(formats)
             elif isinstance(data, (list, tuple, np.ndarray)) and not \
                  (isinstance(data, np.ndarray) and len(data.shape) == 0):
                 if len(data) > 0 and \
@@ -464,8 +456,16 @@ class TableData(object):
             elif isinstance(data, (dict)):
                 self._add_dict(data, True)
                 self.fill_data()
+                if units is not None:
+                    self.set_units(units)
+                if formats is not None:
+                    self.set_formats(formats)
             else:
                 self.load(data, missing, sep, stop)
+                if units is not None:
+                    self.set_units(units)
+                if formats is not None:
+                    self.set_formats(formats)
             # fill in missing units and formats:
             for k in range(len(self.header)):
                 if self.units[k] is None:
