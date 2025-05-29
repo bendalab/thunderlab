@@ -69,8 +69,9 @@ class TableData(object):
         - 1-D or 2-D ndarray of data: the data of the table.
           Requires als a specified `header`.
         - pandas data frame.
-    header: list of str
+    header: TableData, dict, list of str, list of list of str
         Header labels for each column.
+        See `set_labels()' for details.
     units: None, TableData, dict, list of str, str
         Optional unit strings for each column.
         See `set_units()' for details.
@@ -415,6 +416,8 @@ class TableData(object):
                     self.formats.append(data.formats[c])
                     self.hidden.append(data.hidden[c])
                     self.data.append(list(data.data[c]))
+                if header is not None:
+                    self.set_labels(header)
                 if units is not None:
                     self.set_units(units)
                 if formats is not None:
@@ -430,6 +433,8 @@ class TableData(object):
                     formats = '%s' if isinstance(values[0], str) else '%g'
                     values = data[key].tolist()
                     self.append(new_key, new_unit, formats, value=values)
+                if header is not None:
+                    self.set_labels(header)
                 if units is not None:
                     self.set_units(units)
                 if formats is not None:
@@ -456,12 +461,16 @@ class TableData(object):
             elif isinstance(data, (dict)):
                 self._add_dict(data, True)
                 self.fill_data()
+                if header is not None:
+                    self.set_labels(header)
                 if units is not None:
                     self.set_units(units)
                 if formats is not None:
                     self.set_formats(formats)
             else:
                 self.load(data, missing, sep, stop)
+                if header is not None:
+                    self.set_labels(header)
                 if units is not None:
                     self.set_units(units)
                 if formats is not None:
@@ -708,16 +717,16 @@ class TableData(object):
             column -= 1
         return self.header[column][level], column
     
-    def set_section(self, label, column, level):
+    def set_section(self, column, label, level):
         """Set a section name.
 
         Parameters
         ----------
-        label: str
-            The new name to be used for the section.
         column: None, int, or str
             A specification of a column.
             See self.index() for more information on how to specify a column.
+        label: str
+            The new name to be used for the section.
         level: int
             The level of the section to be set. The column label itself is level=0.
         """
@@ -810,16 +819,16 @@ class TableData(object):
         column = self.index(column)
         return self.header[column][0]
 
-    def set_label(self, label, column):
+    def set_label(self, column, label):
         """Set the name of a column.
 
         Parameters
         ----------
-        label: str
-            The new name to be used for the column.
         column: None, int, or str
             A specification of a column.
             See self.index() for more information on how to specify a column.
+        label: str
+            The new name to be used for the column.
 
         Returns
         -------
@@ -828,6 +837,47 @@ class TableData(object):
         """        
         column = self.index(column)
         self.header[column][0] = label
+        return self
+
+    def set_labels(self, labels):
+        """Set the labels of some columns.
+
+        Parameters
+        ----------
+        labels: TableData, dict, list of str, list of list of str
+            The new labels to be used.
+            If TableData, take the labels of the respective column indices.
+            If dict, keys are column labels (see self.index() for more
+            information on how to specify a column), and values are
+            the new labels for the respective columns as str or list of str.
+            If list of str or list of list of str,
+            set labels of the first successive columns to the list elements.
+
+        Returns
+        -------
+        self: TableData
+            This TableData
+        """
+        if isinstance(labels, TableData):
+            for c in range(min(self.columns(), labels.columns())):
+                self.header[c] = labels.header[c]
+        elif isinstance(labels, dict):
+            for c in labels:
+                i = self.index(c)
+                if i is None:
+                    continue
+                l = labels[c]
+                if isinstance(l, (list, tuple)):
+                    self.header[i] = l
+                else:
+                    self.header[i] = [l]
+        elif isinstance(labels, (list, tuple, np.ndarray)) and not \
+             (isinstance(labels, np.ndarray) and len(labels.shape) == 0):
+            for c, l in enumerate(labels):
+                if isinstance(l, (list, tuple)):
+                    self.labels[c] = l
+                else:
+                    self.labels[c] = [l]
         return self
 
     def unit(self, column):
@@ -847,16 +897,16 @@ class TableData(object):
         column = self.index(column)
         return self.units[column]
 
-    def set_unit(self, unit, column):
+    def set_unit(self, column, unit):
         """Set the unit of a column.
 
         Parameters
         ----------
-        unit: str
-            The new unit to be used for the column.
         column: None, int, or str
             A specification of a column.
             See self.index() for more information on how to specify a column.
+        unit: str
+            The new unit to be used for the column.
 
         Returns
         -------
@@ -890,10 +940,14 @@ class TableData(object):
         if isinstance(units, TableData):
             for c in units:
                 i = self.index(c)
+                if i is None:
+                    continue
                 self.units[i] = units.unit(c)
         elif isinstance(units, dict):
             for c in units:
                 i = self.index(c)
+                if i is None:
+                    continue
                 self.units[i] = units[c]
         elif isinstance(units, (list, tuple, np.ndarray)) and not \
              (isinstance(units, np.ndarray) and len(units.shape) == 0):
@@ -921,16 +975,16 @@ class TableData(object):
         column = self.index(column)
         return self.formats[column]
 
-    def set_format(self, format, column):
+    def set_format(self, column, format):
         """Set the format string of a column.
 
         Parameters
         ----------
-        format: str
-            The new format string to be used for the column.
         column: None, int, or str
             A specification of a column.
             See self.index() for more information on how to specify a column.
+        format: str
+            The new format string to be used for the column.
 
         Returns
         -------
@@ -964,10 +1018,14 @@ class TableData(object):
         if isinstance(formats, TableData):
             for c in formats:
                 i = self.index(c)
+                if i is None:
+                    continue
                 self.formats[i] = formats.format(c)
         elif isinstance(formats, dict):
             for c in formats:
                 i = self.index(c)
+                if i is None:
+                    continue
                 self.formats[i] = formats[c] or '%g'
         elif isinstance(formats, (list, tuple, np.ndarray)) and not \
              (isinstance(formats, np.ndarray) and len(formats.shape) == 0):
@@ -2207,21 +2265,21 @@ class TableData(object):
                 single_row = True
         c0 = 0
         if not single_row:
-            ds.set_format('%-10s', 0)
+            ds.set_format(0, '%-10s')
             c0 = 1
         for c in range(c0, ds.shape[1]):
             f = ds.formats[c]
             if single_row and ds.label(c) == 'count':
-                ds.set_unit('', c)
-                ds.set_format('%d', c)
+                ds.set_unit(c, '')
+                ds.set_format(c, '%d')
             elif f[-1] in 'fge':
                 i0 = f.find('.')
                 if i0 > 0:
                     p = int(f[i0 + 1:-1])
                     f = f'{f[:i0 + 1]}{p + 1}{f[-1]}'
-                ds.set_format(f, c)
+                ds.set_format(c, f)
             else:
-                ds.set_format('%.1f', c)
+                ds.set_format(c, '%.1f')
         return ds
         
     def groupby(self, *columns):
@@ -3476,7 +3534,7 @@ class TableData(object):
         # set formats:
         for k in range(len(alld)):
             if strf[k]:
-                self.set_format('%%-%ds' % alld[k], k)
+                self.set_format(k, '%%-%ds' % alld[k])
                 # make sure all elements are strings:
                 for i in range(len(self.data[k])):
                     if self.data[k][i] is np.nan:
@@ -3484,11 +3542,11 @@ class TableData(object):
                     else:
                         self.data[k][i] = str(self.data[k][i])
             elif exped[k]:
-                self.set_format('%%%d.%de' % (alld[k], post[k]), k)
+                self.set_format(k, '%%%d.%de' % (alld[k], post[k]))
             elif fixed[k]:
-                self.set_format('%%%d.%df' % (alld[k], post[k]), k)
+                self.set_format(k, '%%%d.%df' % (alld[k], post[k]))
             else:
-                self.set_format('%%%d.%dg' % (alld[k], precd[k]), k)
+                self.set_format(k, '%%%d.%dg' % (alld[k], precd[k]))
         # close file:
         if own_file:
             fh.close()

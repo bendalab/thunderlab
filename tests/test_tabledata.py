@@ -77,11 +77,11 @@ def test_columns():
         assert c2 == cs, 'section level 2 index of column %d is not %d' % (c, c2)
     for c in range(df.columns()):
         l = 'aaa%d' % c
-        df.set_label(l, c)
+        df.set_label(c, l)
         assert df.label(c) == l, 'label of column %d is not %s' % (c, l)
-        df.set_unit('km/h', c)
+        df.set_unit(c, 'km/h')
         assert df.unit(c) == 'km/h', 'unit of column %d is not km/h' % c
-        df.set_format('%g', c)
+        df.set_format(c, '%g')
         assert df.format(c) == '%g', 'format of column %d is not %%g' % c
     df.set_units(list(reversed(units)))
     df.set_formats(list(reversed(formats)))
