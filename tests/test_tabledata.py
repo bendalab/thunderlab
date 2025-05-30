@@ -7,12 +7,12 @@ import thunderlab.tabledata as td
 
 def setup_table(nanvalue=True):
     df = td.TableData()
-    df.append(["data", "partial informations", "size"], "m", "%6.2f", [2.34, 56.7, 8.9])
-    df.append("full weight", "kg", "%.0f", 122.8)
+    df.append(["data", "partial informations", "size"], "m", "%6.2f", "", [2.34, 56.7, 8.9])
+    df.append("full weight", "kg", "%.0f", "", 122.8)
     df.append_section("complete reaction")
-    df.append("speed", "m/s", "%.3g", 98.7)
-    df.append("median jitter", "mm", "%.1f", 23)
-    df.append("size", "g", "%.2e", 1.234)
+    df.append("speed", "m/s", "%.3g", "", 98.7)
+    df.append("median jitter", "mm", "%.1f", "", 23)
+    df.append("size", "g", "%.2e", "", 1.234)
     if nanvalue:
         df.add(float('NaN'), 1)  # single value
     else:
@@ -35,8 +35,9 @@ def test_write():
     os.remove(fn)
     td.write('test.dat', df.array(),
              [df.header[i][0] for i in range(len(df.header))],
-             [df.units[i][0] for i in range(len(df.units))],
-             [df.formats[i][0] for i in range(len(df.formats))])
+             [df.units[i] for i in range(len(df.units))],
+             [df.formats[i] for i in range(len(df.formats))],
+             [df.descriptions[i] for i in range(len(df.descriptions))])
     os.remove('test.dat')
 
 def test_properties():
@@ -125,11 +126,12 @@ def test_insertion():
         nc = df.columns()
         for k in range(1,10):
             c = np.random.randint(df.columns())
-            df.insert(c, 'aaa', 'm', '%g')
+            df.insert(c, 'aaa', 'm', '%g', 'some description')
             assert df.columns() == nc+k, 'after insertion of column len should be %d' % (nc+k)
             assert df.label(c) == 'aaa', 'label of inserted column should be %s' % 'aaa'
-            assert df.unit(c) == 'm', 'label of inserted column should be %s' % 'm'
-            assert df.format(c) == '%g', 'label of inserted column should be %s' % '%g'
+            assert df.unit(c) == 'm', 'unit of inserted column should be %s' % 'm'
+            assert df.format(c) == '%g', 'format of inserted column should be %s' % '%g'
+            assert df.description(c) == 'some description', 'description of inserted column should be %s' % 'some description'
 
 def test_key_value():
     df = setup_table()
