@@ -3236,7 +3236,7 @@ class TableData(object):
             Name of file that is appended to a base path or `basename`.
         kwargs:
             Arguments passed on to `TableData.write()`.
-            In particular, 'table_format' is used to the set the file extension
+            In particular, 'table_format' is used to set the file extension
             that is appended to the returned `file_name`.
 
         Returns
@@ -3316,7 +3316,7 @@ class TableData(object):
         if table_format == 'md':
             for c in range(len(self.header)):
                 if not self.hidden[c]:
-                    fh.write(f'{c}. **{self.header[c][0]}**: {self.units[c]}\n')
+                    fh.write(f'{c + 1}. **{self.header[c][0]}**: {self.units[c]}\n')
                     break_text(fh, self.descriptions[c], maxc, indent=4)
         elif table_format == 'html':
             fh.write('<ol>\n')
@@ -3324,14 +3324,15 @@ class TableData(object):
                 if not self.hidden[c]:
                     fh.write(f'  <li><b>{self.header[c][0]}</b>: {self.units[c]}<br>\n')
                     break_text(fh, self.descriptions[c], maxc, indent=6)
+                    fh.write('  </li>\n')
             fh.write('</ol>\n')
         elif table_format == 'tex':
-            fh.write(r'\begin{enumerate}\n')
+            fh.write('\\begin{enumerate}\n')
             for c in range(len(self.header)):
                 if not self.hidden[c]:
                     fh.write(f'  \\item \\textbf{{{self.header[c][0]}}}: {latex_unit(self.units[c], latex_unit_package)}\n')
-                    break_text(fh, self.descriptions[c], maxc, indent=2)
-            fh.write(r'\end{enumerate}\n')
+                    break_text(fh, self.descriptions[c], maxc, indent=4)
+            fh.write('\\end{enumerate}\n')
         else:
             raise ValueError(f'File format "{table_format}" not supported for writing column descriptions')
         # close file:
@@ -3957,6 +3958,8 @@ def break_text(stream, text, maxc=80, indent=0):
             nc += 1
         stream.write(word)
         nc += len(word)
+        nw += 1
+    stream.write('\n')
 
 
 def index2aa(n, a='a'):
@@ -4056,6 +4059,13 @@ def main():
     df.append("speed", "m/s", "%.3g", 98.7)
     df.append("median jitter", "mm", "%.1f", 23)
     df.append("size", "g", "%.2e", 1.234)
+    df.set_descriptions({'ID': 'A unique identifier of a snake.',
+                         'size': 'The total length of each snake.',
+                         'full weight': 'Weight of each snake',
+                         'speed': 'Maximum speed the snake can climb a tree.',
+                         'median jitter': 'The jitter around a given path the snake should follow.',
+                         'complete reaction>size': 'Weight of mouse the snake has eaten before.',
+                         })
     df.add(np.nan, 2)  # single value
     df.add([0.543, 45, 1.235e2]) # remaining row
     df.add([43.21, 6789.1, 3405, 1.235e-4], 2) # next row
@@ -4074,6 +4084,10 @@ def main():
                  latex_merge_std=True)
         print('      ```')
         print()
+
+    # write descriptions:
+    for tf in ['md', 'html', 'tex']:
+        df.write_descriptions(table_format=tf, maxc=40)
 
     # aggregate demos:
     print(df)
@@ -4098,6 +4112,11 @@ def main():
 
     # aggregrate on groups demo:
     print(df.aggregate(np.mean, by='ID'))
+    print(len(df.aggregate(np.mean, by='ID')))
+    print()
+
+    # write descriptions:
+    df.write_descriptions()
     
         
 if __name__ == "__main__":
