@@ -3713,48 +3713,6 @@ class TableData(object):
         if own_file:
             fh.close()
 
-
-def write(fh, data, header, units=None, formats=None, descriptions=None,
-          table_format=None, delimiter=None, unit_style=None,
-          column_numbers=None, sections=None, align_columns=None,
-          shrink_width=True, missing=default_missing_str,
-          center_columns=False, latex_label_command='',
-          latex_merge_std=False):
-    """Construct table and write to file.
-
-    Parameters
-    ----------
-    fh: filename or stream
-        If not a stream, the file with name `fh` is opened.
-        If `fh` does not have an extension,
-        the `table_format` is appended as an extension.
-        Otherwise `fh` is used as a stream for writing.
-    data: 1-D or 2-D ndarray of data
-          The data of the table.
-    header: list of str
-        Header labels for each column.
-    units: list of str, optional
-        Unit strings for each column.
-    formats: str or list of str, optional
-        Format strings for each column. If only a single format string is
-        given, then all columns are initialized with this format string.
-
-    See `TableData.write()` for a description of all other parameters.
-
-    Example
-    -------
-    ```
-    write(sys.stdout, np.random.randn(4,3), ['aaa', 'bbb', 'ccc'], units=['m', 's', 'g'], formats='%.2f')
-    ```
-    """
-    td = TableData(data, header, units, formats, descriptions)
-    td.write(fh, table_format=table_format, unit_style=unit_style,
-             column_numbers=column_numbers, missing=missing,
-             shrink_width=shrink_width, delimiter=delimiter,
-             align_columns=align_columns, sections=sections,
-             latex_label_command=latex_label_command,
-             latex_merge_std=latex_merge_std)
-
     
 def add_write_table_config(cfg, table_format=None, delimiter=None,
                            unit_style=None, column_numbers=None,

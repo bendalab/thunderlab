@@ -33,12 +33,6 @@ def test_write():
     df.write_file_stream(sys.stdout, 'file')
     fn = df.write_file_stream('table', 'file')
     os.remove(fn)
-    td.write('test.dat', df.array(),
-             [df.header[i][0] for i in range(len(df.header))],
-             [df.units[i] for i in range(len(df.units))],
-             [df.formats[i] for i in range(len(df.formats))],
-             [df.descriptions[i] for i in range(len(df.descriptions))])
-    os.remove('test.dat')
 
 def test_properties():
     df = setup_table()
