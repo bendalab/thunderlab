@@ -2480,7 +2480,8 @@ class TableData(object):
               align_columns=None, shrink_width=True,
               missing=default_missing_str, center_columns=False,
               latex_unit_package=None, latex_label_command='',
-              latex_merge_std=False):
+              latex_merge_std=False, descriptions_name='-description.md',
+              section_headings=None, maxc=80):
         """Write the table to a file or stream.
 
         Parameters
@@ -2541,7 +2542,18 @@ class TableData(object):
             previous column (LaTeX tables only), but separate them
             with $\\pm$. Valid labels for standrad deviations are
             listed in `TableData.stdev_labels`.
-
+        descriptions_name: None or str
+            If not None and if `fh` is a file path, then write the column
+            descriptions to a file with the same name as `fh`, but with
+            `descriptions_name` appended.
+        section_headings: None or int
+            How to write treat header sections in the column descriptions.
+            If set, set header sections as headings with the top-level
+            section at the level as specified. 0 is the top level.
+            If False, just produce a nested list.
+        maxc: int
+            Maximum character count for each line in the column descriptions.
+        
         Returns
         -------
         file_name: str or None
@@ -3220,6 +3232,20 @@ class TableData(object):
         # close file:
         if own_file:
             fh.close()
+        # write descriptions:
+        if file_name is not None and descriptions_name:
+            write_descriptions = False
+            for c in range(len(self.descriptions)):
+                if self.descriptions[c]:
+                    write_descriptions = True
+            if write_descriptions:
+                descr_path = file_name.with_name(file_name.stem +
+                                                 descriptions_name)
+                self.write_descriptions(descr_path, table_format=None,
+                                        sections=sections,
+                                        section_headings=section_headings,
+                                        latex_unit_package=latex_unit_package,
+                                        maxc=maxc)
         # return file name:
         return file_name
 
@@ -3258,7 +3284,6 @@ class TableData(object):
             file_name = self.write(basename + file_name, **kwargs)
             return file_name
 
-            
     def __str__(self):
         """Write table to a string.
         """
@@ -4218,6 +4243,7 @@ def main():
 
     # write descriptions:
     df.write_descriptions(table_format='md', section_headings=0)
+    print()
     
         
 if __name__ == "__main__":
