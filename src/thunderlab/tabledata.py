@@ -367,6 +367,7 @@ class TableData(object):
     - `write()`: write table to a file or stream.
     - `write_file_stream()`: write table to file or stream and return appropriate file name.
     - `__str__()`: write table to a string.
+    - `write_descriptions()`: write column descriptions of the table to a file or stream.
     - `load()`: load table from file or stream.
     - `formats`: list of supported file formats for writing.
     - `descriptions`: dictionary with descriptions of the supported file formats.
