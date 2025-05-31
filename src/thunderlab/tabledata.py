@@ -2986,7 +2986,7 @@ class TableData(object):
         if nsec0 < 0:
             nsec0 = 0
         for ns in range(nsec0, self.nsecs+1):
-            nsec = self.nsecs-ns
+            nsec = self.nsecs - ns
             first = True
             last = False
             merged = False
@@ -3266,7 +3266,8 @@ class TableData(object):
         return stream.getvalue()
                 
     def write_descriptions(self, fh=sys.stdout, table_format=None,
-                           sections=None, latex_unit_package=None, maxc=80):
+                           sections=None, section_headings=None,
+                           latex_unit_package=None, maxc=80):
         """Write column descriptions of the table to a file or stream.
 
         Parameters
@@ -3285,6 +3286,10 @@ class TableData(object):
         sections: None or int
             Number of section levels to be printed.
             If `None` or 'auto' use default of selected `table_format`.
+        section_headings: None or int
+            If set, set header sections as headings with the top-level
+            section at the level as specified. 0 is the top level.
+            If False, just produce a nested list.
         latex_unit_package: None or 'siunitx' or 'SIunit'
             Translate units for the specified LaTeX package.
             If None set sub- and superscripts in text mode.
@@ -3298,6 +3303,7 @@ class TableData(object):
             table_format = None
         if sections is None:
             sections = 1000
+        nsecs = min(self.nsecs, sections)
         # open file:
         own_file = False
         file_name = None
@@ -3318,27 +3324,114 @@ class TableData(object):
         if table_format is None:
             table_format = 'md'
         # write descriptions:
+        headers = ['']*(1 + nsecs)
+        prev_headers = ['']*(1 + nsecs)
         if table_format == 'md':
-            # TODO: what to do with sections?
             for c in range(len(self.header)):
+                headers[:len(self.header[c])] = self.header[c]
                 if not self.hidden[c]:
-                    fh.write(f'{c + 1}. **{self.header[c][0]}**: {self.units[c]}\n')
-                    break_text(fh, self.descriptions[c], maxc, indent=4)
+                    changed = False
+                    for k in reversed(range(nsecs)):
+                        if changed or prev_headers[k + 1] != headers[k + 1]:
+                            changed = True
+                            if section_headings is None:
+                                fh.write(f'{" "*2*(nsecs - k - 1)}- '
+                                         f'{headers[k + 1]}\n')
+                            else:
+                                level = nsecs - k - 1 + section_headings + 1
+                                fh.write(f'\n{"#"*level} {headers[k + 1]}\n')
+                            prev_headers[k + 1] = headers[k + 1]
+                    indent = 2*nsecs if section_headings is None else 0
+                    fh.write(f'{" "*indent}- **{headers[0]}**')
+                    if self.units[c]:
+                        fh.write(f' [{self.units[c]}]')
+                    fh.write('  \n')
+                    break_text(fh, self.descriptions[c], maxc,
+                               indent=indent + 2)
+                    prev_headers[0] = headers[0]
         elif table_format == 'html':
-            fh.write('<ol>\n')
+            level = -1
             for c in range(len(self.header)):
+                headers[:len(self.header[c])] = self.header[c]
                 if not self.hidden[c]:
-                    fh.write(f'  <li><b>{self.header[c][0]}</b>: {self.units[c]}<br>\n')
-                    break_text(fh, self.descriptions[c], maxc, indent=6)
-                    fh.write('  </li>\n')
-            fh.write('</ol>\n')
+                    changed = False
+                    for k in reversed(range(nsecs)):
+                        if changed or prev_headers[k + 1] != headers[k + 1]:
+                            new_level = nsecs - k - 1
+                            if not changed:
+                                if section_headings is None:
+                                    while level > new_level:
+                                        fh.write(f'{" "*2*level}</ul>\n')
+                                        level -= 1
+                                elif level >= 0:
+                                    fh.write(f'{" "*2*level}</ul>\n')
+                                    level -= 1
+                            changed = True
+                            if section_headings is None:
+                                while level < new_level:
+                                    level += 1
+                                    fh.write(f'{" "*2*level}<ul>\n')
+                                fh.write(f'{" "*2*(level + 1)}<li><b>{headers[k + 1]}</b></li>\n')
+                            else:
+                                fh.write(f'\n<h{new_level + section_headings + 1}>{headers[k + 1]}</h{new_level + section_headings + 1}>\n')
+                            prev_headers[k + 1] = headers[k + 1]
+                    if changed:
+                        level += 1
+                        fh.write(f'{" "*2*level}<ul>\n')
+                        
+                    fh.write(f'{" "*2*(level + 1)}<li><b>{headers[0]}</b>')
+                    if self.units[c]:
+                        fh.write(f'[{self.units[c]}]')
+                    fh.write('<br>\n')
+                    break_text(fh, self.descriptions[c], maxc,
+                               indent=2*(level + 1))
+                    fh.write(f'{" "*2*(level + 1)}</li>\n')
+                    prev_headers[0] = headers[0]
+            while level >= 0:
+                fh.write(f'{" "*2*level}</ul>\n')
+                level -= 1
         elif table_format == 'tex':
-            fh.write('\\begin{enumerate}\n')
+            headings = [r'\section', r'\subsection', r'\subsubsection',
+                        r'\paragraph', r'\subparagraph']
+            level = -1
             for c in range(len(self.header)):
+                headers[:len(self.header[c])] = self.header[c]
                 if not self.hidden[c]:
-                    fh.write(f'  \\item \\textbf{{{self.header[c][0]}}}: {latex_unit(self.units[c], latex_unit_package)}\n')
-                    break_text(fh, self.descriptions[c], maxc, indent=4)
-            fh.write('\\end{enumerate}\n')
+                    changed = False
+                    for k in reversed(range(nsecs)):
+                        if changed or prev_headers[k + 1] != headers[k + 1]:
+                            new_level = nsecs - k - 1
+                            if not changed:
+                                if section_headings is None:
+                                    while level > new_level:
+                                        fh.write(f'{" "*2*level}\\end{{enumerate}}\n')
+                                        level -= 1
+                                elif level >= 0:
+                                    fh.write(f'{" "*2*level}\\end{{enumerate}}\n')
+                                    level -= 1
+                            changed = True
+                            if section_headings is None:
+                                while level < new_level:
+                                    level += 1
+                                    fh.write(f'{" "*2*level}\\begin{{enumerate}}\n')
+                                fh.write(f'{" "*2*(level + 1)}\\item \\textbf{{{headers[k + 1]}}}\n')
+                            else:
+                                fh.write(f'\n{headings[new_level + section_headings]}{{{headers[k + 1]}}}\n')
+                            prev_headers[k + 1] = headers[k + 1]
+                    if changed:
+                        level += 1
+                        fh.write(f'{" "*2*level}\\begin{{enumerate}}\n')
+                    fh.write(f'{" "*2*(level + 1)}\\item \\textbf{{{headers[0]}}}')
+                    if self.units[c]:
+                        fh.write(f' [{latex_unit(self.units[c],
+                                                 latex_unit_package)}]')
+                    fh.write('\n')
+                    break_text(fh, self.descriptions[c], maxc,
+                               indent=2*(level + 1))
+                    prev_headers[0] = headers[0]
+            while level >= 0:
+                fh.write(f'{" "*2*level}\\end{{enumerate}}\n')
+                level -= 1
         else:
             raise ValueError(f'File format "{table_format}" not supported for writing column descriptions')
         # close file:
@@ -4123,7 +4216,7 @@ def main():
     print()
 
     # write descriptions:
-    df.write_descriptions()
+    df.write_descriptions(table_format='md', section_headings=0)
     
         
 if __name__ == "__main__":
