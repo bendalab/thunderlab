@@ -139,11 +139,11 @@ class TableData(object):
     ```
     df = TableData()
     # first column with section names and 3 data values:
-    df.append(["data", "partial information", "size"], "m", "%6.2f",
+    df.append(["data", "specimen", "size"], "m", "%6.2f",
               [2.34, 56.7, 8.9])
     # next columns with single data values:
     df.append("full weight", "kg", "%.0f", 122.8)
-    df.append_section("complete reaction")
+    df.append_section("all measures")
     df.append("speed", "m/s", "%.3g", 98.7)
     df.append("median jitter", "mm", "%.1f", 23)
     df.append("size", "g", "%.2e", 1.234)
@@ -157,7 +157,7 @@ class TableData(object):
     results in
     ``` plain
     data
-    partial information  complete reaction
+    specimen             all measures
     size    full weight  speed     median jitter  size
     m       kg           m/s       mm             g       
       2.34          123      98.7           23.0  1.23e+00
@@ -181,7 +181,7 @@ class TableData(object):
 
     For example:
     ```
-    df.index('complete reaction>size)   # returns 4
+    df.index('all measures>size)   # returns 4
     'speed' in df                       # is True
     ```
 
@@ -222,23 +222,23 @@ class TableData(object):
     results in
     ``` plain
     column specifications:
-    data>partial information>size
-    data>partial information>full weight
-    data>complete reaction>speed
-    data>complete reaction>median jitter
-    data>complete reaction>size
+    data>specimen>size
+    data>specimen>full weight
+    data>all measures>speed
+    data>all measures>median jitter
+    data>all measures>size
     iterating over column specifications:
-    0: data>partial information>size
-    1: data>partial information>full weight
-    2: data>complete reaction>speed
-    3: data>complete reaction>median jitter
-    4: data>complete reaction>size
+    0: data>specimen>size
+    1: data>specimen>full weight
+    2: data>all measures>speed
+    3: data>all measures>median jitter
+    4: data>all measures>size
     keys():
-    0: data>partial information>size
-    1: data>partial information>full weight
-    2: data>complete reaction>speed
-    3: data>complete reaction>median jitter
-    4: data>complete reaction>size
+    0: data>specimen>size
+    1: data>specimen>full weight
+    2: data>all measures>speed
+    3: data>all measures>median jitter
+    4: data>all measures>size
     values():
     [2.34, 56.7, 8.9]
     [122.8, nan, 43.21]
@@ -338,7 +338,7 @@ class TableData(object):
     statistics() returns a table with standard descriptive statistics:
     ``` plain
     statistics  data
-    -           partial information  complete reaction
+    -           specimen             all measures
     -           size    full weight  speed     median jitter  size
     -           m       kg           m/s       mm             g       
     mean         22.65           83   2.3e+03         1157.7  4.16e+01
@@ -2982,7 +2982,7 @@ class TableData(object):
                     fh.write(w*'-')
                 fh.write(header_end.replace(' ', '-'))
         # section and column headers:
-        nsec0 = self.nsecs-sections
+        nsec0 = self.nsecs - sections
         if nsec0 < 0:
             nsec0 = 0
         for ns in range(nsec0, self.nsecs+1):
@@ -3266,7 +3266,7 @@ class TableData(object):
         return stream.getvalue()
                 
     def write_descriptions(self, fh=sys.stdout, table_format=None,
-                           latex_unit_package=None, maxc=80):
+                           sections=None, latex_unit_package=None, maxc=80):
         """Write column descriptions of the table to a file or stream.
 
         Parameters
@@ -3282,6 +3282,9 @@ class TableData(object):
             If None or 'auto' then the format is set to the extension
             of the filename given by `fh`.
             If `fh` is a stream the format is set to 'md'.
+        sections: None or int
+            Number of section levels to be printed.
+            If `None` or 'auto' use default of selected `table_format`.
         latex_unit_package: None or 'siunitx' or 'SIunit'
             Translate units for the specified LaTeX package.
             If None set sub- and superscripts in text mode.
@@ -3293,6 +3296,8 @@ class TableData(object):
         # fix parameter:
         if table_format == 'auto':
             table_format = None
+        if sections is None:
+            sections = 1000
         # open file:
         own_file = False
         file_name = None
@@ -3314,6 +3319,7 @@ class TableData(object):
             table_format = 'md'
         # write descriptions:
         if table_format == 'md':
+            # TODO: what to do with sections?
             for c in range(len(self.header)):
                 if not self.hidden[c]:
                     fh.write(f'{c + 1}. **{self.header[c][0]}**: {self.units[c]}\n')
@@ -4052,19 +4058,19 @@ class IndentStream(object):
 def main():
     # setup a table:
     df = TableData()
-    df.append(["data", "specimen", "ID"], "", "%-s", list('ABCBAACB'))
-    df.append("size", "m", "%6.2f", [2.34, 56.7, 8.9])
-    df.append("full weight", "kg", "%.0f", 122.8)
-    df.append_section("complete reaction")
-    df.append("speed", "m/s", "%.3g", 98.7)
-    df.append("median jitter", "mm", "%.1f", 23)
-    df.append("size", "g", "%.2e", 1.234)
+    df.append(["data", "specimen", "ID"], "", "%-s", value=list('ABCBAACB'))
+    df.append("size", "m", "%6.2f", value=[2.34, 56.7, 8.9])
+    df.append("full weight", "kg", "%.0f", value=122.8)
+    df.append_section("all measures")
+    df.append("speed", "m/s", "%.3g", value=98.7)
+    df.append("median jitter", "mm", "%.1f", value=23)
+    df.append("size", "g", "%.2e", value=1.234)
     df.set_descriptions({'ID': 'A unique identifier of a snake.',
                          'size': 'The total length of each snake.',
                          'full weight': 'Weight of each snake',
                          'speed': 'Maximum speed the snake can climb a tree.',
                          'median jitter': 'The jitter around a given path the snake should follow.',
-                         'complete reaction>size': 'Weight of mouse the snake has eaten before.',
+                         'all measures>size': 'Weight of mouse the snake has eaten before.',
                          })
     df.add(np.nan, 2)  # single value
     df.add([0.543, 45, 1.235e2]) # remaining row
@@ -4073,7 +4079,8 @@ def main():
     df.add(a.T, 1) # rest of table
     #df[3:6,'weight'] = [11.0]*3
     df.insert('median jitter', 's.d.', 'm/s', '%.3g',
-              'of all jitters the median', 2*np.random.rand(df.rows()))
+              'Standard deviation of all speeds',
+              value=2*np.random.rand(df.rows()))
     
     # write out in all formats:
     for tf in TableData.formats:
@@ -4088,6 +4095,7 @@ def main():
     # write descriptions:
     for tf in ['md', 'html', 'tex']:
         df.write_descriptions(table_format=tf, maxc=40)
+        print()
 
     # aggregate demos:
     print(df)
@@ -4112,7 +4120,6 @@ def main():
 
     # aggregrate on groups demo:
     print(df.aggregate(np.mean, by='ID'))
-    print(len(df.aggregate(np.mean, by='ID')))
     print()
 
     # write descriptions:

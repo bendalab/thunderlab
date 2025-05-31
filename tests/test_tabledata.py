@@ -7,12 +7,13 @@ import thunderlab.tabledata as td
 
 def setup_table(nanvalue=True):
     df = td.TableData()
-    df.append(["data", "partial informations", "size"], "m", "%6.2f", "", [2.34, 56.7, 8.9])
-    df.append("full weight", "kg", "%.0f", "", 122.8)
-    df.append_section("complete reaction")
-    df.append("speed", "m/s", "%.3g", "", 98.7)
-    df.append("median jitter", "mm", "%.1f", "", 23)
-    df.append("size", "g", "%.2e", "", 1.234)
+    df.append(["data", "specimen", "size"], "m", "%6.2f",
+              value=[2.34, 56.7, 8.9])
+    df.append("full weight", "kg", "%.0f", value=122.8)
+    df.append_section("all measures")
+    df.append("speed", "m/s", "%.3g", value=98.7)
+    df.append("median jitter", "mm", "%.1f", value=23)
+    df.append("size", "g", "%.2e", value=1.234)
     if nanvalue:
         df.add(float('NaN'), 1)  # single value
     else:
@@ -47,7 +48,7 @@ def test_columns():
     df = setup_table(False)
     units = ['m', 'kg', 'm/s', 'mm', 'g']
     formats = ['%6.2f', '%.0f', '%.3g', '%.1f', '%.2e']
-    sec1 = [('partial informations', 0), ('partial informations', 0), ('complete reaction', 2), ('complete reaction', 2), ('complete reaction', 2)]
+    sec1 = [('specimen', 0), ('specimen', 0), ('all measures', 2), ('all measures', 2), ('all measures', 2)]
     for c, k in enumerate(df.keys()):
         assert c == df.index(k), 'index %s is not %d' % (k, c)
         assert k in df, 'key %s not found in table' % k
