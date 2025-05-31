@@ -2492,14 +2492,17 @@ class TableData(object):
         table_format: None or str
             The format to be used for output.
             One of 'out', 'dat', 'ascii', 'csv', 'rtai', 'md', 'tex', 'html'.
-            If None or 'auto' then the format is set to the extension of the filename given by `fh`.
+            If None or 'auto' then the format is set to the extension of the
+            filename given by `fh`.
             If `fh` is a stream the format is set to 'dat'.
         delimiter: str
-            String or character separating columns, if supported by the `table_format`.
+            String or character separating columns, if supported by the
+            `table_format`.
             If None or 'auto' use the default for the specified `table_format`.
         unit_style: None or str
             - None or 'auto': use default of the specified `table_format`.
-            - 'row': write an extra row to the table header specifying the units of the columns.
+            - 'row': write an extra row to the table header specifying the
+              units of the columns.
             - 'header': add the units to the column headers.
             - 'none': do not specify the units.
         column_numbers: str or None
@@ -3263,7 +3266,7 @@ class TableData(object):
         return stream.getvalue()
                 
     def write_descriptions(self, fh=sys.stdout, table_format=None,
-                           latex_unit_package=None):
+                           latex_unit_package=None, maxc=80):
         """Write column descriptions of the table to a file or stream.
 
         Parameters
@@ -3276,13 +3279,16 @@ class TableData(object):
         table_format: None or str
             The format to be used for output.
             One of 'md', 'tex', or 'html'.
-            If None or 'auto' then the format is set to the extension of the filename given by `fh`.
+            If None or 'auto' then the format is set to the extension
+            of the filename given by `fh`.
             If `fh` is a stream the format is set to 'md'.
         latex_unit_package: None or 'siunitx' or 'SIunit'
             Translate units for the specified LaTeX package.
             If None set sub- and superscripts in text mode.
             If 'siunitx', also use `S` columns for numbers to align
             them on the decimal point.
+        maxc: int
+            Maximum character count for each line.
         """
         # fix parameter:
         if table_format == 'auto':
@@ -3309,19 +3315,22 @@ class TableData(object):
         # write descriptions:
         if table_format == 'md':
             for c in range(len(self.header)):
-                fh.write(f'{c}. **{self.header[c][0]}**: {self.units[c]}\n')
-                fh.write(f'  {self.descriptions[c]}\n')
+                if not self.hidden[c]:
+                    fh.write(f'{c}. **{self.header[c][0]}**: {self.units[c]}\n')
+                    break_text(fh, self.descriptions[c], maxc, indent=4)
         elif table_format == 'html':
             fh.write('<ol>\n')
             for c in range(len(self.header)):
-                fh.write(f'  <li><b>{self.header[c][0]}</b>: {self.units[c]}<br>\n')
-                fh.write(f'      {self.descriptions[c]}</li>\n')
+                if not self.hidden[c]:
+                    fh.write(f'  <li><b>{self.header[c][0]}</b>: {self.units[c]}<br>\n')
+                    break_text(fh, self.descriptions[c], maxc, indent=6)
             fh.write('</ol>\n')
         elif table_format == 'tex':
             fh.write(r'\begin{enumerate}\n')
             for c in range(len(self.header)):
-                fh.write(f'  \\item \\textbf{{{self.header[c][0]}}}: {latex_unit(self.units[c], latex_unit_package)}\n')
-                fh.write(f'  {self.descriptions[c]}\n')
+                if not self.hidden[c]:
+                    fh.write(f'  \\item \\textbf{{{self.header[c][0]}}}: {latex_unit(self.units[c], latex_unit_package)}\n')
+                    break_text(fh, self.descriptions[c], maxc, indent=2)
             fh.write(r'\end{enumerate}\n')
         else:
             raise ValueError(f'File format "{table_format}" not supported for writing column descriptions')
@@ -3916,6 +3925,38 @@ def latex_unit(unit, unit_package=None):
     else:
         raise ValueError(f'latex_unit(): invalid unit_package={unit_package}!')
     return units
+
+
+def break_text(stream, text, maxc=80, indent=0):
+    """Write text to stream and break lines at maximum character count.
+
+    Parameters
+    ----------
+    stream: io
+        Stream into which the text is written.
+    text: str
+        The text to be written to the stream.
+    maxc: int
+        Maximum character count for each line.
+    indent: int
+        Number of characters each line is indented.
+    """
+    nc = 0
+    nw = 0
+    stream.write(' '*indent)
+    nc += indent
+    for word in text.split():
+        if nc + len(word) > maxc:
+            stream.write('\n')
+            nc = 0
+            nw = 0
+            stream.write(' '*indent)
+            nc += indent
+        if nw > 0:
+            stream.write(' ')
+            nc += 1
+        stream.write(word)
+        nc += len(word)
 
 
 def index2aa(n, a='a'):
