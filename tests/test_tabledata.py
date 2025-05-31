@@ -14,6 +14,11 @@ def setup_table(nanvalue=True):
     df.append("speed", "m/s", "%.3g", value=98.7)
     df.append("median jitter", "mm", "%.1f", value=23)
     df.append("size", "g", "%.2e", value=1.234)
+    df.set_descriptions({'size': 'The total length of each snake.',
+                         'full weight': 'Weight of each snake',
+                         'speed': 'Maximum speed the snake can climb a tree.',
+                         'median jitter': 'The jitter around a given path the snake should follow.',
+                         'all measures>size': 'Weight of mouse the snake has eaten before.'})
     if nanvalue:
         df.add(float('NaN'), 1)  # single value
     else:
@@ -332,7 +337,19 @@ def test_hide_show():
         df.hide(c)
     os.remove(filename)
 
+    
+def test_write_descriptions():
+    filename = 'tabletest.dat'
+    df = setup_table()
+    for tf in ['md', 'tex', 'html']:
+        for sections in [None, 1000]:
+            for section_headings in [None, 0, 1]:
+                df.write_descriptions(table_format=tf,
+                                      sections=sections,
+                                      section_headings=section_headings,
+                                      maxc=30)
 
+    
 def test_config():
     cfg = ConfigFile()
     td.add_write_table_config(cfg)
