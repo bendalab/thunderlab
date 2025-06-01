@@ -38,7 +38,9 @@ def test_write():
                 df.write(table_format=tf, column_numbers=column_numbers)
     df.write_file_stream(sys.stdout, 'file')
     fn = df.write_file_stream('table', 'file')
-    os.remove(fn)
+    fn.unlink()
+    fn = fn.with_name(fn.stem + '-description.md')
+    fn.unlink()
 
 def test_properties():
     df = setup_table()
@@ -202,7 +204,10 @@ def test_write_load():
                                     assert line1 == line2, 'files differ at line %d:\n%s\n%s' % (k, line1, line2)
                             os.remove(orgfilename)
                             os.remove(filename)
+    os.remove('tabletest-description.md')
+    os.remove('tabletest-description.tex')
 
+    
 def test_read_access():
     df = setup_table()
     df.clear_data()
@@ -336,6 +341,7 @@ def test_hide_show():
         assert sf.columns() == 1, 'wrong number of columns written'
         df.hide(c)
     os.remove(filename)
+    os.remove('tabletest-description.md')
 
     
 def test_write_descriptions():

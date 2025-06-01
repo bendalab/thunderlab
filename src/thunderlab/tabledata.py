@@ -2480,7 +2480,7 @@ class TableData(object):
               align_columns=None, shrink_width=True,
               missing=default_missing_str, center_columns=False,
               latex_unit_package=None, latex_label_command='',
-              latex_merge_std=False, descriptions_name='-description.md',
+              latex_merge_std=False, descriptions_name='-description',
               section_headings=None, maxc=80):
         """Write the table to a file or stream.
 
@@ -2556,7 +2556,7 @@ class TableData(object):
         
         Returns
         -------
-        file_name: str or None
+        file_name: Path or None
             The full name of the file into which the data were written.
 
         Supported file formats
@@ -2694,7 +2694,9 @@ class TableData(object):
             if table_format is None:
                 if len(ext) > 1 and ext[1:] in self.ext_formats:
                     table_format = self.ext_formats[ext[1:]]
-            elif not ext or not ext[1:].lower() in self.ext_formats:
+                else:
+                    table_format = 'dat'
+            if not ext or not ext[1:].lower() in self.ext_formats:
                 fh = fh.with_suffix('.' + self.extensions[table_format])
             file_name = fh
             try:
@@ -3241,7 +3243,11 @@ class TableData(object):
             if write_descriptions:
                 descr_path = file_name.with_name(file_name.stem +
                                                  descriptions_name)
-                self.write_descriptions(descr_path, table_format=None,
+                if table_format[0] not in 'th': # neither tex nore html
+                    table_format = 'md'
+                if len(descr_path.suffix) <= 1:
+                    descr_path = descr_path.with_suffix('.' + self.extensions[table_format])
+                self.write_descriptions(descr_path, table_format=table_format,
                                         sections=sections,
                                         section_headings=section_headings,
                                         latex_unit_package=latex_unit_package,
@@ -3249,18 +3255,17 @@ class TableData(object):
         # return file name:
         return file_name
 
-
-    def write_file_stream(self, basename, file_name, **kwargs):
+    def write_file_stream(self, base_name, file_name, **kwargs):
         """Write table to file or stream and return appropriate file name.
 
         Parameters
         ----------
-        basename: str or stream
+        base_name: str, Path, or stream
             If str, path and basename of file.
             `file_name` and an extension are appended.
             If stream, write table data into this stream.
         file_name: str
-            Name of file that is appended to a base path or `basename`.
+            Name of file that is appended to `base_name`.
         kwargs:
             Arguments passed on to `TableData.write()`.
             In particular, 'table_format' is used to set the file extension
@@ -3268,20 +3273,22 @@ class TableData(object):
 
         Returns
         -------
-        file_name: str
-            Path and full name of the written file in case of `basename`
+        file_name: Path
+            Path and full name of the written file in case of `base_name`
             being a string. Otherwise, the file name and extension that
-            should be appended to a base path.
+            should be appended to a base name.
         """
-        if hasattr(basename, 'write'):
+        if hasattr(base_name, 'write'):
             table_format = kwargs.get('table_format', None)
             if table_format is None or table_format == 'auto':
                 table_format = 'csv'
-            file_name += '.' + TableData.extensions[table_format]
-            self.write(basename, **kwargs)
+            file_name = Path(file_name)
+            file_name = file_name.with_suffix('.' + TableData.extensions[table_format])
+            self.write(base_name, **kwargs)
             return file_name
         else:
-            file_name = self.write(basename + file_name, **kwargs)
+            base_name = Path(base_name + file_name)
+            file_name = self.write(base_name, **kwargs)
             return file_name
 
     def __str__(self):
