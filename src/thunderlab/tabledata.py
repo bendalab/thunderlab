@@ -2673,6 +2673,7 @@ class TableData(object):
 
         """
         # fix parameter:
+        table_format = table_format.lower()
         if table_format == 'auto':
             table_format = None
         if delimiter == 'auto':
@@ -2908,8 +2909,8 @@ class TableData(object):
                         fh.write('r')
             fh.write('}\n')
         # retrieve column formats and widths:
-        widths = []
-        widths_pos = []
+        widths = []       # width from format string
+        widths_pos = []   # start and end index of width specifyer in format
         for c, f in enumerate(self.formats):
             w = 0
             # position of width specification:
@@ -2917,13 +2918,17 @@ class TableData(object):
             if len(f) > 1 and f[1] == '-' :
                 i0 = 2
             i1 = f.find('.')
-            if not shrink_width:
+            if i1 < 0:
+                i1 = i0
+                while i1 < len(f) and f[i1].isdigit():
+                    i1 += 1
+            if not shrink_width and i1 > i0:
                 if f[i0:i1]:
                     w = int(f[i0:i1])
             widths_pos.append((i0, i1))
             # adapt width to header label:
             hw = len(self.header[c][0])
-            if unit_style == 'header' and self.units[c] and\
+            if unit_style == 'header' and self.units[c] and \
                self.units[c] != '1' and self.units[c] != '-':
                 hw += 1 + len(self.units[c])
             if w < hw:
@@ -2934,9 +2939,10 @@ class TableData(object):
                     if isinstance(v, str) and w < len(v):
                         w = len(v)
             else:
-                fs = f[:i0] + str(0) + f[i1:]
+                fs = f'{f[:i0]}0{f[i1:]}'
                 for v in self.data[c]:
-                    if v is None or (isinstance(v, (float, np.floating)) and m.isnan(v)):
+                    if v is None or (isinstance(v, (float, np.floating)) and
+                                     m.isnan(v)):
                         s = missing
                     else:
                         try:
@@ -2949,17 +2955,17 @@ class TableData(object):
                         w = len(s)
             widths.append(w)
         # adapt width to sections:
-        sec_indices = [0] * self.nsecs
-        sec_widths = [0] * self.nsecs
-        sec_columns = [0] * self.nsecs
+        sec_indices = [0] * self.nsecs  # previous column with this level
+        sec_widths = [0] * self.nsecs   # total width of section level
+        sec_columns = [0] * self.nsecs  # number of columns in section level
         for c in range(len(self.header)):
             w = widths[c]
             for l in range(min(self.nsecs, sections)):
-                if 1+l < len(self.header[c]):
+                if 1 + l < len(self.header[c]):
                     if c > 0 and sec_columns[l] > 0 and \
-                       1+l < len(self.header[sec_indices[l]]) and \
-                       len(self.header[sec_indices[l]][1+l]) > sec_widths[l]:
-                        dw = len(self.header[sec_indices[l]][1+l]) - sec_widths[l]
+                       1 + l < len(self.header[sec_indices[l]]) and \
+                       len(self.header[sec_indices[l]][1 + l]) > sec_widths[l]:
+                        dw = len(self.header[sec_indices[l]][1 + l]) - sec_widths[l]
                         nc = sec_columns[l]
                         ddw = np.zeros(nc, dtype=int) + dw // nc
                         ddw[:dw % nc] += 1
@@ -2968,8 +2974,9 @@ class TableData(object):
                             if not self.hidden[ck]:
                                 widths[ck] += ddw[wk]
                                 wk += 1
-                    sec_widths[l] = 0
                     sec_indices[l] = c
+                    sec_widths[l] = 0
+                    sec_columns[l] = 0
                 if not self.hidden[c]:
                     if sec_widths[l] > 0:
                         sec_widths[l] += len(header_sep)
@@ -2978,7 +2985,7 @@ class TableData(object):
         # set width of format string:
         formats = []
         for c, (f, w) in enumerate(zip(self.formats, widths)):
-            formats.append(f[:widths_pos[c][0]] + str(w) + f[widths_pos[c][1]:])
+            formats.append(f'{f[:widths_pos[c][0]]}{w}{f[widths_pos[c][1]:]}')
         # top line:
         if top_line:
             if table_format[0] == 't':
@@ -4247,6 +4254,7 @@ def main():
     # aggregrate on groups demo:
     print(df.aggregate(np.mean, by='ID'))
     print()
+    exit()
 
     # write descriptions:
     df.write_descriptions(table_format='md', section_headings=0)
