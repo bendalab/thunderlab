@@ -3479,6 +3479,35 @@ class TableData(object):
             fh.close()
         # return file name:
         return file_name
+
+    def load_descriptions(fh):
+        """Load column descriptions from file or stream.
+
+        Parameters
+        ----------
+        fh: str, Path, or stream
+            If not a stream, the file with path `fh` is opened for reading.
+        """
+        # open file:
+        own_file = False
+        if not hasattr(fh, 'readline'):
+            try:
+                fh = open(os.fspath(fh), 'r')
+            except AttributeError:
+                fh = open(str(fh), 'r')
+            own_file = True
+        # read file:
+        for line in fh:
+            if line[0] == '#':
+                heading_level = len(line.split()[0])
+                section_name = line[heading_level + 1:]
+            elif line[0] == '-':
+                lp = line.split('**')
+                label = lp[1]
+                unit = lp[-1].strip().lstrip('[').rstrip(']')
+        # close file:
+        if own_file:
+            fh.close()
         
     def load(self, fh, missing=default_missing_inputs, sep=None, stop=None):
         """Load table from file or stream.
@@ -4254,7 +4283,6 @@ def main():
     # aggregrate on groups demo:
     print(df.aggregate(np.mean, by='ID'))
     print()
-    exit()
 
     # write descriptions:
     df.write_descriptions(table_format='md', section_headings=0)
