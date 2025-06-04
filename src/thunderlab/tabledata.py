@@ -2495,8 +2495,9 @@ class TableData(object):
             The format to be used for output.
             One of 'out', 'dat', 'ascii', 'csv', 'rtai', 'md', 'tex', 'html'.
             If None or 'auto' then the format is set to the extension of the
-            filename given by `fh`.
-            If `fh` is a stream the format is set to 'dat'.
+            filename given by `fh`. If the filename does not have an extension
+            `fh` is set to 'csv'. if `fh` is a stream the format is set
+            to 'out'.
         delimiter: str
             String or character separating columns, if supported by the
             `table_format`.
@@ -2673,7 +2674,8 @@ class TableData(object):
 
         """
         # fix parameter:
-        table_format = table_format.lower()
+        if table_format is not None:
+            table_format = table_format.lower()
         if table_format == 'auto':
             table_format = None
         if delimiter == 'auto':
@@ -2696,7 +2698,7 @@ class TableData(object):
                 if len(ext) > 1 and ext[1:] in self.ext_formats:
                     table_format = self.ext_formats[ext[1:]]
                 else:
-                    table_format = 'dat'
+                    table_format = 'csv'
             if not ext or not ext[1:].lower() in self.ext_formats:
                 fh = fh.with_suffix('.' + self.extensions[table_format])
             file_name = fh
@@ -2706,7 +2708,7 @@ class TableData(object):
                 fh = open(str(fh), 'w')
             own_file = True
         if table_format is None:
-            table_format = 'dat'
+            table_format = 'out'
         # set style:        
         if table_format[0] == 'd':
             align_columns = True
