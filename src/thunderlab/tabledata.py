@@ -3465,8 +3465,7 @@ class TableData(object):
                         fh.write(f'{" "*2*level}\\begin{{enumerate}}\n')
                     fh.write(f'{" "*2*(level + 1)}\\item \\textbf{{{headers[0]}}}')
                     if self.units[c]:
-                        fh.write(f' [{latex_unit(self.units[c],
-                                                 latex_unit_package)}]')
+                        fh.write(f' [{latex_unit(self.units[c], latex_unit_package)}]')
                     fh.write('\n')
                     break_text(fh, self.descriptions[c], maxc,
                                indent=2*(level + 1))
