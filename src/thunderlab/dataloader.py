@@ -1549,7 +1549,7 @@ class DataLoader(AudioLoader):
         self.frames = None
         self.rate = None
         self.unit = ''
-        self.filepath = os.path.dirname(self.trace_filepaths[0])
+        self.filepath = filepath
         self.file_paths = [self.filepath]
         self.file_indices = [0]
         for path in self.trace_filepaths:
@@ -1633,7 +1633,8 @@ class DataLoader(AudioLoader):
     def _metadata_relacs(self, store_empty=False, first_only=False):
         """ Load meta-data of a relacs data set.
         """
-        info_path = os.path.join(self.filepath, 'info.dat')
+        path = os.path.dirname(self.filepath)
+        info_path = os.path.join(path, 'info.dat')
         if not os.path.exists(info_path):
             return {}
         return relacs_header(info_path, store_empty, first_only)
@@ -1665,7 +1666,6 @@ class DataLoader(AudioLoader):
         self.trace_filepaths = fishgrid_trace_files(filepath)
         if len(self.trace_filepaths) == 0:
             raise FileNotFoundError(f'no fishgrid files found')
-        self.filepath = os.path.dirname(self.trace_filepaths[0])
         self.file_paths = [self.filepath]
         self.file_indices = [0]
         self._load_metadata = metadata_fishgrid
