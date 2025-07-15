@@ -197,6 +197,10 @@ def test_relacs(remove_relacs_files):
     dw.write_relacs(relacs_path, data, rate, amax, 'mV', metadata=info)
     dl.metadata_relacs(relacs_path + '/info.dat')
     check_reading(relacs_path, data)
+    with dl.DataLoader(relacs_path) as sf:
+        assert sf.basename() == relacs_path, 'relacs wrong basename'
+        assert sf.basename(sf.filepath) == relacs_path, 'relacs wrong basename'
+        assert sf.basename(sf.file_paths[0]) == relacs_path, 'relacs wrong basename'
     remove_files(relacs_path)
     dw.write_relacs(relacs_path, data[:,0], rate, amax, 'mV',
                     metadata=info)
@@ -213,6 +217,9 @@ def test_fishgrid(remove_fishgrid_files):
     assert np.all(locs == llocs), 'fishgrid same locs'
     assert np.all(labels == llabels), 'fishgrid same labels'
     with dl.DataLoader(fishgrid_path) as sf:
+        assert sf.basename() == fishgrid_path, 'fishgrid wrong basename'
+        assert sf.basename(sf.filepath) == fishgrid_path, 'fishgrid wrong basename'
+        assert sf.basename(sf.file_paths[0]) == fishgrid_path, 'fishgrid wrong basename'
         llocs, llabels = sf.markers()
         assert np.all(locs == llocs), 'fishgrid same locs'
         assert np.all(labels == llabels), 'fishgrid same labels'

@@ -72,6 +72,7 @@ try:
     import matplotlib.pyplot as plt
 except ImportError:
     pass
+from pathlib import Path
 from datetime import timedelta
 from audioio import load_audio, AudioLoader, unflatten_metadata
 from audioio import get_number_unit, get_number, get_int, get_bool, get_gain
@@ -1593,6 +1594,7 @@ class DataLoader(AudioLoader):
         self.offset = 0
         self.close = self._close_relacs
         self.load_audio_buffer = self._load_buffer_relacs
+        self.basename = self._basename_relacs
         self.ampl_min = -amax
         self.ampl_max = +amax
         self._load_metadata = self._metadata_relacs
@@ -1639,6 +1641,30 @@ class DataLoader(AudioLoader):
             return {}
         return relacs_header(info_path, store_empty, first_only)
 
+    def _basename_relacs(self, path=None):
+        """ Base name of the relacs data files.
+
+        Parameters
+        ----------
+        path: str or None
+            Path of a relacs data file (*.raw, info.dat, or just the directory).
+            If `None`, use `self.filepath`.
+
+        Returns
+        -------
+        s: str
+            The base name, i.e. the name of the directory containing the
+            relacs data files.
+
+        """
+        if path is None:
+            path = self.filepath
+        path = Path(path)
+        if path.is_dir():
+            return path.name
+        else:
+            return path.parent.name
+
     
     # fishgrid interface:        
     def open_fishgrid(self, filepath, buffersize=10.0, backsize=0.0,
@@ -1666,6 +1692,7 @@ class DataLoader(AudioLoader):
         self.trace_filepaths = fishgrid_trace_files(filepath)
         if len(self.trace_filepaths) == 0:
             raise FileNotFoundError(f'no fishgrid files found')
+        self.filepath = filepath
         self.file_paths = [self.filepath]
         self.file_indices = [0]
         self._load_metadata = metadata_fishgrid
@@ -1720,6 +1747,7 @@ class DataLoader(AudioLoader):
         self.offset = 0
         self.close = self._close_fishgrid
         self.load_audio_buffer = self._load_buffer_fishgrid
+        self.basename = self._basename_fishgrid
         return self
 
     def _close_fishgrid(self):
@@ -1748,6 +1776,32 @@ class DataLoader(AudioLoader):
             file.seek(r_offset*4*gchannels)
             data = file.read(r_size*4*gchannels)
             buffer[:, goffset:goffset+gchannels] = np.frombuffer(data, dtype=np.float32).reshape((-1, gchannels))
+
+    def _basename_fishgrid(self, path=None):
+        """ Base name of the fishgrid data files.
+
+        Parameters
+        ----------
+        path: str or None
+            Path of a fishgrid data file
+            (*.raw, fishgrid.cfg, or just the directory).
+            If `None`, use `self.filepath`.
+
+        Returns
+        -------
+        s: str
+            The base name, i.e. the name of the directory containing the
+            fishgrid data files.
+
+        """
+        if path is None:
+            path = self.filepath
+        path = Path(path)
+        if path.is_dir():
+            return path.name
+        else:
+            return path.parent.name
+
 
 
     # container interface:
