@@ -4,4 +4,4 @@ scikit-learn
 numba
 matplotlib
 pandas
-audioio
+audioio>=2.6.0
