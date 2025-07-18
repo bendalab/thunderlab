@@ -3498,6 +3498,7 @@ class TableData(object):
                 fh = open(str(fh), 'r')
             own_file = True
         # read file:
+        print('WARNING: load_descriptions() not implemented yet')
         for line in fh:
             if line[0] == '#':
                 heading_level = len(line.split()[0])
