@@ -544,8 +544,9 @@ def main():
     for k in range(len(psd_data)):
         df = np.mean(np.diff(psd_data[k][:,0]))
         nfft = int(rate/df)
-        plot_decibel_psd(ax, psd_data[k][:,0], psd_data[k][:,1], lw=2,
-                         label='$\\Delta f = %.1f$ Hz, nnft=%d' % (df, nfft))
+        plot_decibel_psd(ax, psd_data[k][:,0], psd_data[k][:,1],
+                         sstyle=dict(lw=2,
+                                     label=f'$\\Delta f={df:.1f}$ Hz, nnft={nfft}'))
     ax.legend(loc='upper right')
     plt.show()
 

@@ -968,7 +968,7 @@ class TableData(object):
             for c, u in enumerate(units):
                 self.units[c] = u
         elif units is not None:
-            for c in range(len(units)):
+            for c in range(len(self.units)):
                 self.units[c] = units
         return self
 
@@ -1047,7 +1047,7 @@ class TableData(object):
             for c, f in enumerate(formats):
                 self.formats[c] = f or '%g'
         elif formats is not None:
-            for c in range(len(formats)):
+            for c in range(len(self.formats)):
                 self.formats[c] = formats or '%g'
         return self
 

@@ -125,7 +125,7 @@ def test_multivariateexplorer_nans():
     data[data.rows()//2, 'B'] = np.nan
     data.append('E', value=[np.nan for i in range(data.rows())])
     expl = me.MultivariateExplorer(data)
-    assert len(data) == expl.raw_data.shape[1] + 1, 'MultivariateExplore: remove all nan column'
+    assert data.columns() == expl.raw_data.shape[1] + 1, 'MultivariateExplore: remove all nan column'
     assert len(data[:, 'A']) == len(expl.raw_data) + 1, 'MultivariateExplore: remove nan rows'
 
     

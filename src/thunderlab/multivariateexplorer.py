@@ -99,18 +99,17 @@ class MultivariateExplorer(object):
         self.categories = []     # for each feature None or list of categories
         if isinstance(data, TableData):
             for c, col in enumerate(data):
-                if not isinstance(col[0], (int, float,
-                                           np.integer, np.floating)):
+                if not isinstance(data[col][0], (int, float,
+                                                 np.integer, np.floating)):
                     # categorial data:
-                    #print(data[:,c])
-                    cats, data[:,c] = categorize(col)
+                    cats, data[:,c] = categorize(data[col])
                     self.categories.append(cats)
                 else:
                     self.categories.append(None)
             self.raw_data = data.array()
             if labels is None:
                 self.raw_labels = []
-                for c in range(len(data)):
+                for c in range(data.columns()):
                     if len(data.unit(c)) > 0 and not data.unit(c) in ['-', '1']:
                         self.raw_labels.append(f'{data.label(c)} [{data.unit(c)}]')
                     else:
@@ -422,11 +421,11 @@ class MultivariateExplorer(object):
         # table with PCA feature weights:
         pca_table = self.pca_tables[1] if scale else self.pca_tables[0]
         pca_table.clear_data()
-        pca_table.set_section(pca_label, 0, pca_table.nsecs)
+        pca_table.set_section(0, pca_label, pca_table.nsecs)
         for k, comp in enumerate(pca.components_):
-            pca_table.append_data(k+1, 0)
-            pca_table.append_data(100.0*pca.explained_variance_ratio_[k])
-            pca_table.append_data(comp)
+            pca_table.add(k+1, 0)
+            pca_table.add(100.0*pca.explained_variance_ratio_[k])
+            pca_table.add(comp)
         if write:
             pca_table.write(table_format='out', unit_style='none')
         # submit data:
