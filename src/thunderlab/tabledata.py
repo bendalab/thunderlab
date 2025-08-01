@@ -403,9 +403,6 @@ class TableData(object):
                  descriptions=None, missing=default_missing_inputs,
                  sep=None, stop=None):
         self.clear()
-        if header is not None and len(header) > 0:
-            for h in header:
-                self.append(h)            
         if data is not None:
             if isinstance(data, TableData):
                 self.ndim = data.ndim
@@ -421,10 +418,6 @@ class TableData(object):
                     self.descriptions.append(data.descriptions[c])
                     self.hidden.append(data.hidden[c])
                     self.data.append(list(data.data[c]))
-                self.set_labels(header)
-                self.set_units(units)
-                self.set_formats(formats)
-                self.set_descriptions(descriptions)
             elif has_pandas and isinstance(data, pd.DataFrame):
                 for c, key in enumerate(data.keys()):
                     new_key = key
@@ -436,10 +429,6 @@ class TableData(object):
                     formats = '%s' if isinstance(values[0], str) else '%g'
                     values = data[key].tolist()
                     self.append(new_key, new_unit, formats, value=values)
-                self.set_labels(header)
-                self.set_units(units)
-                self.set_formats(formats)
-                self.set_descriptions(descriptions)
             elif isinstance(data, (list, tuple, np.ndarray)) and not \
                  (isinstance(data, np.ndarray) and len(data.shape) == 0):
                 if len(data) > 0 and \
@@ -447,6 +436,8 @@ class TableData(object):
                    (isinstance(data[0], np.ndarray) and \
                     len(data[0].shape) == 0):
                     # 2D list, rows first:
+                    for c in range(len(data[0])):
+                        self.data.append([])
                     for row in data:
                         for c, val in enumerate(row):
                             self.data[c].append(val)
@@ -455,35 +446,20 @@ class TableData(object):
                     for d in data:
                         self._add_dict(d, True)
                     self.fill_data()
-                    self.set_labels(header)
-                    self.set_units(units)
-                    self.set_formats(formats)
-                    self.set_descriptions(descriptions)
                 else:
                     # 1D list:
-                    for c, val in enumerate(data):
-                        self.data[c].append(val)
+                    for val in data:
+                        self.data.append([val])
             elif isinstance(data, (dict)):
                 self._add_dict(data, True)
                 self.fill_data()
-                self.set_labels(header)
-                self.set_units(units)
-                self.set_formats(formats)
-                self.set_descriptions(descriptions)
             else:
                 self.load(data, missing, sep, stop)
-                self.set_labels(header)
-                self.set_units(units)
-                self.set_formats(formats)
-                self.set_descriptions(descriptions)
-            # fill in missing units and formats:
-            for k in range(len(self.header)):
-                if self.units[k] is None:
-                    self.units[k] = ''
-                if self.formats[k] is None:
-                    self.formats[k] = '%g'
-                if self.descriptions[k] is None:
-                    self.descriptions[k] = ''
+        self.set_labels(header)
+        self.set_units(units)
+        self.set_formats(formats)
+        self.set_descriptions(descriptions)
+        self.hidden = [False]*len(self.data)
 
     def __recompute_shape(self):
         self.size = sum(map(len, self.data))
@@ -871,6 +847,8 @@ class TableData(object):
         self: TableData
             This TableData
         """
+        while len(self.header) < len(self.data):
+            self.header.append([f'C{len(self.header) + 1}'])
         if isinstance(labels, TableData):
             for c in range(min(self.columns(), labels.columns())):
                 self.header[c] = labels.header[c]
@@ -888,9 +866,9 @@ class TableData(object):
              (isinstance(labels, np.ndarray) and len(labels.shape) == 0):
             for c, l in enumerate(labels):
                 if isinstance(l, (list, tuple)):
-                    self.labels[c] = l
+                    self.header[c] = l
                 else:
-                    self.labels[c] = [l]
+                    self.header[c] = [l]
         return self
 
     def unit(self, column):
@@ -951,6 +929,8 @@ class TableData(object):
         self: TableData
             This TableData
         """
+        while len(self.units) < len(self.data):
+            self.units.append('')
         if isinstance(units, TableData):
             for c in units:
                 i = self.index(c)
@@ -1030,6 +1010,8 @@ class TableData(object):
         self: TableData
             This TableData
         """
+        while len(self.formats) < len(self.data):
+            self.formats.append('%g')
         if isinstance(formats, TableData):
             for c in formats:
                 i = self.index(c)
@@ -1108,6 +1090,8 @@ class TableData(object):
         self: TableData
             This TableData
         """
+        while len(self.descriptions) < len(self.data):
+            self.descriptions.append('')
         if isinstance(descriptions, TableData):
             for c in descriptions:
                 i = self.index(c)
@@ -2881,7 +2865,7 @@ class TableData(object):
         # find std columns:
         stdev_col = np.zeros(len(self.header), dtype=bool)
         for c in range(len(self.header) - 1):
-            if self.header[c+1][0].lower() in self.stdev_labels and \
+            if self.header[c + 1][0].lower() in self.stdev_labels and \
                not self.hidden[c+1]:
                 stdev_col[c] = True
         # begin table:
