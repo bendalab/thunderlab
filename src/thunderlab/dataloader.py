@@ -2188,6 +2188,7 @@ class DataLoader(AudioLoader):
                     self.ampl_min = a.ampl_min
                     self.start_time = get_datetime(md)
                     start_time = self.start_time
+                    stime = self.start_time
                 else:
                     # check channels, rate, and amplitudes:
                     error_str = None
@@ -2210,7 +2211,7 @@ class DataLoader(AudioLoader):
                     # check start time of recording:
                     stime = get_datetime(md)
                     if start_time is None or stime is None or \
-                       abs(start_time - stime) > timedelta(seconds=1):
+                       abs(start_time - stime) > timedelta(seconds=self._max_time_diff):
                         error_str = f'start time does not indicate continuous recording: ' \
                                     f'expected {start_time} instead of ' \
                                     f'{stime} in {a.filepath}'
@@ -2229,8 +2230,8 @@ class DataLoader(AudioLoader):
                 self.start_indices.append(self.frames)
                 self.frames += a.frames
                 self.end_indices.append(self.frames)
-                if start_time is not None:
-                    start_time += timedelta(seconds=a.frames/a.rate)
+                if stime is not None:
+                    start_time = stime + timedelta(seconds=a.frames/a.rate)
                 # add file to lists:
                 self.file_paths.append(filepath)
                 if len(self.open_files) < AudioLoader.max_open_files:
