@@ -8,16 +8,18 @@
 """
 
 import sys
+import argparse
 import numpy as np
-from scipy.stats import pearsonr
-from sklearn import decomposition
-from sklearn import preprocessing
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.widgets as widgets
-import argparse
-from .version import __version__, __year__
+
+from scipy.stats import pearsonr
+from sklearn import decomposition
+from sklearn import preprocessing
+
 from .tabledata import TableData
+from .version import __version__, __year__
 
 
 class MultivariateExplorer(object):

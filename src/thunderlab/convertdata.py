@@ -63,15 +63,17 @@ import os
 import sys
 import argparse
 import numpy as np
-from .version import __version__, __year__
+
 from audioio import add_metadata, remove_metadata, cleanup_metadata
 from audioio import bext_history_str, add_history
 from audioio.audioconverter import add_arguments, parse_channels
 from audioio.audioconverter import make_outfile, format_outfile
 from audioio.audioconverter import modify_data
+
 from .dataloader import load_data, DataLoader, markers
 from .datawriter import available_formats, available_encodings
 from .datawriter import format_from_extension, write_data
+from .version import __version__, __year__
 
 
 def check_format(format):

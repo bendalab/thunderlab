@@ -28,14 +28,15 @@ import os
 import re
 import math as m
 import numpy as np
-from pathlib import Path
-from itertools import product
-from io import StringIO
 try:
     import pandas as pd
     has_pandas = True
 except ImportError:
     has_pandas = False
+
+from pathlib import Path
+from itertools import product
+from io import StringIO
 
 
 __pdoc__ = {}

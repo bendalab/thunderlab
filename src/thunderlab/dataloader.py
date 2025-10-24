@@ -72,6 +72,7 @@ try:
     import matplotlib.pyplot as plt
 except ImportError:
     pass
+
 from pathlib import Path
 from datetime import timedelta
 from audioio import load_audio, AudioLoader, unflatten_metadata

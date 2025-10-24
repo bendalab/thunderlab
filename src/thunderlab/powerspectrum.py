@@ -31,6 +31,7 @@
 """
 
 import numpy as np
+
 from scipy.signal import get_window
 from matplotlib.mlab import psd as mpsd
 try:
@@ -44,6 +45,7 @@ try:
     specgramscipy = True
 except ImportError:
     specgramscipy = False
+
 from .eventdetection import detect_peaks
 
 
