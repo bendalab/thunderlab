@@ -62,7 +62,7 @@ def next_power_of_two(n):
     m: int
         The next integer power of two equal or larger than `n`.
     """
-    return int(2 ** np.floor(np.log(n) / np.log(2.0) + 1.0-1e-8))
+    return int(2 ** np.floor(np.log(n) / np.log(2.0) + 1.0 - 1e-8))
 
 
 def nfft(rate, freq_resolution, min_nfft=16, max_nfft=None):

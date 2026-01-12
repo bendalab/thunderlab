@@ -461,6 +461,8 @@ class TableData(object):
         self.set_formats(formats)
         self.set_descriptions(descriptions)
         self.hidden = [False]*len(self.data)
+        self.addcol = len(self.data)
+        self.__recompute_shape()
 
     def __recompute_shape(self):
         self.size = sum(map(len, self.data))
