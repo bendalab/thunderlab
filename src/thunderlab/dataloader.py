@@ -1309,8 +1309,8 @@ def load_data(filepath, verbose=0, **kwargs):
     ValueError:
         `filepath` is empty string.
     """
-    if len(filepath) == 0:
-        raise ValueError('input argument filepath is empty string.')
+    if Path(filepath) == Path():
+        raise ValueError('input argument filepath is empty.')
     # load data:
     for name, check_file, load_file, _, _ in  data_loader_funcs:
         if check_file is None or check_file(filepath):
@@ -1354,8 +1354,8 @@ def metadata(filepath, **kwargs):
     ValueError:
         `filepath` is empty string.
     """
-    if len(filepath) == 0:
-        raise ValueError('input argument filepath is empty string.')
+    if Path(filepath) == Path():
+        raise ValueError('input argument filepath is empty.')
     # load metadata:
     for _, check_file, _, metadata_file, _ in  data_loader_funcs:
         if check_file is None or check_file(filepath):
@@ -1386,8 +1386,8 @@ def markers(filepath):
     ValueError:
         `filepath` is empty string.
     """
-    if len(filepath) == 0:
-        raise ValueError('input argument filepath is empty string.')
+    if Path(filepath) == Path():
+        raise ValueError('input argument filepath is empty.')
     # load markers:
     for _, check_file, _, _, markers_file in  data_loader_funcs:
         if check_file is None or check_file(filepath):
