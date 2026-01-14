@@ -144,24 +144,24 @@ def main(*cargs):
     channels = parse_channels(args.channels)
     
     if args.list_formats:
-        if args.data_format is None and len(args.file) > 0:
-            args.data_format = args.file[0]
+        if args.data_format is None and len(args.files) > 0:
+            args.data_format = args.files[0]
         list_formats_encodings(args.data_format)
         return
 
-    if len(args.file) == 0:
+    if len(args.files) == 0:
         print('! need to specify at least one input file !')
         sys.exit(-1)
         
     nmerge = args.nmerge
     if nmerge == 0:
-        nmerge = len(args.file)
+        nmerge = len(args.files)
 
-    for i0 in range(0, len(args.file), nmerge):
-        infile = args.file[i0]
+    for i0 in range(0, len(args.files), nmerge):
+        infile = args.files[i0]
         outfile, data_format = make_outfile(args.outpath, infile,
                                             args.data_format,
-                                            nmerge < len(args.file),
+                                            nmerge < len(args.files),
                                             format_from_extension)
         if not check_format(data_format):
             sys.exit(-1)
@@ -189,7 +189,7 @@ def main(*cargs):
             sys.exit(-1)
         if args.verbose > 1:
             print(f'loaded data file "{infile}"')
-        for infile in args.file[i0+1:i0+nmerge]:
+        for infile in args.files[i0+1:i0+nmerge]:
             try:
                 xdata, xrate, xunit, xamax = load_data(infile)
             except FileNotFoundError:
@@ -197,12 +197,12 @@ def main(*cargs):
                 sys.exit(-1)
             if abs(rate - xrate) > 1:
                 print('! cannot merge files with different sampling rates !')
-                print(f'    file "{args.file[i0]}" has {rate:.0f}Hz')
+                print(f'    file "{args.files[i0]}" has {rate:.0f}Hz')
                 print(f'    file "{infile}" has {xrate:.0f}Hz')
                 sys.exit(-1)
             if xdata.shape[1] != data.shape[1]:
                 print('! cannot merge files with different numbers of channels !')
-                print(f'    file "{args.file[i0]}" has {data.shape[1]} channels')
+                print(f'    file "{args.files[i0]}" has {data.shape[1]} channels')
                 print(f'    file "{infile}" has {xdata.shape[1]} channels')
                 sys.exit(-1)
             if xamax > amax:
