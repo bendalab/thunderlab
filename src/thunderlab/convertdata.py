@@ -27,14 +27,15 @@ convertdata --help
 ```
 prints
 ```text
-usage: convertdata [-h] [--version] [-v] [-l] [-f FORMAT] [-e ENCODING] [-s SCALE] [-u [THRESH]] [-U [THRESH]]
-                   [-d FAC] [-c CHANNELS] [-a KEY=VALUE] [-r KEY] [-n NUM] [-o OUTPATH]
-                   [file ...]
+usage: convertdata [-h] [--version] [-v] [-l] [-f FORMAT] [-e ENCODING] [-s SCALE] [-u [THRESH]]
+                   [-U [THRESH]] [-d FAC] [-c CHANNELS] [-a KEY=VALUE] [-r KEY] [-n NUM] [-o OUTPATH]
+                   [-i KWARGS]
+                   [files ...]
 
 Convert, downsample, rename, and merge data files.
 
 positional arguments:
-  file          one or more input files to be combined into a single output file
+  files         one or more input files to be combined into a single output file
 
 options:
   -h, --help    show this help message and exit
@@ -44,17 +45,20 @@ options:
   -f FORMAT     audio format of output file
   -e ENCODING   audio encoding of output file
   -s SCALE      scale the data by factor SCALE
-  -u [THRESH]   unwrap clipped data with threshold (default is 0.5) and divide by two
-  -U [THRESH]   unwrap clipped data with threshold (default is 0.5) and clip
+  -u [THRESH]   unwrap clipped data with threshold relative to maximum of input range (default is
+                0.5) and divide by two
+  -U [THRESH]   unwrap clipped data with threshold relative to maximum of input range (default is
+                0.5) and clip
   -d FAC        downsample by integer factor
   -c CHANNELS   comma and dash separated list of channels to be saved (first channel is 0)
   -a KEY=VALUE  add key-value pairs to metadata. Keys can have section names separated by "."
   -r KEY        remove keys from metadata. Keys can have section names separated by "."
   -n NUM        merge NUM input files into one output file
-  -o OUTPATH    path or filename of output file. Metadata keys enclosed in curly braces will be replaced by their
-                values from the input file
+  -o OUTPATH    path or filename of output file. Metadata keys enclosed in curly braces will be
+                replaced by their values from the input file
+  -i KWARGS     key-word arguments for the data loader function
 
-version 1.12.0 by Benda-Lab (2020-2024)
+version 1.6.0 by Benda-Lab (2020-2025)
 ```
 
 """
@@ -157,6 +161,14 @@ def main(*cargs):
     if nmerge == 0:
         nmerge = len(args.files)
 
+    # kwargs for audio loader:
+    load_kwargs = {}
+    for s in args.load_kwargs:
+        for kw in s.split(','):
+            kws = kw.split(':')
+            if len(kws) == 2:
+                load_kwargs[kws[0].strip()] = kws[1].strip()
+
     for i0 in range(0, len(args.files), nmerge):
         infile = args.files[i0]
         outfile, data_format = make_outfile(args.outpath, infile,
@@ -171,7 +183,7 @@ def main(*cargs):
         # read in data:
         pre_history = None 
         try:
-            with DataLoader(infile) as sf:
+            with DataLoader(infile, **load_kwargs) as sf:
                 data = sf[:,:]
                 rate = sf.rate
                 unit = sf.unit
@@ -191,7 +203,7 @@ def main(*cargs):
             print(f'loaded data file "{infile}"')
         for infile in args.files[i0+1:i0+nmerge]:
             try:
-                xdata, xrate, xunit, xamax = load_data(infile)
+                xdata, xrate, xunit, xamax = load_data(infile, **load_kwargs)
             except FileNotFoundError:
                 print(f'file "{infile}" not found!')
                 sys.exit(-1)

@@ -1159,7 +1159,7 @@ def load_raw(filepath, rate=44000, channels=1, dtype=np.float32,
     """Load data from a raw file.
 
     Raw files just contain the data and absolutely no metadata, not
-    even the smapling rate, number of channels, etc.
+    even the sampling rate, number of channels, etc.
     Supported file formats are:
 
     - raw files (*.raw)
@@ -1465,6 +1465,9 @@ class DataLoader(AudioLoader):
         If larger than zero show detailed error/warning messages.
     meta_kwargs: dict
         Keyword arguments that are passed on to the _load_metadata() function.
+    **kwargs: dict
+        Further keyword arguments that are passed on to the 
+        specific open() functions.
 
     Attributes
     ----------
@@ -1503,11 +1506,11 @@ class DataLoader(AudioLoader):
     """
 
     def __init__(self, filepath=None, buffersize=10.0, backsize=0.0,
-                 verbose=0, **meta_kwargs):
+                 verbose=0, meta_kwargs={}, **kwargs):
         super().__init__(None, buffersize, backsize,
-                         verbose, **meta_kwargs)
+                         verbose, meta_kwargs)
         if filepath is not None:
-            self.open(filepath, buffersize, backsize, verbose, **meta_kwargs)
+            self.open(filepath, buffersize, backsize, verbose, **kwargs)
 
     def __getitem__(self, key):
         return super(DataLoader, self).__getitem__(key)
