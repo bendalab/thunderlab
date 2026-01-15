@@ -1471,6 +1471,13 @@ class DataLoader(AudioLoader):
 
     Attributes
     ----------
+    filepath: str
+        Name and path of the opened file. In case of many files, the first one.
+    file_paths: list of str
+        List of pathes of the opened files that are made accessible
+        as a single array.
+    file_indices: list of int
+        For each file the index of its first sample.
     rate: float
         The sampling rate of the data in Hertz.
     channels: int
@@ -1485,6 +1492,10 @@ class DataLoader(AudioLoader):
         Number of frames and channels of the data.
     ndim: int
         Number of dimensions: always 2 (frames and channels).
+    offset: int
+        Index of first frame in the current buffer.
+    buffer: ndarray of floats
+        The curently available data from the file.
     unit: str
         Unit of the data.
     ampl_min: float
@@ -1499,9 +1510,13 @@ class DataLoader(AudioLoader):
     - `open()`: open a data file.
     - `open_*()`: open a data file of a specific format.
     - `close()`: close the file.
+    - `basename()`: Base name of the audio data.
+    - `format_dict()`: technical infos about how the data are stored.
     - `metadata()`: metadata of the file.
     - `markers()`: markers of the file.
     - `set_unwrap()`: Set parameters for unwrapping clipped data.
+
+    See audioio.audioloader.AudioLoader for more methods.
 
     """
 
