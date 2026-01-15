@@ -70,7 +70,7 @@ import numpy as np
 
 from audioio import add_metadata, remove_metadata, cleanup_metadata
 from audioio import bext_history_str, add_history
-from audioio.audioconverter import add_arguments, parse_channels
+from audioio.audioconverter import add_arguments, parse_channels, parse_load_kwargs
 from audioio.audioconverter import make_outfile, format_outfile
 from audioio.audioconverter import modify_data
 
@@ -162,12 +162,7 @@ def main(*cargs):
         nmerge = len(args.files)
 
     # kwargs for audio loader:
-    load_kwargs = {}
-    for s in args.load_kwargs:
-        for kw in s.split(','):
-            kws = kw.split(':')
-            if len(kws) == 2:
-                load_kwargs[kws[0].strip()] = kws[1].strip()
+    load_kwargs = parse_load_kwargs(args.load_kwargs)
 
     for i0 in range(0, len(args.files), nmerge):
         infile = args.files[i0]
