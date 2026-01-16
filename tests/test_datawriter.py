@@ -1,7 +1,8 @@
 import pytest
-import os
 import numpy as np
 import thunderlab.datawriter as dw
+
+from pathlib import Path
 
 
 def test_formats():
@@ -27,8 +28,6 @@ def test_write():
     dw.data_modules['pkl'] = True
     for fmt, lib, formats_func in dw.data_formats_funcs:
         writer_func = dw.data_writer_funcs[fmt]
-        with pytest.raises(ValueError):
-            writer_func('', np.zeros((1000, 2)), 48000)
         if lib:
             dw.data_modules[lib] = False
             with pytest.raises(ImportError):
@@ -51,5 +50,5 @@ def test_extensions():
     
 def test_main():
     dw.main('-c', '2', 'test.npz')
-    os.remove('test.npz')
+    Path('test.npz').unlink()
     

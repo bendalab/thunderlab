@@ -44,11 +44,12 @@ def generate_markers(maxi):
 
 
 def remove_files(path):
-    if os.path.isdir(path):
-        for root, dirs, files in os.walk(path, topdown=False):
+    path = Path(path)
+    if path.is_dir():
+        for root, dirs, files in path.walk(top_down=False):
             for name in files:
-                os.remove(os.path.join(root, name))
-        os.rmdir(os.path.join(path))
+                (root / name).unlink()
+        path.rmdir()
 
         
 @pytest.fixture   
@@ -112,16 +113,19 @@ def check_reading(filename, data):
 
     
 def test_container():
+    print()
     data, rate, amax, info = generate_data()
     locs, labels = generate_markers(len(data))
     # pickle:
+    print('pickle:')
     for encoding in dw.encodings_pickle():
+        print(f'  encoding {encoding}:')
         filename = dw.write_pickle('test', data, rate, amax, 'mV', info,
                                    locs, labels, encoding=encoding)
         check_reading(filename, data)
         md = dl.metadata(filename)
         assert info == md, 'pickle metadata'
-        os.remove(filename)
+        filename.unlink()
     filename = dw.write_data('test', data, rate, amax, 'mV', info,
                              locs, labels, format='pkl')
     full_data, rate, unit, rmax = dl.load_data(filename)
@@ -143,16 +147,18 @@ def test_container():
             fname, i = sf.get_file_index(inx)
             assert fname.resolve() == Path(filename).resolve(), 'returned wrong file name'
             assert i == inx, 'returned wrong index'
-    os.remove(filename)
+    filename.unlink()
 
     # numpy:
+    print('numpy:')
     for encoding in dw.encodings_numpy():
+        print(f'  encoding {encoding}:')
         filename = dw.write_numpy('test', data, rate, amax, 'mV',
                                   info, locs, labels, encoding=encoding)
         check_reading(filename, data)
         md = dl.metadata(filename)
         assert info == md, 'numpy metadata'
-        os.remove(filename)
+        filename.unlink()
     filename = dw.write_data('test', data, rate, amax, 'mV',
                              info, locs, labels, format='npz')
     full_data, rate, unit, rmax = dl.load_data(filename)
@@ -174,16 +180,18 @@ def test_container():
             fname, i = sf.get_file_index(inx)
             assert fname.resolve() == Path(filename).resolve(), 'returned wrong file name'
             assert i == inx, 'returned wrong index'
-    os.remove(filename)
+    filename.unlink()
 
     # mat:
+    print('mat:')
     for encoding in dw.encodings_mat():
+        print(f'  encoding {encoding}:')
         filename = dw.write_mat('test', data, rate, amax, 'mV', info,
                                 locs, labels, encoding=encoding)
         check_reading(filename, data)
         md = dl.metadata(filename)
         assert info == md, 'mat metadata'
-        os.remove(filename)
+        filename.unlink()
     filename = dw.write_data('test', data, rate, amax, 'mV',
                              info, locs, labels, format='mat')
     full_data, rate, unit, rmax = dl.load_data(filename)
@@ -205,7 +213,7 @@ def test_container():
             fname, i = sf.get_file_index(inx)
             assert fname.resolve() == Path(filename).resolve(), 'returned wrong file name'
             assert i == inx, 'returned wrong index'
-    os.remove(filename)
+    filename.unlink()
     
     
 def test_relacs(remove_relacs_files):
@@ -277,7 +285,7 @@ def test_audioio():
         assert len(sf.file_paths) == 1, 'audioio invalid len of file_paths'
         assert isinstance(sf.file_paths[0], Path), 'audioio file_paths[0] is not Path'
         assert sf.file_paths[0].resolve() == Path(filename).resolve(), 'audioio invalid file_paths[0]'
-    os.remove(filename)
+    filename.unlink()
 
     info['gain'] = f'{amax:g}mV'
     filename = dw.write_audioio('test.wav', data, rate, None, None,
@@ -285,7 +293,7 @@ def test_audioio():
     full_data, rate, unit, rmax = dl.load_data(filename)
     assert unit == 'mV'
     check_reading(filename, data)
-    os.remove(filename)
+    filename.unlink()
 
 
 def test_multiple():
@@ -303,10 +311,10 @@ def test_multiple():
         i0 = k*n
         i1 = (k+1)*n
         md = dict(DateTimeOriginal=start_time.isoformat())
-        mlocs = locs[(locs[:,0] >= i0) & (locs[:,0] < i1),:]
-        mlocs[:,0] -= i0
-        mlabels = labels[(locs[:,0] >= i0) & (locs[:,0] < i1),:]
-        fn = dw.write_numpy(filename.format(k + 1), data[i0:i1,:],
+        mlocs = locs[(locs[:, 0] >= i0) & (locs[:, 0] < i1),:]
+        mlocs[:, 0] -= i0
+        mlabels = labels[(locs[:, 0] >= i0) & (locs[:, 0] < i1),:]
+        fn = dw.write_numpy(filename.format(k + 1), data[i0:i1, :],
                             rate, amax, 'mV',
                             encoding='PCM_16', metadata=md,
                             locs=mlocs, labels=mlabels)
@@ -336,13 +344,13 @@ def test_multiple():
             assert i == inx%n, 'returned wrong index'
         sf.close()
     for k in range(nfiles):
-        os.remove(filename.format(k+1))
+        Path(filename.format(k+1)).unlink()
 
     
 def test_main(remove_fishgrid_files):
     data, rate, amax, info = generate_data()
     filename = dw.write_fishgrid(fishgrid_path, data[:10*int(rate)],
                                  rate, amax, 'mV', info)
-    dl.main(filename)
-    dl.main('-p', filename)
+    dl.main(os.fsdecode(filename))
+    dl.main('-p', os.fsdecode(filename))
     

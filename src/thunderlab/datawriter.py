@@ -8,10 +8,10 @@
 - `insert_container_metadata()`: insert flattened metadata to data dictionary for a container file format.
 """
 
-import os
 import sys
 import datetime as dt
 
+from pathlib import Path
 from copy import deepcopy
 from audioio import find_key, add_metadata, move_metadata
 from audioio import get_datetime, default_gain_keys
@@ -64,7 +64,7 @@ def format_from_extension(filepath):
     if filepath is None:
         return None
     filepath = Path(filepath)
-    ext = filepath.suffix.lower()
+    ext = filepath.suffix
     if not ext:
         return None
     if ext[0] == '.':
@@ -154,7 +154,7 @@ def write_relacs(filepath, data, rate, amax=1.0, unit=None,
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         Full path of folder where to write relacs files.
     data: 1-D or 2-D array of floats
         Array with the data (first index time, optional second index channel).
@@ -179,18 +179,14 @@ def write_relacs(filepath, data, rate, amax=1.0, unit=None,
 
     Returns
     -------
-    filepath: str or None
-        On success, the actual file name used for writing the data.
+    filepath: Path
+        The actual folder used for writing the data.
 
     Raises
     ------
     ValueError
-        Invalid `filepath`.
-    ValueError
         File format or encoding not supported.
     """
-    if not filepath:
-        raise ValueError('no file specified!')
     if format is None:
         format = 'RELACS'
     if format.upper() != 'RELACS':
@@ -199,21 +195,21 @@ def write_relacs(filepath, data, rate, amax=1.0, unit=None,
         encoding = 'FLOAT'
     if encoding.upper() != 'FLOAT':
         raise ValueError(f'file encoding {format} not supported by relacs file format')
-    if not os.path.exists(filepath):
-        os.mkdir(filepath)
+    filepath = Path(filepath)
+    if not filepath.exists():
+        filepath.mkdir()
     # write data:
     if data.ndim == 1:
-        with open(os.path.join(filepath, f'trace-1.raw'), 'wb') as df:
+        with open(filepath / f'trace-1.raw', 'wb') as df:
             df.write(data.astype(np.float32).tobytes())
     else:
         for c in range(data.shape[1]):
-            with open(os.path.join(filepath, f'trace-{c+1}.raw'), 'wb') as df:
-                df.write(data[:,c].astype(np.float32).tobytes())
+            with open(filepath / f'trace-{c+1}.raw', 'wb') as df:
+                df.write(data[:, c].astype(np.float32).tobytes())
     if unit is None:
         unit = 'V'
     # write data format:
-    filename = os.path.join(filepath, 'stimuli.dat')
-    df = open(filename, 'w')
+    df = open(filepath / 'stimuli.dat', 'w')
     df.write('# analog input traces:\n')
     for c in range(data.shape[1] if data.ndim > 1 else 1):
         df.write(f'#     identifier{c+1}      : V-{c+1}\n')
@@ -228,7 +224,7 @@ def write_relacs(filepath, data, rate, amax=1.0, unit=None,
     df.close()
     # write empty event files:
     for events in ['Recording', 'Restart', 'Stimulus']:
-        df = open(os.path.join(filepath, f'{events.lower()}-events.dat'), 'w')
+        df = open(filepath / f'{events.lower()}-events.dat', 'w')
         df.write(f'# events: {events}\n\n')
         df.write('#Key\n')
         if events == 'Stimulus':
@@ -244,9 +240,9 @@ def write_relacs(filepath, data, rate, amax=1.0, unit=None,
         df.close()
     # write metadata:
     if metadata:
-        write_metadata_text(os.path.join(filepath, 'info.dat'),
+        write_metadata_text(filepath / 'info.dat',
                             metadata, prefix='# ')
-    return filename
+    return filepath
 
     
 def formats_fishgrid():
@@ -288,7 +284,7 @@ def write_fishgrid(filepath, data, rate, amax=1.0, unit=None,
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         Full path of the folder where to write fishgrid files.
     data: 1-D or 2-D array of floats
         Array with the data (first index time, optional second index channel).
@@ -313,13 +309,11 @@ def write_fishgrid(filepath, data, rate, amax=1.0, unit=None,
 
     Returns
     -------
-    filepath: str or None
-        On success, the actual file name used for writing the data.
+    filepath: Path
+        The actual folder used for writing the data.
 
     Raises
     ------
-    ValueError
-        Invalid `filepath`.
     ValueError
         File format or encoding not supported.
     """
@@ -340,8 +334,6 @@ def write_fishgrid(filepath, data, rate, amax=1.0, unit=None,
         df.write(f'Comment: {comment}\n')
         df.write('\n')
         
-    if not filepath:
-        raise ValueError('no file specified!')
     if format is None:
         format = 'FISHGRID'
     if format.upper() != 'FISHGRID':
@@ -350,15 +342,16 @@ def write_fishgrid(filepath, data, rate, amax=1.0, unit=None,
         encoding = 'FLOAT'
     if encoding.upper() != 'FLOAT':
         raise ValueError(f'file encoding {format} not supported by fishgrid file format')
-    if not os.path.exists(filepath):
-        os.mkdir(filepath)
+    filepath = Path(filepath)
+    if not filepath.exists():
+        filepath.mkdir()
     # write data:
-    with open(os.path.join(filepath, 'traces-grid1.raw'), 'wb') as df:
+    with open(filepath / 'traces-grid1.raw', 'wb') as df:
         df.write(data.astype(np.float32).tobytes())
     # write metadata:
     if unit is None:
         unit = 'mV'
-    cfgfilename = os.path.join(filepath, 'fishgrid.cfg')
+    cfgfile = filepath / 'fishgrid.cfg'
     nchannels = data.shape[1] if data.ndim > 1 else 1
     ncols = int(np.ceil(np.sqrt(nchannels)))
     nrows = int(np.ceil(nchannels/ncols))
@@ -426,12 +419,12 @@ def write_fishgrid(filepath, data, rate, amax=1.0, unit=None,
     add_metadata(md,
                  [f'FishGrid.Hardware Settings.DAQ board.AISampleRate={0.001*rate:.3f}kHz',
                   f'FishGrid.Hardware Settings.DAQ board.AIMaxVolt={amax:g}{unit}'])
-    with open(cfgfilename, 'w') as df:
+    with open(cfgfile, 'w') as df:
         for k in md:
             df.write(f'*{k}\n')
             write_metadata_text(df, md[k], prefix='  ')
     # write markers:
-    filename = os.path.join(filepath, 'timestamps.dat')
+    filename = filepath / 'timestamps.dat'
     starttime = get_datetime(metadata, (('DateTimeOriginal',),
                                         ('OriginationDate', 'OriginationTime'),
                                         ('StartDate', 'StartTime'),
@@ -457,7 +450,7 @@ def write_fishgrid(filepath, data, rate, amax=1.0, unit=None,
                 count += 1
         write_timestamp(df, count, len(data)*nchannels, 0, rate,
                         starttime, '', 'end of recording')
-    return cfgfilename
+    return filepath
 
     
 def formats_pickle():
@@ -506,7 +499,7 @@ def write_pickle(filepath, data, rate, amax=1.0, unit=None,
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         Full path and name of the file to write.
     data: 1-D or 2-D array of floats
         Array with the data (first index time, optional second index channel).
@@ -536,29 +529,26 @@ def write_pickle(filepath, data, rate, amax=1.0, unit=None,
 
     Returns
     -------
-    filepath: str or None
-        On success, the actual file name used for writing the data.
+    filepath: Path
+        The actual file name used for writing the data.
 
     Raises
     ------
     ImportError
         The pickle module is not available.
     ValueError
-        Invalid `filepath`.
-    ValueError
         File format or encoding not supported.
     """
     if not data_modules['pickle']:
         raise ImportError
-    if not filepath:
-        raise ValueError('no file specified!')
     if format is None:
         format = 'PKL'
     if format.upper() != 'PKL':
         raise ValueError(f'file format {format} not supported by pickle file format')
-    ext = os.path.splitext(filepath)[1]
+    filepath = Path(filepath)
+    ext = filepath.suffix
     if len(ext) <= 1 or ext[1].upper() != 'P':
-        filepath += os.extsep + 'pkl'
+        filepath = filepath.with_suffix('.pkl')
     if encoding is None:
         encoding = 'DOUBLE'
     encoding = encoding.upper()
@@ -655,7 +645,7 @@ def write_numpy(filepath, data, rate, amax=1.0, unit=None,
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         Full path and name of the file to write.
     data: 1-D or 2-D array of floats
         Array with the data (first index time, optional second index channel).
@@ -686,29 +676,26 @@ def write_numpy(filepath, data, rate, amax=1.0, unit=None,
 
     Returns
     -------
-    filepath: str or None
-        On success, the actual file name used for writing the data.
+    filepath: Path
+        The actual file name used for writing the data.
 
     Raises
     ------
     ImportError
         The numpy module is not available.
     ValueError
-        Invalid `filepath`.
-    ValueError
         File format or encoding not supported.
     """
     if not data_modules['numpy']:
         raise ImportError
-    if not filepath:
-        raise ValueError('no file specified!')
     if format is None:
         format = 'NPZ'
     if format.upper() not in formats_numpy():
         raise ValueError(f'file format {format} not supported by numpy file format')
-    ext = os.path.splitext(filepath)[1]
+    filepath = Path(filepath)
+    ext = filepath.suffix
     if len(ext) <= 1 or ext[1].upper() != 'N':
-        filepath += os.extsep + 'npz'
+        filepath = filepath.with_suffix('.npz')
     if encoding is None:
         encoding = 'DOUBLE'
     encoding = encoding.upper()
@@ -788,7 +775,7 @@ def write_mat(filepath, data, rate, amax=1.0, unit=None,
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         Full path and name of the file to write.
         Stored under the key "data".
     data: 1-D or 2-D array of floats
@@ -819,29 +806,26 @@ def write_mat(filepath, data, rate, amax=1.0, unit=None,
 
     Returns
     -------
-    filepath: str or None
-        On success, the actual file name used for writing the data.
+    filepath: Path
+        The actual file name used for writing the data.
 
     Raises
     ------
     ImportError
         The scipy.io module is not available.
     ValueError
-        Invalid `filepath`.
-    ValueError
         File format or encoding not supported.
     """
     if not data_modules['scipy']:
         raise ImportError
-    if not filepath:
-        raise ValueError('no file specified!')
     if format is None:
         format = 'MAT'
     if format.upper() not in formats_mat():
         raise ValueError(f'file format {format} not supported by matlab file format')
-    ext = os.path.splitext(filepath)[1]
+    filepath = Path(filepath)
+    ext = filepath.suffix
     if len(ext) <= 1 or ext[1].upper() != 'M':
-        filepath += os.extsep + 'mat'
+        filepath = filepath.with_suffix('.mat')
     if encoding is None:
         encoding = 'DOUBLE'
     encoding = encoding.upper()
@@ -926,7 +910,7 @@ def write_audioio(filepath, data, rate, amax=1.0, unit=None,
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         Full path and name of the file to write.
     data: 1-D or 2-D array of floats
         Array with the data (first index time, optional second index channel).
@@ -965,20 +949,18 @@ def write_audioio(filepath, data, rate, amax=1.0, unit=None,
 
     Returns
     -------
-    filepath: str or None
-        On success, the actual file name used for writing the data.
+    filepath: Path
+        The actual file name used for writing the data.
 
     Raises
     ------
     ImportError
         The audioio module is not available.
     ValueError
-        Invalid `filepath` or `unit` does not match gain in metadata.
+        `unit` does not match gain in metadata.
     """
     if not data_modules['audioio']:
         raise ImportError
-    if not filepath:
-        raise ValueError('no file specified!')
     if amax is None or not np.isfinite(amax):
         amax, u = am.get_gain(metadata, gainkey, sep, 1.0, 'a.u.')
         if not unit:
@@ -1005,7 +987,7 @@ def write_audioio(filepath, data, rate, amax=1.0, unit=None,
             else:
                 metadata[gainkey[0]] = f'{amax:g}{unit}'
     aw.write_audio(filepath, data, rate, metadata, locs, labels)
-    return filepath
+    return Path(filepath)
 
 
 data_formats_funcs = (
@@ -1094,7 +1076,7 @@ def write_data(filepath, data, rate, amax=1.0, unit=None,
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         Full path and name of the file to write.
         File format is determined from extension.
     data: 1-D or 2-D array of floats
@@ -1132,7 +1114,7 @@ def write_data(filepath, data, rate, amax=1.0, unit=None,
     Raises
     ------
     ValueError
-        `filepath` is empty string or unspecified format.
+        Unspecified file format.
     IOError
         Requested file format not supported.
 
@@ -1150,8 +1132,6 @@ def write_data(filepath, data, rate, amax=1.0, unit=None,
     write_data('audio/file.npz', data, rate, 'mV', md)
     ```
     """
-    if not filepath:
-        raise ValueError('no file specified!')
     if not format:
         format = format_from_extension(filepath)
     if not format:

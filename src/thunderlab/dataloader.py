@@ -65,8 +65,8 @@ locs, labels = markers('data.wav')
 import gc
 import os
 import sys
-import glob
 import gzip
+import pickle
 import numpy as np
 try:
     import matplotlib.pyplot as plt
@@ -293,9 +293,11 @@ def check_relacs(filepath):
     for fname in ['stimuli.dat', 'stimuli.dat.gz']:
         if (relacs_dir / fname).is_file():
             has_stimuli = True
+            break
     for fname in ['trace-1.raw', 'trace-1.raw.gz']:
         if (relacs_dir / fname).is_file():
             has_trace = True
+            break
     return has_stimuli and has_trace
 
     
@@ -967,7 +969,6 @@ def load_container(filepath, datakey=None,
     filepath = Path(filepath)
     ext = filepath.suffix.lower()
     if ext == '.pkl':
-        import pickle
         with open(filepath, 'rb') as f:
             data_dict = pickle.load(f)
     elif ext == '.npz':
@@ -1034,7 +1035,6 @@ def metadata_container(filepath, metadatakey=['metadata', 'info']):
     filepath = Path(filepath)
     ext = filepath.suffix.lower()
     if ext == '.pkl':
-        import pickle
         with open(filepath, 'rb') as f:
             data_dict = pickle.load(f)
     elif ext == '.npz':
@@ -1134,7 +1134,6 @@ def markers_container(filepath, poskey=['positions'],
     filepath = Path(filepath)
     ext = filepath.suffix.lower()
     if ext == '.pkl':
-        import pickle
         with open(filepath, 'rb') as f:
             data_dict = pickle.load(f)
     elif ext == '.npz':
@@ -1895,7 +1894,6 @@ class DataLoader(AudioLoader):
         filepath = Path(filepath)
         ext = filepath.suffix.lower()
         if ext == '.pkl':
-            import pickle
             with open(filepath, 'rb') as f:
                 data_dict = pickle.load(f)
             self.format = 'PKL'
