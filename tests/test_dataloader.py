@@ -3,7 +3,10 @@ import os
 import sys
 import glob
 import numpy as np
+
+from pathlib import Path
 from datetime import datetime, timedelta
+
 import thunderlab.datawriter as dw
 import thunderlab.dataloader as dl
 
@@ -134,7 +137,7 @@ def test_container():
         assert np.all(labels == llabels), 'pickle same labels'
         for inx in np.random.randint(0, len(sf), 50):
             fname, i = sf.get_file_index(inx)
-            assert fname == filename, 'returned wrong file name'
+            assert fname.resolve() == Path(filename).resolve(), 'returned wrong file name'
             assert i == inx, 'returned wrong index'
     os.remove(filename)
 
@@ -160,7 +163,7 @@ def test_container():
         assert np.all(labels == llabels), 'numpy same labels'
         for inx in np.random.randint(0, len(sf), 50):
             fname, i = sf.get_file_index(inx)
-            assert fname == filename, 'returned wrong file name'
+            assert fname.resolve() == Path(filename).resolve(), 'returned wrong file name'
             assert i == inx, 'returned wrong index'
     os.remove(filename)
 
@@ -186,7 +189,7 @@ def test_container():
         assert np.all(labels == llabels), 'mat same labels'
         for inx in np.random.randint(0, len(sf), 50):
             fname, i = sf.get_file_index(inx)
-            assert fname == filename, 'returned wrong file name'
+            assert fname.resolve() == Path(filename).resolve(), 'returned wrong file name'
             assert i == inx, 'returned wrong index'
     os.remove(filename)
     
@@ -285,7 +288,7 @@ def test_multiple():
         check_random_reading(sf, data)
         for inx in np.random.randint(0, len(sf), 50):
             fname, i = sf.get_file_index(inx)
-            assert fname == filename.format(1 + inx//n), 'returned wrong file name'
+            assert fname.resolve() == Path(filename.format(1 + inx//n)).resolve(), 'returned wrong file name'
             assert i == inx%n, 'returned wrong index'
         sf.close()
     for k in range(nfiles):

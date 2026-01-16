@@ -89,7 +89,7 @@ def relacs_samplerate_unit(filepath, channel=0):
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         Path to a relacs data directory, or a file in a relacs data directory.
     channel: int
         Channel (trace) number, if `filepath` does not specify a
@@ -110,25 +110,24 @@ def relacs_samplerate_unit(filepath, channel=0):
         stimuli.dat file does not contain sampling rate.
     """
     trace = channel + 1
-    relacs_dir = filepath
+    relacs_dir = Path(filepath)
     # check for relacs data directory:
-    if not os.path.isdir(filepath):
-        relacs_dir = os.path.dirname(filepath)
-        bn = os.path.basename(filepath).lower()
-        i = bn.find('.raw')
-        if len(bn) > 5 and bn[0:5] == 'trace' and i > 6:
-            trace = int(bn[6:i])
+    if not relacs_dir.is_dir():
+        bn = relacs_dir.stem.lower()
+        ext = relacs_dir.suffix.lower()
+        relacs_dir = relacs_dir.parent
+        if len(bn) > 6 and bn[:6] == 'trace-':
+            trace = int(bn[6:])
 
     # retreive sampling rate and unit from stimuli.dat file:
     samplerate = None
     sampleinterval = None
     unit = ""
 
+    # load stimuli.dat file:
     lines = []
-    stimuli_file = os.path.join(relacs_dir, 'stimuli.dat')
-    if os.path.isfile(stimuli_file + '.gz'):
-        stimuli_file += '.gz'
-    if stimuli_file[-3:] == '.gz':
+    stimuli_file = relacs_dir / 'stimuli.dat.gz'
+    if stimuli_file.is_file():
         with gzip.open(stimuli_file, 'r', encoding='latin-1') as sf:
             for line in sf:
                 line = line.strip()
@@ -136,20 +135,21 @@ def relacs_samplerate_unit(filepath, channel=0):
                     break
                 lines.append(line)
     else:
+        stimuli_file = relacs_dir / 'stimuli.dat'
         with open(stimuli_file, 'r', encoding='latin-1') as sf:
             for line in sf:
                 line = line.strip()
                 if len(line) == 0 or line[0] != '#':
                     break
                 lines.append(line)
-        
+    # extract unit and sampling rate:        
     for line in lines:
-        if "unit%d" % trace in line:
+        if f'unit{trace}' in line:
             unit = line.split(':')[1].strip()
-        if "sampling rate%d" % trace in line:
+        if f'sampling rate{trace}' in line:
             value = line.split(':')[1].strip()
             samplerate = float(value.replace('Hz',''))
-        elif "sample interval%d" % trace in line:
+        elif f'sample interval{trace}' in line:
             value = line.split(':')[1].strip()
             sampleinterval = float(value.replace('ms',''))
 
@@ -167,7 +167,7 @@ def relacs_header(filepath, store_empty=False, first_only=False,
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         A relacs *.dat file, can be also a zipped .gz file.
     store_empty: bool
         If `False` do not add meta data with empty values.
@@ -193,12 +193,12 @@ def relacs_header(filepath, store_empty=False, first_only=False,
     IOError/FileNotFoundError:
         If `filepath` cannot be opened.
     """
+    filepath = Path(filepath)
     # read in header from file:
     lines = []
-    if os.path.isfile(filepath + '.gz'):
-        filepath += '.gz'
-    if filepath[-3:] == '.gz':
-        with gzip.open(filepath, 'r', encoding='latin-1') as sf:
+    gzfilepath = filepath.with_suffix(filepath.suffix + '.gz')
+    if gzfilepath.is_file():
+        with gzip.open(gzfilepath, 'r', encoding='latin-1') as sf:
             for line in sf:
                 line = line.strip()
                 if len(line) == 0 or line[0] != '#':
@@ -275,7 +275,7 @@ def check_relacs(filepath):
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         Path to a relacs data directory, or a file in a relacs data directory.
 
     Returns
@@ -284,17 +284,17 @@ def check_relacs(filepath):
       `True` if `filepath` is a valid relacs directory or is a file therein.
     """
     # relacs data directory:
-    relacs_dir = filepath
-    if not os.path.isdir(filepath):
-        relacs_dir = os.path.dirname(filepath)
+    relacs_dir = Path(filepath)
+    if not relacs_dir.is_dir():
+        relacs_dir = relacs_dir.parent
     # check for a valid relacs data directory:
     has_stimuli = False
     has_trace = False
     for fname in ['stimuli.dat', 'stimuli.dat.gz']:
-        if os.path.isfile(os.path.join(relacs_dir, fname)):
+        if (relacs_dir / fname).is_file():
             has_stimuli = True
     for fname in ['trace-1.raw', 'trace-1.raw.gz']:
-        if os.path.isfile(os.path.join(relacs_dir, fname)):
+        if (relacs_dir / fname).is_file():
             has_trace = True
     return has_stimuli and has_trace
 
@@ -304,24 +304,25 @@ def relacs_trace_files(filepath):
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         Path to a relacs data directory, or a file in a relacs data directory.
         
     Returns
     -------
-    trace_filepaths: list of str
+    trace_filepaths: list of Path
         List of relacs trace*.raw files.
     """
-    relacs_dir = filepath
-    if not os.path.isdir(filepath):
-        relacs_dir = os.path.dirname(filepath)
+    relacs_dir = Path(filepath)
+    if not relacs_dir.is_dir():
+        relacs_dir = relacs_dir.parent
     trace_filepaths = []
     for k in range(10000):
-        fname = os.path.join(relacs_dir, f'trace-{k+1}.raw')
-        if os.path.isfile(fname):
-            trace_filepaths.append(fname)
-        elif os.path.isfile(fname + '.gz'):
-            trace_filepaths.append(fname + '.gz')
+        trace_file = relacs_dir / f'trace-{k+1}.raw'
+        gz_trace_file = relacs_dir / f'trace-{k+1}.raw.gz'
+        if trace_file.is_file():
+            trace_filepaths.append(trace_file)
+        elif gz_trace_file.is_file():
+            trace_filepaths.append(gz_trace_file)
         else:
             break
     return trace_filepaths
@@ -332,7 +333,7 @@ def load_relacs(filepath, amax=1.0):
 
     Parameters
     ----------
-    filepath: str
+    filepath: str of Path
         Path to a relacs data directory, or a file in a relacs data directory.
     amax: float
         The amplitude range of the data.
@@ -368,7 +369,7 @@ def load_relacs(filepath, amax=1.0):
     rate = None
     unit = ''
     for c, path in enumerate(sorted(trace_filepaths)):
-        if path[-3:] == '.gz':
+        if path.suffix == '.gz':
             with gzip.open(path, 'rb') as sf:
                 x = np.frombuffer(sf.read(), dtype=np.float32)
         else:
@@ -397,7 +398,7 @@ def metadata_relacs(filepath, store_empty=False, first_only=False,
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         A relacs data directory or a file therein.
     store_empty: bool
         If `False` do not add meta data with empty values.
@@ -418,11 +419,11 @@ def metadata_relacs(filepath, store_empty=False, first_only=False,
     data: nested dict
         Nested dictionary with key-value pairs of the meta data.
     """
-    relacs_dir = filepath
-    if not os.path.isdir(filepath):
-        relacs_dir = os.path.dirname(filepath)
-    info_path = os.path.join(relacs_dir, 'info.dat')
-    if not os.path.exists(info_path):
+    relacs_dir = Path(filepath)
+    if not relacs_dir.is_dir():
+        relacs_dir = relacs_dir.parent
+    info_path = relacs_dir / 'info.dat'
+    if not info_path.is_file():
         return dict(), []
     data = relacs_header(info_path, store_empty, first_only,
                          lower_keys, flat, add_sections)
@@ -484,7 +485,7 @@ def check_fishgrid(filepath):
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         Path to a fishgrid data directory or a file in a fishgrid
         data directory.
 
@@ -495,13 +496,13 @@ def check_fishgrid(filepath):
         a file therein.
     """
     # fishgrid data directory:
-    fishgrid_dir = filepath
-    if not os.path.isdir(filepath):
-        fishgrid_dir = os.path.dirname(filepath)
+    fishgrid_dir = Path(filepath)
+    if not fishgrid_dir.is_dir():
+        fishgrid_dir = fishgrid_dir.parent
     # check for a valid fishgrid data directory:
-    return (os.path.isfile(os.path.join(fishgrid_dir, 'fishgrid.cfg')) and
-            (os.path.isfile(os.path.join(fishgrid_dir, 'traces-grid1.raw')) or
-             os.path.isfile(os.path.join(fishgrid_dir, 'traces.raw'))))
+    return ((fishgrid_dir / 'fishgrid.cfg').is_file() and
+            ((fishgrid_dir / 'traces-grid1.raw').is_file() or
+             (fishgrid_dir / 'traces.raw').is_file()))
 
     
 def fishgrid_trace_files(filepath):
@@ -509,29 +510,35 @@ def fishgrid_trace_files(filepath):
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         Path to a fishgrid data directory, or a file therein.
         
     Returns
     -------
-    trace_filepaths: list of str
+    trace_filepaths: list of Path
         List of fishgrid traces*.raw files.
     """
+    fishgrid_dir = Path(filepath)
+    if not fishgrid_dir.is_dir():
+        fishgrid_dir = fishgrid_dir.parent
     # find grids:
-    fishgrid_dir = filepath
-    if not os.path.isdir(fishgrid_dir):
-        fishgrid_dir = os.path.dirname(filepath)
     trace_filepaths = []
     for k in range(10000):
-        file = os.path.join(fishgrid_dir, f'traces-grid{k+1}.raw')
-        if os.path.isfile(file):
-            trace_filepaths.append(file)
+        trace_file = fishgrid_dir / f'traces-grid{k+1}.raw'
+        gz_trace_file = fishgrid_dir / f'traces-grid{k+1}.raw.gz'
+        if trace_file.is_file():
+            trace_filepaths.append(trace_file)
+        elif gz_trace_file.is_file():
+            trace_filepaths.append(gz_trace_file)
         else:
             break
     if len(trace_filepaths) == 0:
-        file = os.path.join(fishgrid_dir, f'traces.raw')
-        if os.path.isfile(file):
-            trace_filepaths.append(file)
+        trace_file = fishgrid_dir / f'traces.raw'
+        gz_trace_file = fishgrid_dir / f'traces.raw.gz'
+        if trace_file.is_file():
+            trace_filepaths.append(trace_file)
+        elif gz_trace_file.is_file():
+            trace_filepaths.append(gz_trace_file)
     return trace_filepaths
 
         
@@ -578,12 +585,16 @@ def load_fishgrid(filepath):
     c = 0
     rate = get_number(md, 'Hz', 'AISampleRate')
     for path, channels in zip(trace_filepaths, grid_channels):
-        x = np.fromfile(path, np.float32).reshape((-1, channels))
+        if path.suffix == '.gz':
+            with gzip.open(path, 'rb') as sf:
+                x = np.frombuffer(sf.read(), dtype=np.float32)
+        else:
+            x = np.fromfile(path, np.float32).reshape((-1, channels))
         if data is None:
             nrows = len(x)
             data = np.zeros((nrows, nchannels))
         n = min(len(x), nrows)
-        data[:n,c:c+channels] = x[:n,:]
+        data[:n, c:c + channels] = x[:n, :]
         c += channels
     amax, unit = get_number_unit(md, 'AIMaxVolt')
     return data, rate, unit, amax
@@ -599,7 +610,7 @@ def metadata_fishgrid(filepath):
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         A fishgrid data directory or a file therein.
 
     Returns
@@ -607,24 +618,23 @@ def metadata_fishgrid(filepath):
     data: nested dict
         Nested dictionary with key-value pairs of the meta data.
     """
-    fishgrid_dir = filepath
-    if not os.path.isdir(fishgrid_dir):
-        fishgrid_dir = os.path.dirname(filepath)
-    path = os.path.join(fishgrid_dir, 'fishgrid.cfg')
+    fishgrid_dir = Path(filepath)
+    if not fishgrid_dir.is_dir():
+        fishgrid_dir = fishgrid_dir.parent
+    config_path = fishgrid_dir / 'fishgrid.cfg'
+    gz_config_path = fishgrid_dir / 'fishgrid.cfg.gz'
     # read in header from file:
     lines = []
-    if os.path.isfile(path + '.gz'):
-        path += '.gz'
-    if not os.path.exists(path):
-        return {}
-    if path[-3:] == '.gz':
-        with gzip.open(path, 'r', encoding='latin-1') as sf:
+    if gz_config_path.is_file():
+        with gzip.open(gz_config_path, 'r', encoding='latin-1') as sf:
+            for line in sf:
+                lines.append(line)
+    elif config_path.is_file():
+        with open(config_path, 'r', encoding='latin-1') as sf:
             for line in sf:
                 lines.append(line)
     else:
-        with open(path, 'r', encoding='latin-1') as sf:
-            for line in sf:
-                lines.append(line)
+        return {}
     # parse:
     data = {}
     cdatas = [data]
@@ -703,7 +713,7 @@ def markers_fishgrid(filepath):
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         A fishgrid data directory or a file therein.
 
     Returns
@@ -726,14 +736,14 @@ def markers_fishgrid(filepath):
         cs = marker.get('comment', '')
         labels.append([ls, cs])
         
-    fishgrid_dir = filepath
-    if not os.path.isdir(fishgrid_dir):
-        fishgrid_dir = os.path.dirname(filepath)
-    path = os.path.join(fishgrid_dir, 'timestamps.dat')
-    if not os.path.isfile(path):
+    fishgrid_dir = Path(filepath)
+    if not fishgrid_dir.is_dir():
+        fishgrid_dir = fishgrid_dir.parent
+    path = fishgrid_dir / 'timestamps.dat'
+    if not path.is_file():
         return np.zeros((0, 2), dtype=int), np.zeros((0, 2), dtype=object)
     # get number of channels:
-    md = metadata_fishgrid(path.replace('timestamps.dat', 'fishgrid.cfg'))
+    md = metadata_fishgrid(path.with_name('fishgrid.cfg'))
     grids = fishgrid_grids(md)
     nchannels = np.prod(grids[0])
     # read timestamps:
@@ -770,7 +780,7 @@ def check_container(filepath):
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         Path of the file to check.
     
     Returns
@@ -778,7 +788,7 @@ def check_container(filepath):
     is_container: bool
         `True`, if `filepath` is a supported container format.
     """
-    ext = os.path.splitext(filepath)[1]
+    ext = Path(filepath).suffix
     return ext.lower() in ('.pkl', '.npz', '.mat')
 
 
@@ -911,7 +921,7 @@ def load_container(filepath, datakey=None,
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         Path of the file to load.
     datakey: None, str, or list of str
         Name of the variable holding the data.  If `None` take the
@@ -954,7 +964,8 @@ def load_container(filepath, datakey=None,
     """
     # load data:
     data_dict = {}
-    ext = os.path.splitext(filepath)[1]
+    filepath = Path(filepath)
+    ext = filepath.suffix.lower()
     if ext == '.pkl':
         import pickle
         with open(filepath, 'rb') as f:
@@ -1009,7 +1020,7 @@ def metadata_container(filepath, metadatakey=['metadata', 'info']):
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         A container file.
     metadatakey: str or list of str
         Name of the variable holding the metadata.
@@ -1020,7 +1031,8 @@ def metadata_container(filepath, metadatakey=['metadata', 'info']):
         Nested dictionary with key-value pairs of the meta data.
     """
     data_dict = {}
-    ext = os.path.splitext(filepath)[1]
+    filepath = Path(filepath)
+    ext = filepath.suffix.lower()
     if ext == '.pkl':
         import pickle
         with open(filepath, 'rb') as f:
@@ -1098,7 +1110,7 @@ def markers_container(filepath, poskey=['positions'],
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         A container file.
     poskey: str or list of str
         Name of the variable holding positions of markers.
@@ -1119,7 +1131,8 @@ def markers_container(filepath, poskey=['positions'],
         for each marker (rows).
     """
     data_dict = {}
-    ext = os.path.splitext(filepath)[1]
+    filepath = Path(filepath)
+    ext = filepath.suffix.lower()
     if ext == '.pkl':
         import pickle
         with open(filepath, 'rb') as f:
@@ -1143,7 +1156,7 @@ def check_raw(filepath):
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         Path of the file to check.
     
     Returns
@@ -1151,8 +1164,8 @@ def check_raw(filepath):
     is_raw: bool
         `True`, if `filepath` is a raw format.
     """
-    ext = os.path.splitext(filepath)[1]
-    return ext.lower() in ('.raw', '.scandat', '.mat')
+    ext = Path(filepath).suffix
+    return ext.lower() in ('.raw', '.scandat')
 
 
 def load_raw(filepath, rate=44000, channels=1, dtype=np.float32,
@@ -1168,7 +1181,7 @@ def load_raw(filepath, rate=44000, channels=1, dtype=np.float32,
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         Path of the file to load.
     rate: float
         Sampling rate of the data in Hertz.
@@ -1221,7 +1234,7 @@ def load_audioio(filepath, verbose=0, gainkey=default_gain_keys, sep='.',
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         Path of the file to load.
     verbose: int
         If > 0 show detailed error/warning messages.
@@ -1282,7 +1295,7 @@ def load_data(filepath, verbose=0, **kwargs):
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         Path and name of the file to load.
     verbose: int
         If > 0 show detailed error/warning messages.
@@ -1304,14 +1317,7 @@ def load_data(filepath, verbose=0, **kwargs):
         Unit of the data.
     amax: float
         Maximum amplitude of data range.
-
-    Raises
-    ------
-    ValueError:
-        `filepath` is empty string.
     """
-    if Path(filepath) == Path():
-        raise ValueError('input argument filepath is empty.')
     # load data:
     for name, check_file, load_file, _, _ in  data_loader_funcs:
         if check_file is None or check_file(filepath):
@@ -1332,7 +1338,7 @@ def metadata(filepath, **kwargs):
 
     Parameters
     ----------
-    filepath: str
+    filepath: str or Path
         The full path and name of the file to load. For some file
         formats several files can be provided in a list.
     **kwargs: dict
@@ -1349,14 +1355,7 @@ def metadata(filepath, **kwargs):
         types of values are values for the respective key. In
         particular they are strings, or list of strings. But other
         simple types like ints or floats are also allowed.
-
-    Raises
-    ------
-    ValueError:
-        `filepath` is empty string.
     """
-    if Path(filepath) == Path():
-        raise ValueError('input argument filepath is empty.')
     # load metadata:
     for _, check_file, _, metadata_file, _ in  data_loader_funcs:
         if check_file is None or check_file(filepath):
@@ -1370,7 +1369,7 @@ def markers(filepath):
 
     Parameters
     ----------
-    filepath: str or file handle
+    filepath: str or Path
         The data file.
 
     Returns
@@ -1381,14 +1380,7 @@ def markers(filepath):
     labels: 2-D array of string objects
         Labels (first column) and texts (second column)
         for each marker (rows).
-
-    Raises
-    ------
-    ValueError:
-        `filepath` is empty string.
     """
-    if Path(filepath) == Path():
-        raise ValueError('input argument filepath is empty.')
     # load markers:
     for _, check_file, _, _, markers_file in  data_loader_funcs:
         if check_file is None or check_file(filepath):
@@ -1456,8 +1448,8 @@ class DataLoader(AudioLoader):
     
     Parameters
     ----------
-    filepath: str
-        Name of the file.
+    filepath: str or Path
+        Path of the data file.
     buffersize: float
         Size of internal buffer in seconds.
     backsize: float
@@ -1472,9 +1464,9 @@ class DataLoader(AudioLoader):
 
     Attributes
     ----------
-    filepath: str
+    filepath: Path
         Name and path of the opened file. In case of many files, the first one.
-    file_paths: list of str
+    file_paths: list of Path
         List of pathes of the opened files that are made accessible
         as a single array.
     file_indices: list of int
@@ -1563,6 +1555,7 @@ class DataLoader(AudioLoader):
         self.verbose = verbose
 
         # open trace files:
+        filepath = Path(filepath)
         self.trace_filepaths = relacs_trace_files(filepath)
         if len(self.trace_filepaths) == 0:
             raise FileNotFoundError(f'no relacs files found')
@@ -1574,7 +1567,7 @@ class DataLoader(AudioLoader):
         self.file_paths = [self.filepath]
         self.file_indices = [0]
         for path in self.trace_filepaths:
-            if path[-3:] == '.gz':
+            if path.suffix == '.gz':
                 raise ValueError('.gz files not supported')
             sf = open(path, 'rb')
             self.sf.append(sf)
@@ -1627,8 +1620,8 @@ class DataLoader(AudioLoader):
     def _close_relacs(self):
         """Close the relacs data files.
         """
-        for file in self.sf:
-            file.close()
+        for f in self.sf:
+            f.close()
         self.sf = []
 
     def _load_buffer_relacs(self, r_offset, r_size, buffer):
@@ -1646,18 +1639,20 @@ class DataLoader(AudioLoader):
         if len(self.sf) == 0 and len(self.trace_filepaths) > 0:
             for path in self.trace_filepaths:
                 self.sf.append(open(path, 'rb'))
-        for i, file in enumerate(self.sf):
-            file.seek(r_offset*4)
-            data = file.read(r_size*4)
+        for i, f in enumerate(self.sf):
+            f.seek(r_offset*4)
+            data = f.read(r_size*4)
             buffer[:, i] = np.frombuffer(data, dtype=np.float32)
         
 
     def _metadata_relacs(self, store_empty=False, first_only=False):
         """ Load meta-data of a relacs data set.
         """
-        path = os.path.dirname(self.filepath)
-        info_path = os.path.join(path, 'info.dat')
-        if not os.path.exists(info_path):
+        path = self.filepath
+        if not path.is_dir():
+            path = path.parent
+        info_path = path / 'info.dat'
+        if not info_path.is_file():
             return {}
         return relacs_header(info_path, store_empty, first_only)
 
@@ -1679,7 +1674,8 @@ class DataLoader(AudioLoader):
         """
         if path is None:
             path = self.filepath
-        path = Path(path)
+        else:
+            path = Path(path)
         if path.is_dir():
             return path.name
         else:
@@ -1706,9 +1702,12 @@ class DataLoader(AudioLoader):
         ------
         FileNotFoundError:
             Invalid or non existing fishgrid files.
+        ValueError:
+            .gz files not supported.
         """
         self.verbose = verbose
 
+        filepath = Path(filepath)
         self.trace_filepaths = fishgrid_trace_files(filepath)
         if len(self.trace_filepaths) == 0:
             raise FileNotFoundError(f'no fishgrid files found')
@@ -1736,6 +1735,8 @@ class DataLoader(AudioLoader):
             self.ampl_max = +v
             
         for g, path in enumerate(self.trace_filepaths):
+            if path.suffix == '.gz':
+                raise ValueError('.gz files not supported')
             sf = open(path, 'rb')
             self.sf.append(sf)
             if verbose > 0:
@@ -1802,7 +1803,7 @@ class DataLoader(AudioLoader):
 
         Parameters
         ----------
-        path: str or None
+        path: str or Path or None
             Path of a fishgrid data file
             (*.raw, fishgrid.cfg, or just the directory).
             If `None`, use `self.filepath`.
@@ -1816,7 +1817,8 @@ class DataLoader(AudioLoader):
         """
         if path is None:
             path = self.filepath
-        path = Path(path)
+        else:
+            path = Path(path)
         if path.is_dir():
             return path.name
         else:
@@ -1890,7 +1892,8 @@ class DataLoader(AudioLoader):
         """
         self.verbose = verbose
         data_dict = {}
-        ext = os.path.splitext(filepath)[1]
+        filepath = Path(filepath)
+        ext = filepath.suffix.lower()
         if ext == '.pkl':
             import pickle
             with open(filepath, 'rb') as f:
@@ -1956,7 +1959,7 @@ class DataLoader(AudioLoader):
 
         Parameters
         ----------
-        filepath: str
+        filepath: str or Path
             Path of the file to load.
         buffersize: float
             Size of internal buffer in seconds.
@@ -1976,7 +1979,7 @@ class DataLoader(AudioLoader):
             The unit of the data.
         """
         self.verbose = verbose
-        self.filepath = filepath
+        self.filepath = Path(filepath)
         self.file_paths = [self.filepath]
         self.file_indices = [0]
         self.sf = open(self.filepath, 'rb')
@@ -2111,8 +2114,8 @@ class DataLoader(AudioLoader):
 
         Parameters
         ----------
-        filepaths: list of str
-            List of file names of audio files.
+        filepaths: list of str or Path
+            List of file paths of audio files.
         buffersize: float
             Size of internal buffer in seconds.
         backsize: float
@@ -2171,9 +2174,9 @@ class DataLoader(AudioLoader):
         self._locs = np.zeros((0, 2), dtype=int)
         self._labels = np.zeros((0, 2), dtype=object)
         if end_indices is not None:
-            self.filepath = filepaths[0]
-            self.file_paths = filepaths
-            self.data_files = [None] * len(filepaths)
+            self.file_paths = [Path(fp) for fp in filepaths]
+            self.filepath = self.file_paths[0]
+            self.data_files = [None] * len(self.file_paths)
             self.frames = end_indices[-1]
             self.start_indices = [0] + list(end_indices[:-1])
             self.end_indices = end_indices
@@ -2253,7 +2256,7 @@ class DataLoader(AudioLoader):
                 if stime is not None:
                     start_time = stime + timedelta(seconds=a.frames/a.rate)
                 # add file to lists:
-                self.file_paths.append(filepath)
+                self.file_paths.append(a.filepath)
                 if len(self.open_files) < AudioLoader.max_open_files:
                     self.open_files.append(a)
                 else:
