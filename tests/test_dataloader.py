@@ -1,7 +1,6 @@
 import pytest
 import os
 import sys
-import glob
 import numpy as np
 
 from pathlib import Path
@@ -135,6 +134,11 @@ def test_container():
         llocs, llabels = sf.markers()
         assert np.all(locs == llocs), 'pickle same locs'
         assert np.all(labels == llabels), 'pickle same labels'
+        assert isinstance(sf.filepath, Path), 'filepath is not Path'
+        assert sf.filepath.resolve() == Path(filename).resolve(), 'invalid filepath'
+        assert len(sf.file_paths) == 1, 'invalid len of file_paths'
+        assert isinstance(sf.file_paths[0], Path), 'file_paths[0] is not Path'
+        assert sf.file_paths[0].resolve() == Path(filename).resolve(), 'invalid file_paths[0]'
         for inx in np.random.randint(0, len(sf), 50):
             fname, i = sf.get_file_index(inx)
             assert fname.resolve() == Path(filename).resolve(), 'returned wrong file name'
@@ -161,6 +165,11 @@ def test_container():
         llocs, llabels = sf.markers()
         assert np.all(locs == llocs), 'numpy same locs'
         assert np.all(labels == llabels), 'numpy same labels'
+        assert isinstance(sf.filepath, Path), 'filepath is not Path'
+        assert sf.filepath.resolve() == Path(filename).resolve(), 'invalid filepath'
+        assert len(sf.file_paths) == 1, 'invalid len of file_paths'
+        assert isinstance(sf.file_paths[0], Path), 'file_paths[0] is not Path'
+        assert sf.file_paths[0].resolve() == Path(filename).resolve(), 'invalid file_paths[0]'
         for inx in np.random.randint(0, len(sf), 50):
             fname, i = sf.get_file_index(inx)
             assert fname.resolve() == Path(filename).resolve(), 'returned wrong file name'
@@ -187,6 +196,11 @@ def test_container():
         llocs, llabels = sf.markers()
         assert np.all(locs == llocs), 'mat same locs'
         assert np.all(labels == llabels), 'mat same labels'
+        assert isinstance(sf.filepath, Path), 'filepath is not Path'
+        assert sf.filepath.resolve() == Path(filename).resolve(), 'invalid filepath'
+        assert len(sf.file_paths) == 1, 'invalid len of file_paths'
+        assert isinstance(sf.file_paths[0], Path), 'file_paths[0] is not Path'
+        assert sf.file_paths[0].resolve() == Path(filename).resolve(), 'invalid file_paths[0]'
         for inx in np.random.randint(0, len(sf), 50):
             fname, i = sf.get_file_index(inx)
             assert fname.resolve() == Path(filename).resolve(), 'returned wrong file name'
@@ -204,6 +218,11 @@ def test_relacs(remove_relacs_files):
         assert sf.basename() == relacs_path, 'relacs wrong basename'
         assert sf.basename(sf.filepath) == relacs_path, 'relacs wrong basename'
         assert sf.basename(sf.file_paths[0]) == relacs_path, 'relacs wrong basename'
+        assert isinstance(sf.filepath, Path), 'filepath is not Path'
+        assert sf.filepath.resolve() == Path(relacs_path).resolve(), 'invalid filepath'
+        assert len(sf.file_paths) == 1, 'invalid len of file_paths'
+        assert isinstance(sf.file_paths[0], Path), 'file_paths[0] is not Path'
+        assert sf.file_paths[0].resolve() == Path(relacs_path).resolve(), 'invalid file_paths[0]'
     remove_files(relacs_path)
     dw.write_relacs(relacs_path, data[:,0], rate, amax, 'mV',
                     metadata=info)
@@ -226,6 +245,11 @@ def test_fishgrid(remove_fishgrid_files):
         llocs, llabels = sf.markers()
         assert np.all(locs == llocs), 'fishgrid same locs'
         assert np.all(labels == llabels), 'fishgrid same labels'
+        assert isinstance(sf.filepath, Path), 'filepath is not Path'
+        assert sf.filepath.resolve() == Path(fishgrid_path).resolve(), 'invalid filepath'
+        assert len(sf.file_paths) == 1, 'invalid len of file_paths'
+        assert isinstance(sf.file_paths[0], Path), 'file_paths[0] is not Path'
+        assert sf.file_paths[0].resolve() == Path(fishgrid_path).resolve(), 'invalid file_paths[0]'
     remove_files(fishgrid_path)
     dw.write_fishgrid(fishgrid_path, data[:,0], rate, amax, 'mV',
                       metadata=info)
@@ -234,11 +258,25 @@ def test_fishgrid(remove_fishgrid_files):
     
 def test_audioio():
     data, rate, amax, info = generate_data()
+    locs, labels = generate_markers(len(data))
     filename = dw.write_audioio('test.wav', data, rate, amax, 'mV',
-                                metadata=info)
+                                metadata=info, locs=locs, labels=labels)
     full_data, rate, unit, rmax = dl.load_data(filename)
     tolerance = rmax*2.0**(-15)
     assert np.all(np.abs(data - full_data)<tolerance), 'full audio load failed'
+    with dl.DataLoader(filename) as sf:
+        name = Path(filename).stem
+        assert sf.basename() == name, 'audioio wrong basename'
+        assert sf.basename(sf.filepath) == name, 'audioio wrong basename'
+        assert sf.basename(sf.file_paths[0]) == name, 'audioio wrong basename'
+        llocs, llabels = sf.markers()
+        assert np.all(locs == llocs), 'audioio same locs'
+        assert np.all(labels == llabels), 'audioio same labels'
+        assert isinstance(sf.filepath, Path), 'audioio filepath is not Path'
+        assert sf.filepath.resolve() == Path(filename).resolve(), 'audioio invalid filepath'
+        assert len(sf.file_paths) == 1, 'audioio invalid len of file_paths'
+        assert isinstance(sf.file_paths[0], Path), 'audioio file_paths[0] is not Path'
+        assert sf.file_paths[0].resolve() == Path(filename).resolve(), 'audioio invalid file_paths[0]'
     os.remove(filename)
 
     info['gain'] = f'{amax:g}mV'
@@ -260,6 +298,7 @@ def test_multiple():
     start_time = datetime.now()
     filename = 'test{:02d}.npz'
     n = len(data) // nfiles
+    files = []
     for k in range(nfiles):
         i0 = k*n
         i1 = (k+1)*n
@@ -267,13 +306,13 @@ def test_multiple():
         mlocs = locs[(locs[:,0] >= i0) & (locs[:,0] < i1),:]
         mlocs[:,0] -= i0
         mlabels = labels[(locs[:,0] >= i0) & (locs[:,0] < i1),:]
-        dw.write_numpy(filename.format(k + 1), data[i0:i1,:],
-                       rate, amax, 'mV',
-                       encoding='PCM_16', metadata=md,
-                       locs=mlocs, labels=mlabels)
+        fn = dw.write_numpy(filename.format(k + 1), data[i0:i1,:],
+                            rate, amax, 'mV',
+                            encoding='PCM_16', metadata=md,
+                            locs=mlocs, labels=mlabels)
         start_time += timedelta(seconds=n/rate)
+        files.append(fn)
     # check:
-    files = sorted(glob.glob(filename.replace('{:02d}', '??')))
     sf1 = dl.DataLoader(files, 10.0, 2.0)
     llocs, llabels = sf1.markers()
     assert len(locs) == len(llocs), 'number of marker locs differ'
@@ -284,6 +323,11 @@ def test_multiple():
                         rate=sf1.rate, channels=sf1.channels,
                         unit=sf1.unit, amax=sf1.ampl_max,
                         end_indices=sf1.end_indices)
+    assert sf2.filepath.resolve() == Path(files[0]).resolve(), 'invalid filepath'
+    assert len(sf2.file_paths) == nfiles, 'invalid len of file_paths'
+    for k in range(nfiles):
+        assert isinstance(sf2.file_paths[k], Path), f'file_paths[k] is not Path'
+        assert sf2.file_paths[k].resolve() == Path(files[k]).resolve(), f'invalid file_paths[{k}]'
     for sf in [sf1, sf2]:
         check_random_reading(sf, data)
         for inx in np.random.randint(0, len(sf), 50):

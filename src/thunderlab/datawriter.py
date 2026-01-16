@@ -53,17 +53,18 @@ def format_from_extension(filepath):
 
     Parameters
     ----------
-    filepath: str
-        Name of the data file.
+    filepath: str or Path or None
+        Path and name of the data file.
 
     Returns
     -------
     format: str
         Data format deduced from file extension.
     """
-    if not filepath:
+    if filepath is None:
         return None
-    ext = os.path.splitext(filepath)[1]
+    filepath = Path(filepath)
+    ext = filepath.suffix.lower()
     if not ext:
         return None
     if ext[0] == '.':
