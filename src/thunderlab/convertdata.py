@@ -72,9 +72,9 @@ from pathlib import Path
 
 from audioio import add_metadata, remove_metadata, cleanup_metadata
 from audioio import bext_history_str, add_history
-from audioio import add_arguments, parse_channels, parse_load_kwargs
-from audioio import make_outfile, format_outfile
-from audioio import modify_data
+from audioio.audioconverter import add_arguments, parse_channels, parse_load_kwargs
+from audioio.audioconverter import make_outfile, format_outfile
+from audioio.audioconverter import modify_data
 
 from .dataloader import load_data, DataLoader, markers
 from .datawriter import available_formats, available_encodings
