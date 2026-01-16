@@ -404,7 +404,25 @@ class TableData(object):
                  descriptions=None, missing=default_missing_inputs,
                  sep=None, stop=None):
         self.clear()
-        if data is not None:
+        if data is None:
+            ncols = 0
+            for stuff in [header, units, formats, descriptions]:
+                if stuff is not None:
+                    if isinstance(stuff, TableData):
+                        n = stuff.columns()
+                    elif isinstance(stuff, (list, tuple, np.ndarray)) and not \
+                         (isinstance(stuff, np.ndarray) and \
+                          len(stuff.shape) == 0):
+                        n = len(stuff)
+                    elif not isinstance(stuff, dict):
+                        n = 1
+                    if n > ncols:
+                        ncols = n
+            # initialize empty table:
+            if ncols > 0:
+                for c in range(ncols):
+                    self.data.append([])
+        else:
             if isinstance(data, TableData):
                 self.ndim = data.ndim
                 self.size = data.size
@@ -451,7 +469,7 @@ class TableData(object):
                     # 1D list:
                     for val in data:
                         self.data.append([val])
-            elif isinstance(data, (dict)):
+            elif isinstance(data, dict):
                 self._add_dict(data, True)
                 self.fill_data()
             else:

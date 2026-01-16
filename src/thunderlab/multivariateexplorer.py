@@ -377,8 +377,7 @@ class MultivariateExplorer(object):
                 lbs.append(l.split('/')[0].strip())
             else:
                 lbs.append(l)
-        header = TableData(header=lbs)
-        header.set_formats('%.3f')
+        header = TableData(header=lbs, formats='%.3f')
         header.insert(0, ['PC'] + ['-']*header.nsecs, '', '%d')
         header.insert(1, 'variance', '%', '%.3f')
         for k in range(len(self.pca_tables)):

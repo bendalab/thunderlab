@@ -68,6 +68,8 @@ import sys
 import argparse
 import numpy as np
 
+from pathlib import Path
+
 from audioio import add_metadata, remove_metadata, cleanup_metadata
 from audioio import bext_history_str, add_history
 from audioio import add_arguments, parse_channels, parse_load_kwargs
@@ -165,14 +167,14 @@ def main(*cargs):
     load_kwargs = parse_load_kwargs(args.load_kwargs)
 
     for i0 in range(0, len(args.files), nmerge):
-        infile = args.files[i0]
+        infile = Path(args.files[i0])
         outfile, data_format = make_outfile(args.outpath, infile,
                                             args.data_format,
                                             nmerge < len(args.files),
                                             format_from_extension)
         if not check_format(data_format):
             sys.exit(-1)
-        if os.path.realpath(infile) == os.path.realpath(outfile):
+        if infile.resolve() == outfile.resolve():
             print(f'! cannot convert "{infile}" to itself !')
             sys.exit(-1)
         # read in data:
@@ -188,7 +190,7 @@ def main(*cargs):
                 pre_history = bext_history_str(sf.encoding,
                                                sf.rate,
                                                sf.channels,
-                                               sf.filepath)
+                                               os.fsdecode(sf.filepath))
                 if sf.encoding is not None and args.encoding is None:
                     args.encoding = sf.encoding
         except FileNotFoundError:
@@ -233,7 +235,7 @@ def main(*cargs):
         if 'BEXT' in md:
             hkey = 'BEXT.' + hkey
         history = bext_history_str(args.encoding, rate,
-                                   data.shape[1], outfile)
+                                   data.shape[1], os.fsdecode(outfile))
         add_history(md, history, hkey, pre_history)
         # write out data:
         try:
