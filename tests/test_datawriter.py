@@ -28,6 +28,13 @@ def test_write():
     dw.data_modules['pkl'] = True
     for fmt, lib, formats_func in dw.data_formats_funcs:
         writer_func = dw.data_writer_funcs[fmt]
+        fn = writer_func('test', np.zeros((1000, 2)), 48000)
+        if fn.is_dir():
+            for f in fn.glob('*'):
+                f.unlink()
+            fn.rmdir()
+        else:
+            fn.unlink()
         if lib:
             dw.data_modules[lib] = False
             with pytest.raises(ImportError):

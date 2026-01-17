@@ -103,13 +103,13 @@ def check_random_reading(data, full_data):
     assert success < 0, 'frame slice access backward failed at index %d' % (success)
 
 
-def check_reading(filename, data):
+def check_reading(filename, data, **kwargs):
     # load full data:
-    full_data, rate, unit, rmax = dl.load_data(filename)
+    full_data, rate, unit, rmax = dl.load_data(filename, **kwargs)
     tolerance = rmax*2.0**(-15)
     assert np.all(data.shape == full_data.shape), 'full load failed: shape'
     assert np.all(np.abs(data - full_data)<tolerance), 'full load failed: data'
-    check_random_reading(dl.DataLoader(filename), data)
+    check_random_reading(dl.DataLoader(filename, **kwargs), data)
 
     
 def test_container():
@@ -262,6 +262,44 @@ def test_fishgrid(remove_fishgrid_files):
     dw.write_fishgrid(fishgrid_path, data[:,0], rate, amax, 'mV',
                       metadata=info)
     check_reading(fishgrid_path, data[:,:1])
+
+    
+def test_raw():
+    print()
+    data, rate, amax, info = generate_data()
+    locs, labels = generate_markers(len(data))
+    print('raw:')
+    encodings = {'PCM_16': 'i2',
+                 'PCM_32': 'i4',
+                 'PCM_64': 'i8',
+                 'FLOAT': 'f',
+                 'DOUBLE': 'd'}
+    for encoding in dw.encodings_raw():
+        print(f'  encoding {encoding}:')
+        filename = dw.write_raw('test', data, rate, amax, 'mV', info,
+                                locs, labels, encoding=encoding)
+        check_reading(filename, data, rate=rate, channels=data.shape[1],
+                      encoding=encoding, amax=amax)
+        filename.unlink()
+    filename = dw.write_data('test', data, rate, amax, 'mV', info,
+                             locs, labels, format='raw', encoding='PCM_16')
+    full_data, rate, unit, rmax = dl.load_data(filename, rate=rate,
+                                               channels=data.shape[1],
+                                               encoding='PCM_16', amax=amax)
+    tolerance = rmax*2.0**(-15)
+    assert np.all(np.abs(data - full_data)<tolerance), 'full raw load failed'
+    with dl.DataLoader(filename, rate=rate, channels=data.shape[1],
+                       encoding='PCM_16', amax=amax) as sf:
+        assert isinstance(sf.filepath, Path), 'filepath is not Path'
+        assert sf.filepath.resolve() == Path(filename).resolve(), 'invalid filepath'
+        assert len(sf.file_paths) == 1, 'invalid len of file_paths'
+        assert isinstance(sf.file_paths[0], Path), 'file_paths[0] is not Path'
+        assert sf.file_paths[0].resolve() == Path(filename).resolve(), 'invalid file_paths[0]'
+        for inx in np.random.randint(0, len(sf), 50):
+            fname, i = sf.get_file_index(inx)
+            assert fname.resolve() == Path(filename).resolve(), 'returned wrong file name'
+            assert i == inx, 'returned wrong index'
+    filename.unlink()
 
     
 def test_audioio():

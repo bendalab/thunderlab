@@ -194,7 +194,7 @@ def write_relacs(filepath, data, rate, amax=1.0, unit=None,
     if encoding is None:
         encoding = 'FLOAT'
     if encoding.upper() != 'FLOAT':
-        raise ValueError(f'file encoding {format} not supported by relacs file format')
+        raise ValueError(f'file encoding {encoding} not supported by relacs file format')
     filepath = Path(filepath)
     if not filepath.exists():
         filepath.mkdir()
@@ -341,7 +341,7 @@ def write_fishgrid(filepath, data, rate, amax=1.0, unit=None,
     if encoding is None:
         encoding = 'FLOAT'
     if encoding.upper() != 'FLOAT':
-        raise ValueError(f'file encoding {format} not supported by fishgrid file format')
+        raise ValueError(f'file encoding {encoding} not supported by fishgrid file format')
     filepath = Path(filepath)
     if not filepath.exists():
         filepath.mkdir()
@@ -355,6 +355,8 @@ def write_fishgrid(filepath, data, rate, amax=1.0, unit=None,
     nchannels = data.shape[1] if data.ndim > 1 else 1
     ncols = int(np.ceil(np.sqrt(nchannels)))
     nrows = int(np.ceil(nchannels/ncols))
+    if metadata is None:
+        metadata = {}
     if 'FishGrid' in metadata:
         md = {}
         rmd = {}
@@ -553,7 +555,7 @@ def write_pickle(filepath, data, rate, amax=1.0, unit=None,
         encoding = 'DOUBLE'
     encoding = encoding.upper()
     if not encoding in encodings_pickle(format):
-        raise ValueError(f'file encoding {format} not supported by pickle file format')
+        raise ValueError(f'file encoding {encoding} not supported by pickle file format')
     buffer = recode_array(data, amax, encoding)
     ddict = dict(data=buffer, rate=rate)
     ddict['amax'] = amax
@@ -700,7 +702,7 @@ def write_numpy(filepath, data, rate, amax=1.0, unit=None,
         encoding = 'DOUBLE'
     encoding = encoding.upper()
     if not encoding in encodings_numpy(format):
-        raise ValueError(f'file encoding {format} not supported by numpy file format')
+        raise ValueError(f'file encoding {encoding} not supported by numpy file format')
     buffer = recode_array(data, amax, encoding)
     ddict = dict(data=buffer, rate=rate)
     ddict['amax'] = amax
@@ -777,7 +779,6 @@ def write_mat(filepath, data, rate, amax=1.0, unit=None,
     ----------
     filepath: str or Path
         Full path and name of the file to write.
-        Stored under the key "data".
     data: 1-D or 2-D array of floats
         Array with the data (first index time, optional second index channel).
         Stored under the key "data".
@@ -830,7 +831,7 @@ def write_mat(filepath, data, rate, amax=1.0, unit=None,
         encoding = 'DOUBLE'
     encoding = encoding.upper()
     if not encoding in encodings_mat(format):
-        raise ValueError(f'file encoding {format} not supported by matlab file format')
+        raise ValueError(f'file encoding {encoding} not supported by matlab file format')
     buffer = recode_array(data, amax, encoding)
     ddict = dict(data=buffer, rate=rate)
     ddict['amax'] = amax
@@ -856,6 +857,99 @@ def write_mat(filepath, data, rate, amax=1.0, unit=None,
                 maxc = np.max([len(l) for l in labels[:,1]])
                 ddict['descriptions'] = labels[:,1].astype(dtype=f'U{maxc}')
     sio.savemat(filepath, ddict)
+    return filepath
+
+
+def formats_raw():
+    """Data formats supported as raw formats.
+
+    Returns
+    -------
+    formats: list of str
+        List of supported file formats as strings.
+    """
+    return ['RAW']
+
+
+def encodings_raw(format=None):
+    """Encodings supported for raw file formats.
+
+    Parameters
+    ----------
+    format: str
+        The file format.
+
+    Returns
+    -------
+    encodings: list of str
+        List of supported encodings as strings.
+    """
+    if not format:
+        format = 'RAW'
+    if format.upper() != 'RAW':
+        return []
+    else:
+        return ['PCM_16', 'PCM_32', 'FLOAT', 'DOUBLE']
+
+
+def write_raw(filepath, data, rate, amax=1.0, unit=None,
+              metadata=None, locs=None, labels=None, format=None,
+              encoding=None):
+    """Write data into raw file.
+
+    Writes just the data without sampling rate, metadata and markers.
+
+    Parameters
+    ----------
+    filepath: str or Path
+        Full path and name of the file to write.
+    data: 1-D or 2-D array of floats
+        Array with the data (first index time, optional second index channel).
+    rate: float
+        Sampling rate of the data in Hertz.
+    amax: float
+        Maximum possible amplitude of the data in `unit`.
+    unit: str
+        Unit of the data.
+    metadata: nested dict
+        Additional metadata saved into the mat file.
+    locs: None or 1-D or 2-D array of ints
+        Marker positions (first column) and spans (optional second column)
+        for each marker (rows).
+    labels: None or 2-D array of string objects
+        Labels (first column) and texts (optional second column)
+        for each marker (rows).
+    format: str or None
+        File format, only None or 'RAW' are supported.
+    encoding: str or None
+        Encoding of the data.
+
+    Returns
+    -------
+    filepath: Path
+        The actual file name used for writing the data.
+
+    Raises
+    ------
+    ValueError
+        File format or encoding not supported.
+    """
+    if format is None:
+        format = 'RAW'
+    if format.upper() not in formats_raw():
+        raise ValueError(f'file format {format} not supported by matlab file format')
+    filepath = Path(filepath)
+    ext = filepath.suffix
+    if len(ext) <= 1 or ext[1].upper() != 'R':
+        filepath = filepath.with_suffix('.raw')
+    if encoding is None:
+        encoding = 'DOUBLE'
+    encoding = encoding.upper()
+    if not encoding in encodings_raw(format):
+        raise ValueError(f'file encoding {encoding} not supported by raw file format')
+    buffer = recode_array(data, amax, encoding)
+    with open(filepath, 'wb') as df:
+        df.write(buffer.tobytes())
     return filepath
 
 
@@ -996,6 +1090,7 @@ data_formats_funcs = (
     ('pickle', 'pickle', formats_pickle),
     ('numpy', 'numpy', formats_numpy),
     ('matlab', 'scipy', formats_mat),
+    ('raw', None, formats_raw),
     ('audio', 'audioio', formats_audioio)
     )
 """List of implemented formats functions.
@@ -1026,6 +1121,7 @@ data_encodings_funcs = (
     ('pickle', encodings_pickle),
     ('numpy', encodings_numpy),
     ('matlab', encodings_mat),
+    ('raw', encodings_raw),
     ('audio', encodings_audio)
     )
 """ List of implemented encodings functions.
@@ -1060,6 +1156,7 @@ data_writer_funcs = {
     'pickle': write_pickle,
     'numpy': write_numpy,
     'matlab':  write_mat,
+    'raw':  write_raw,
     'audio': write_audioio
     }
 """Dictionary of implemented write functions.

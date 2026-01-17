@@ -29,6 +29,7 @@ on demand. `data` can be used like a read-only numpy array of floats.
 - matlab .mat files
 - audio files via [`audioio`](https://github.com/bendalab/audioio) package
 - LabView .scandat files
+- raw files
 - relacs trace*.raw files (https://www.relacs.net)
 - fishgrid traces-*.raw files (https://github.com/bendalab/fishgrid)
 
@@ -1167,7 +1168,7 @@ def check_raw(filepath):
     return ext.lower() in ('.raw', '.scandat')
 
 
-def load_raw(filepath, rate=44000, channels=1, dtype=np.float32,
+def load_raw(filepath, rate=44000, channels=1, encoding='FLOAT',
              amax=1.0, unit='a.u.'):
     """Load data from a raw file.
 
@@ -1186,8 +1187,10 @@ def load_raw(filepath, rate=44000, channels=1, dtype=np.float32,
         Sampling rate of the data in Hertz.
     channels: int
         Number of channels multiplexed in the data.
-    dtype: str or numpy.dtype
-        The data type stored in the file.
+    encoding: str
+        The encoding of the data stored in the file.
+        Valid encodings are 'PCM_16', 'PCM_32', 'PCM_64', 'FLOAT', or
+        'DOUBLE' or lower-case versions thereof.
     amax: float
         The amplitude range of the data.
     unit: str
@@ -1205,7 +1208,21 @@ def load_raw(filepath, rate=44000, channels=1, dtype=np.float32,
     amax: float
         Maximum amplitude of data range.
 
+    Raises
+    ------
+    ValueError:
+        Invalid encoding.
+
     """
+    encodings = {'PCM_16': 'i2',
+                 'PCM_32': 'i4',
+                 'PCM_64': 'i8',
+                 'FLOAT': 'f',
+                 'DOUBLE': 'd'}
+    encoding = encoding.upper()
+    if not encoding in encodings:
+        raise ValueError(f'invalid encoding {encoding} for raw file!')
+    dtype = np.dtype(encodings[encoding])
     raw_data = np.fromfile(filepath, dtype=dtype).reshape(-1, channels)
     # recode:
     if dtype == np.dtype('int16'):
@@ -1557,7 +1574,7 @@ class DataLoader(AudioLoader):
         filepath = Path(filepath)
         self.trace_filepaths = relacs_trace_files(filepath)
         if len(self.trace_filepaths) == 0:
-            raise FileNotFoundError(f'no relacs files found')
+            raise FileNotFoundError('no relacs files found')
         self.sf = []
         self.frames = None
         self.rate = None
@@ -1944,7 +1961,7 @@ class DataLoader(AudioLoader):
 
     # raw data interface:
     def open_raw(self, filepath, buffersize=10.0, backsize=0.0,
-                 verbose=0, rate=44000, channels=1, dtype=np.float32,
+                 verbose=0, rate=44000, channels=1, encoding='FLOAT',
                  amax=1.0, unit='a.u.'):
         """Load data from a raw file.
 
@@ -1969,13 +1986,24 @@ class DataLoader(AudioLoader):
             Sampling rate of the data in Hertz.
         channels: int
             Number of channels multiplexed in the data.
-        dtype: str or numpy.dtype
-            The data type stored in the file.
+        encoding: str
+            The encoding of the data stored in the file.
+            Valid encodings are 'PCM_16', 'PCM_32', 'PCM_64', 'FLOAT', or
+            'DOUBLE' or lower-case versions thereof.
         amax: float
             The amplitude range of the data.
         unit: str
             The unit of the data.
         """
+        encodings = {'PCM_16': 'i2',
+                     'PCM_32': 'i4',
+                     'PCM_64': 'i8',
+                     'FLOAT': 'f',
+                     'DOUBLE': 'd'}
+        encoding = encoding.upper()
+        if not encoding in encodings:
+            raise ValueError(f'invalid encoding {encoding} for raw file!')
+        self.dtype = np.dtype(encodings[encoding])
         self.verbose = verbose
         self.filepath = Path(filepath)
         self.file_paths = [self.filepath]
@@ -1983,13 +2011,12 @@ class DataLoader(AudioLoader):
         self.sf = open(self.filepath, 'rb')
         if verbose > 0:
             print(f'open_raw(filepath) with filepath={filepath}')
-        self.dtype = np.dtype(dtype)
         self.rate = float(rate)
         # file size:
-        self.sf.seek(0, os.SEEK_END)
-        self.frames = self.sf.tell()//self.dtype.itemsize
-        self.sf.seek(0)
         self.channels = int(channels)
+        self.sf.seek(0, os.SEEK_END)
+        self.frames = self.sf.tell()//self.dtype.itemsize//self.channels
+        self.sf.seek(0)
         self.shape = (self.frames, self.channels)
         self.ndim = len(self.shape)
         self.size = self.frames*self.channels
@@ -2012,15 +2039,16 @@ class DataLoader(AudioLoader):
 
     def _close_raw(self):
         """Close raw file. """
-        self.sf.close()
+        if self.sf is not None:
+            self.sf.close()
         self.sf = None
 
     def _load_buffer_raw(self, r_offset, r_size, buffer):
         """Load new data from container."""
         if self.sf is None:
             self.sf = open(self.filepath, 'rb')
-        self.sf.seek(r_offset*self.dtype.itemsize)
-        raw_data = self.sf.read(r_size*self.dtype.itemsize)
+        self.sf.seek(r_offset*self.dtype.itemsize*self.channels)
+        raw_data = self.sf.read(r_size*self.dtype.itemsize*self.channels)
         raw_data = np.frombuffer(raw_data, dtype=self.dtype)
         raw_data = raw_data.reshape(-1, self.channels)
         # recode:
