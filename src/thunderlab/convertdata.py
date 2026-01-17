@@ -5,11 +5,10 @@ convertdata -o test.wav test.raw
 ```
 converts 'test.raw' to 'test.wav'.
 
-The script reads all input files with `dataloader.load_data()`,
-combines the audio and marker data, and writes them along with the
-metadata to an output file using `datawriter.write_data()`. Thus, all
-formats supported by these functions and the installed python audio
-modules are supported.
+The script reads all input files with `dataloader.DataLoader()`, and
+writes them along with the metadata to an output file using
+`datawriter.write_data()`. Thus, all formats supported by these
+functions and the installed python audio modules are supported.
 
 Run
 ```sh

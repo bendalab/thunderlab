@@ -15,7 +15,7 @@
 
 # ThunderLab
 
-Load and preprocess time series data.
+Load, write, and preprocess time series data.
 
 [Documentation](https://bendalab.github.io/thunderlab/) |
 [API Reference](https://bendalab.github.io/thunderlab/api/)
@@ -39,7 +39,7 @@ instructions](https://bendalab.github.io/audioio/installation/) of the
 
 The ThunderLab package provides the following software:
 
-- [`convertdata`](https://bendalab.github.io/thunderlab/api/convertdata/): Convert data from various file formats to audio files.
+- [`convertdata`](https://bendalab.github.io/thunderlab/api/convertdata/): Convert data between various file formats, inclusively audio file formats.
 - [`multivariateexplorer`](https://bendalab.github.io/thunderlab/api/multivariateexplorer.html): Simple GUI for viewing and exploring multivariate data. [More](docs/multivariateexplorer/index.html)
 
 
