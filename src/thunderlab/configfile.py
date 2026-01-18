@@ -1,8 +1,11 @@
-"""Handling of configuration parameter.
+"""configfile
+
+class `ConfigFile`: handling of configuration parameter.
 """
 
-import os
 import sys
+
+from pathlib import Path
 
 
 class ConfigFile(object):
@@ -28,7 +31,6 @@ class ConfigFile(object):
     with dump() and loaded from a file with load() and load_files().
     """
 
-    
     def __init__(self, orig=None):
         self.cfg = {}
         self.sections = dict()
@@ -39,13 +41,11 @@ class ConfigFile(object):
             for k, v in orig.sections.items():
                 self.sections[k] = v
             self.new_section = None
-
             
     def __eq__(self, other):
         """Check whether the parameter and their values are the same.
         """
         return self.cfg == other.cfg
-
     
     def add(self, key, value, unit, description):
         """Add a new parameter to the configuration.
@@ -55,13 +55,13 @@ class ConfigFile(object):
 
         Parameters
         ----------
-        key: string
+        key: str
             Key of the parameter.
         value: any type
             Value of the parameter.
-        unit: string
+        unit: str
             Unit of the parameter value.
-        description: string
+        description: str
             Textual description of the parameter.
         """
         # add a pending section:
@@ -71,24 +71,22 @@ class ConfigFile(object):
         # add configuration parameter (4th element is default value):
         self.cfg[key] = [value, unit, description, value]
 
-        
     def add_section(self, description):
         """Add a new section to the configuration.
 
         Parameters
         ----------
-        description: string
+        description: str
             Textual description of the section
         """
         self.new_section = description
-
 
     def __contains__(self, key):
         """Check for existence of a configuration parameter.
 
         Parameters
         ----------
-        key: string
+        key: str
             The name of the configuration parameter to be checked for.
 
         Returns
@@ -97,7 +95,6 @@ class ConfigFile(object):
             True if `key` specifies an existing configuration parameter.
         """
         return key in self.cfg
-
         
     def __getitem__(self, key):
         """Returns the list [value, unit, description, default]
@@ -105,29 +102,28 @@ class ConfigFile(object):
 
         Parameters
         ----------
-        key: string
+        key: str
             Key of the configuration parameter.
 
         Returns
         -------
         value: any type
             Value of the configuraion parameter.
-        unit: string
+        unit: str
             Unit of the configuraion parameter.
-        description: string
+        description: str
             Description of the configuraion parameter.
         default: any type
             Default value of the configuraion parameter.
         """
         return self.cfg[key]
-
     
     def value(self, key):
         """Returns the value of the configuration parameter defined by key.
 
         Parameters
         ----------
-        key: string
+        key: str
             Key of the configuration parameter.
 
         Returns
@@ -137,13 +133,12 @@ class ConfigFile(object):
         """
         return self.cfg[key][0]
 
-    
     def set(self, key, value):
         """Set the value of the configuration parameter defined by key.
 
         Parameters
         ----------
-        key: string
+        key: str
             Key of the configuration parameter.
         value: any type
             The new value.
@@ -157,13 +152,12 @@ class ConfigFile(object):
             raise IndexError(f'Key {key} does not exist')
         self.cfg[key][0] = value
 
-
     def __delitem__(self, key):
         """Remove an entry from the configuration.
 
         Parameters
         ----------
-        key: string
+        key: str
             Key of the configuration parameter to be removed.
         """
         if key in self.sections:
@@ -200,9 +194,9 @@ class ConfigFile(object):
             if src in self.cfg:
                 a[dest] = self.value(src)
         return a
-
     
-    def write(self, stream, header=None, diff_only=False, maxline=60, comments=True):
+    def write(self, stream=sys.stdout, header=None,
+              diff_only=False, maxline=60, comments=True):
         """Pretty print configuration into stream.
 
         The description of a configuration parameter is printed out
@@ -221,7 +215,7 @@ class ConfigFile(object):
         ----------
         stream:
             Stream for writing the configuration.
-        header: string
+        header: str
             A string that is written as an introductory comment into the file.
         diff_only: bool
             If true write out only those parameters whose value differs from their default.
@@ -299,7 +293,6 @@ class ConfigFile(object):
                 key=key, width=maxkey, val=val, unit=unit))
             First = False
 
-
     def dump(self, filename, header=None, diff_only=False, maxline=60, comments=True):
         """Pretty print configuration into file.
 
@@ -307,19 +300,18 @@ class ConfigFile(object):
 
         Parameters
         ----------
-        filename: string
+        filename: str or Path
             Name of the file for writing the configuration.
         """
         with open(filename, 'w') as f:
             self.write(f, header, diff_only, maxline, comments)
-
             
     def load(self, filename):
         """Set values of configuration to values from key-value pairs read in from file.
 
         Parameters
         ----------
-        filename: string
+        filename: str or Path
             Name of the file from which to read the configuration.
 
         """
@@ -359,17 +351,15 @@ class ConfigFile(object):
                             self.cfg[key] = type(cv)(vals[0])
                         except ValueError:
                             self.cfg[key] = vals[0]
-
                         
     def load_files(self, cfgfile, filepath, maxlevel=3, verbose=0):
-        """Load configuration from current working directory
-        as well as from several levels of a file path.
+        """Load configuration from current working directory as well as from several levels of a file path.
 
         Parameters
         ----------
-        cfgfile: string
-            Name of the configuration file.
-        filepath: string
+        cfgfile: str or Path
+            Name of the configuration file (without any path).
+        filepath: str or Path
             Path of a file. Configuration files are read in from different levels
             of the expanded path.
         maxlevel: int
@@ -377,24 +367,19 @@ class ConfigFile(object):
         verbose: int
             If greater than zero, print out from which files configuration has been loaded.
         """
-
         # load configuration from the current directory:
-        if os.path.isfile(cfgfile):
+        cfgfile = Path(cfgfile)
+        if cfgfile.is_file():
             if verbose > 0:
                 print(f'load configuration {cfgfile}')
             self.load(cfgfile)
 
         # load configuration files from higher directories:
-        absfilepath = os.path.abspath(filepath)
-        dirs = os.path.dirname(absfilepath).split(os.sep)
-        dirs[0] = os.sep
-        dirs.append('')
-        ml = len(dirs) - 1
-        if ml > maxlevel:
-            ml = maxlevel
-        for k in range(ml, 0, -1):
-            path = os.path.join(*(dirs[:-k] + [cfgfile]))
-            if os.path.isfile(path):
+        filepath = Path(filepath)
+        parents = filepath.resolve().parents
+        for k in range(min(maxlevel, len(parents)):
+            path = parents[k] / cfgfile
+            if path.is_file():
                 if verbose > 0:
                     print(f'load configuration {path}')
                 self.load(path)
@@ -408,12 +393,14 @@ def main():
     cfg.add_section('Peaks:')
     cfg.add('threshold', 20.0, 'dB', 'Threshold for peak detection.')
     cfg.add('deltaf', 10.0, 'Hz', 'Minimum distance between peaks.')
-    cfg.write(sys.stdout)
-    print('')
+    cfg.write()
+    print()
+    print()
 
+    print('delete nfft and windows:')
     del cfg['nfft']
     del cfg['windows']
-    cfg.write(sys.stdout)
+    cfg.write()
 
                         
 if __name__ == "__main__":
