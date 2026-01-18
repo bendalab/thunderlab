@@ -24,7 +24,6 @@
 """
 
 import sys
-import os
 import re
 import math as m
 import numpy as np
@@ -2491,8 +2490,8 @@ class TableData(object):
 
         Parameters
         ----------
-        fh: filename or stream
-            If not a stream, the file with path `fh` is opened.
+        fh: str or Path or file object
+            If not a file object, the file with path `fh` is opened.
             If `fh` does not have an extension,
             the `table_format` is appended as an extension.
             Otherwise `fh` is used as a stream for writing.
@@ -2707,10 +2706,7 @@ class TableData(object):
             if not ext or not ext[1:].lower() in self.ext_formats:
                 fh = fh.with_suffix('.' + self.extensions[table_format])
             file_name = fh
-            try:
-                fh = open(os.fspath(fh), 'w')
-            except AttributeError:
-                fh = open(str(fh), 'w')
+            fh = open(file_name, 'w')
             own_file = True
         if table_format is None:
             table_format = 'out'
@@ -3319,7 +3315,7 @@ class TableData(object):
 
         Parameters
         ----------
-        fh: filename or stream
+        fh: str or Path or file object
             If not a stream, the file with path `fh` is opened.
             If `fh` does not have an extension,
             the `table_format` is appended as an extension.
@@ -3363,10 +3359,7 @@ class TableData(object):
             elif not ext or not ext[1:].lower() in self.ext_formats:
                 fh = fh.with_suffix('.' + self.extensions[table_format])
             file_name = fh
-            try:
-                fh = open(os.fspath(fh), 'w')
-            except AttributeError:
-                fh = open(str(fh), 'w')
+            fh = open(fh, 'w')
             own_file = True
         if table_format is None:
             table_format = 'md'
@@ -3497,10 +3490,7 @@ class TableData(object):
         # open file:
         own_file = False
         if not hasattr(fh, 'readline'):
-            try:
-                fh = open(os.fspath(fh), 'r')
-            except AttributeError:
-                fh = open(str(fh), 'r')
+            fh = open(fh, 'r')
             own_file = True
         # read file:
         print('WARNING: load_descriptions() not implemented yet')
@@ -3658,10 +3648,7 @@ class TableData(object):
         # open file:
         own_file = False
         if not hasattr(fh, 'readline'):
-            try:
-                fh = open(os.fspath(fh), 'r')
-            except AttributeError:
-                fh = open(str(fh), 'r')
+            fh = open(fh, 'r')
             own_file = True
         # read inital lines of file:
         key = []

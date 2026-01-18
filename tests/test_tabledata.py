@@ -38,6 +38,9 @@ def test_write():
                 df.write(table_format=tf, column_numbers=column_numbers)
     df.write_file_stream(sys.stdout, 'file')
     fn = df.write_file_stream('table', 'file')
+    df.write(fn)      # write with Path
+    with open(fn, 'w') as fh:
+        df.write(fh)  # write with file object
     fn.unlink()
     fn = fn.with_name(fn.stem + '-description.md')
     fn.unlink()
