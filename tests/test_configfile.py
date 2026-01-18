@@ -1,7 +1,7 @@
+import os
 import pytest
 import thunderlab.configfile as cf
 import thunderlab.tabledata as td
-import os
 
 
 def test_config_file():
@@ -28,8 +28,8 @@ def test_config_file():
         cfg2.set('xyz', 20)
 
     # write configurations to files:
-    cfg.dump(cfgfile, 'header', maxline=50)
-    cfg2.dump(cfgdifffile, diff_only=True)
+    cfg.write(cfgfile, 'header', maxline=50)
+    cfg2.write(cfgdifffile, diff_only=True)
 
     # test modified configuration:
     assert cfg != cfg2, 'cfg and cfg2 should differ'

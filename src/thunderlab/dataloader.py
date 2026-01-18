@@ -30,8 +30,8 @@ on demand. `data` can be used like a read-only numpy array of floats.
 - audio files via [`audioio`](https://github.com/bendalab/audioio) package
 - LabView .scandat files
 - raw files
-- relacs trace*.raw files (https://www.relacs.net)
-- fishgrid traces-*.raw files (https://github.com/bendalab/fishgrid)
+- relacs files (https://www.relacs.net)
+- fishgrid files (https://github.com/bendalab/fishgrid)
 
 
 ## Metadata
@@ -1422,13 +1422,15 @@ class DataLoader(AudioLoader):
     necessary for the requested data (second line).
 
     Supported file formats are
-
-    - audio files via `audioio` package
+    
     - python pickle files
     - numpy .npz files
     - matlab .mat files
-    - relacs trace*.raw files (www.relacs.net)
-    - fishgrid traces-*.raw files
+    - audio files via [`audioio`](https://github.com/bendalab/audioio) package
+    - LabView .scandat files
+    - raw files
+    - relacs files (https://www.relacs.net)
+    - fishgrid files (https://github.com/bendalab/fishgrid)
 
     Reading sequentially through the file is always possible. If
     previous data are requested, then the file is read from the

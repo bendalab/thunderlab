@@ -33,6 +33,18 @@ class ConfigFile(dict):
 
     The configuration parameter can be written to a configuration file
     with dump() and loaded from a file with load() and load_files().
+    
+    Methods
+    -------
+
+    - `add()`: add a new parameter to the configuration.
+    - `add_section()`: add a new section to the configuration.
+    - `value()`: returns the value of the configuration parameter defined by key.
+    - `set(): set the value of the configuration parameter defined by key.
+    - `map()`: map the values of the configuration onto new names.
+    - `write()`: pretty print configuration into file or stream.
+    - `load()`: set values of configuration to values from key-value pairs read in from file.
+    - `load_files()`: load configuration from current working directory as well as from several levels of a file path.
 
     """
 
@@ -158,9 +170,9 @@ class ConfigFile(dict):
                 a[dest] = self.value(src)
         return a
     
-    def write(self, stream=sys.stdout, header=None,
+    def write(self, fh=sys.stdout, header=None,
               diff_only=False, maxline=60, comments=True):
-        """Pretty print configuration into stream.
+        """Pretty print configuration into file or stream.
 
         The description of a configuration parameter is printed out
         right before its key-value pair with an initial comment
@@ -176,8 +188,8 @@ class ConfigFile(dict):
 
         Parameters
         ----------
-        stream:
-            Stream for writing the configuration.
+        fh: str or Path or file object
+            Stream or file name for writing the configuration.
         header: str
             A string that is written as an introductory comment into the file.
         diff_only: bool
@@ -188,25 +200,30 @@ class ConfigFile(dict):
             Print out descriptions as comments if True.
         """
 
-        def write_comment(stream, comment, maxline, cs):
+        def write_comment(fh, comment, maxline, cs):
             # format comment:
             if len(comment) > 0:
                 for line in comment.split('\n'):
-                    stream.write(cs + ' ')
+                    fh.write(cs + ' ')
                     cc = len(cs) + 1  # character count
                     for w in line.strip().split(' '):
                         # line too long?
                         if cc + len(w) > maxline:
-                            stream.write('\n' + cs + ' ')
+                            fh.write('\n' + cs + ' ')
                             cc = len(cs) + 1
-                        stream.write(w + ' ')
+                        fh.write(w + ' ')
                         cc += len(w) + 1
-                    stream.write('\n')
+                    fh.write('\n')
 
+        # open file:
+        own_file = False
+        if not hasattr(fh, 'write'):
+            fh = open(fh, 'w')
+            own_file = True
         # write header:
         First = True
         if comments and not header is None:
-            write_comment(stream, header, maxline, '##')
+            write_comment(fh, header, maxline, '##')
             First = False
         # get length of longest key:
         maxkey = 0
@@ -219,7 +236,6 @@ class ConfigFile(dict):
             # possible section entry:
             if comments and key in self.sections:
                 section = self.sections[key]
-
             # get value, unit, and comment from v:
             val = None
             unit = ''
@@ -235,39 +251,26 @@ class ConfigFile(dict):
                     differs = (val != v[3])
             else:
                 val = v
-
             # only write parameter whose value differs:
             if diff_only and not differs:
                 continue
-
             # write out section
             if len(section) > 0:
                 if not First:
-                    stream.write('\n\n')
-                write_comment(stream, section, maxline, '##')
+                    fh.write('\n\n')
+                write_comment(fh, section, maxline, '##')
                 section = ''
                 First = False
-            
             # write key-value pair:
             if comments :
-                stream.write('\n')
-                write_comment(stream, comment, maxline, '#')
-            stream.write('{key:<{width}s}: {val}{unit:s}\n'.format(
+                fh.write('\n')
+                write_comment(fh, comment, maxline, '#')
+            fh.write('{key:<{width}s}: {val}{unit:s}\n'.format(
                 key=key, width=maxkey, val=val, unit=unit))
             First = False
-
-    def dump(self, filename, header=None, diff_only=False, maxline=60, comments=True):
-        """Pretty print configuration into file.
-
-        See write() for more details.
-
-        Parameters
-        ----------
-        filename: str or Path
-            Name of the file for writing the configuration.
-        """
-        with open(filename, 'w') as f:
-            self.write(f, header, diff_only, maxline, comments)
+        # close file:
+        if own_file:
+            fh.close()
             
     def load(self, filename):
         """Set values of configuration to values from key-value pairs read in from file.

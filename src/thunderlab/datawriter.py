@@ -72,6 +72,8 @@ def format_from_extension(filepath):
     if not ext:
         return None
     ext = ext.upper()
+    if ext == 'SCANDAT':
+        return 'RAW'
     if data_modules['audioio']:
         ext = aw.format_from_extension(filepath)
     return ext
