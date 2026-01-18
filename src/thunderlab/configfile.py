@@ -41,6 +41,7 @@ class ConfigFile(dict):
     - `add_section()`: add a new section to the configuration.
     - `value()`: returns the value of the configuration parameter defined by key.
     - `set(): set the value of the configuration parameter defined by key.
+    - `set_values(): set values of configuration parameters from list of str.
     - `map()`: map the values of the configuration onto new names.
     - `write()`: pretty print configuration into file or stream.
     - `load()`: set values of configuration to values from key-value pairs read in from file.
@@ -126,6 +127,47 @@ class ConfigFile(dict):
         if not key in self:
             raise IndexError(f'Key {key} does not exist')
         self[key][0] = value
+
+    def set_values(self, values):
+        """Set values of configuration parameters from list of str.
+        
+        Parameters
+        ----------
+        values: list of str
+            Each string can be one or several key-value pairs
+            separated by commas.
+            A key-value pair is separated by colons.
+
+        Returns
+        -------
+        errors: list of str
+            Error messages.
+
+        """
+        errors = []
+        for kvs in values:
+            for kv in kvs.strip().split(','):
+                if ':' in kv:
+                    ss = kv.split(':')
+                    key = ss[0].strip()
+                    val = ':'.join(ss[1:]).strip()
+                    if key in self:
+                        vt = type(self[key][0])
+                        if vt is bool:
+                            if val.lower() in ['true', 'on', 'yes', 't', 'y']:
+                                self[key][0] = True
+                            elif val.lower() in ['false', 'off', 'no', 'f', 'n']:
+                                self[key][0] = False
+                            else:
+                                errors.append(f'configuration parameter "{key}": cannot convert "{val}" to bool')
+                        else:
+                            try:
+                                self[key][0] = vt(val)
+                            except ValueError:
+                                errors.append(f'configuration parameter "{key}": cannot convert "{val}" to {vt}')
+                    else:
+                        errors.append(f'key "{key}" not found in configuration parameters')
+        return errors if len(errors) > 0 else None
 
     def __delitem__(self, key):
         """Remove an entry from the configuration.
@@ -359,6 +401,15 @@ def main():
     cfg.add_section('Peaks:')
     cfg.add('threshold', 20.0, 'dB', 'Threshold for peak detection.')
     cfg.add('deltaf', 10.0, 'Hz', 'Minimum distance between peaks.')
+    cfg.add('flip', True, '', 'Flip peaks.')
+    cfg.write()
+    print()
+    print('set values:')
+    s = cfg.set_values(['nfft: 1024, windows: 2', 'threshold: donkey', 'flip: false', 'something: blue'])
+    if s is not None:
+        print('errors:')
+        for es in s:
+            print('   ', es)
     cfg.write()
     print()
     print()

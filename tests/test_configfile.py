@@ -50,6 +50,13 @@ def test_config_file():
     os.remove(cfgfile)
     os.remove(cfgdifffile)
 
+    # set values:
+    cfg.set_values(['fileUnitStyle: row, fileSections: 5',
+                    'fileCenterColumns: false'])
+    assert cfg['fileUnitStyle'][0] == 'row', 'set_values'
+    assert cfg['fileSections'][0] == '5', 'set_values'
+    assert cfg['fileCenterColumns'][0] == False, 'set_values'
+
 
 def test_main():
     cf.main()
