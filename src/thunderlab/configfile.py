@@ -8,17 +8,21 @@ import sys
 from pathlib import Path
 
 
-class ConfigFile(object):
+class ConfigFile(dict):
     """Handling of configuration parameter.
 
-    Configuration parameter have a name (key), a value, a unit and a
-    description. New parameter can be added with the add() function.
+    Configuration parameter have a name (key), a value, a unit, a
+    description and a default value. ConfigFile is a dictionary with
+    the parameter names as keys and the tuple (value, unit,
+    description, default) as value.
+    
+    New parameter can be added with the add() function.
 
     Configuration parameter can be further structured in the
     configuration file by inserting section titles via add_section().
 
-    The triple value, unit, description can be retrieved via the name
-    of a parameter using the [] operator.
+    The tuple (value, unit, description, default) can be retrieved via
+    the name of a parameter using the [] operator.
 
     The value of a configuration parameter is retrieved by value()
     and set by set().
@@ -29,23 +33,19 @@ class ConfigFile(object):
 
     The configuration parameter can be written to a configuration file
     with dump() and loaded from a file with load() and load_files().
+
     """
 
     def __init__(self, orig=None):
-        self.cfg = {}
+        super().__init__(dict())
         self.sections = dict()
         self.new_section = None
         if not orig is None:
-            for k, v in orig.cfg.items():
-                self.cfg[k] = list(v)
+            for k, v in orig.items():
+                self[k] = list(v)
             for k, v in orig.sections.items():
                 self.sections[k] = v
             self.new_section = None
-            
-    def __eq__(self, other):
-        """Check whether the parameter and their values are the same.
-        """
-        return self.cfg == other.cfg
     
     def add(self, key, value, unit, description):
         """Add a new parameter to the configuration.
@@ -56,7 +56,7 @@ class ConfigFile(object):
         Parameters
         ----------
         key: str
-            Key of the parameter.
+            Key (name) of the parameter.
         value: any type
             Value of the parameter.
         unit: str
@@ -69,7 +69,7 @@ class ConfigFile(object):
             self.sections[key] = self.new_section
             self.new_section = None
         # add configuration parameter (4th element is default value):
-        self.cfg[key] = [value, unit, description, value]
+        self[key] = [value, unit, description, value]
 
     def add_section(self, description):
         """Add a new section to the configuration.
@@ -80,43 +80,6 @@ class ConfigFile(object):
             Textual description of the section
         """
         self.new_section = description
-
-    def __contains__(self, key):
-        """Check for existence of a configuration parameter.
-
-        Parameters
-        ----------
-        key: str
-            The name of the configuration parameter to be checked for.
-
-        Returns
-        -------
-        contains: bool
-            True if `key` specifies an existing configuration parameter.
-        """
-        return key in self.cfg
-        
-    def __getitem__(self, key):
-        """Returns the list [value, unit, description, default]
-        of the configuration parameter key.
-
-        Parameters
-        ----------
-        key: str
-            Key of the configuration parameter.
-
-        Returns
-        -------
-        value: any type
-            Value of the configuraion parameter.
-        unit: str
-            Unit of the configuraion parameter.
-        description: str
-            Description of the configuraion parameter.
-        default: any type
-            Default value of the configuraion parameter.
-        """
-        return self.cfg[key]
     
     def value(self, key):
         """Returns the value of the configuration parameter defined by key.
@@ -131,7 +94,7 @@ class ConfigFile(object):
         value: any type
             Value of the configuraion parameter.
         """
-        return self.cfg[key][0]
+        return self[key][0]
 
     def set(self, key, value):
         """Set the value of the configuration parameter defined by key.
@@ -148,9 +111,9 @@ class ConfigFile(object):
         IndexError:
             If key does not exist.
         """
-        if not key in self.cfg:
+        if not key in self:
             raise IndexError(f'Key {key} does not exist')
-        self.cfg[key][0] = value
+        self[key][0] = value
 
     def __delitem__(self, key):
         """Remove an entry from the configuration.
@@ -162,13 +125,13 @@ class ConfigFile(object):
         """
         if key in self.sections:
             sec = self.sections.pop(key)
-            keys = list(self.cfg.keys())
+            keys = list(self.keys())
             inx = keys.index(key)+1
             if inx < len(keys):
                 next_key = keys[inx]
                 if not next_key in self.sections:
                     self.sections[next_key] = sec
-        del self.cfg[key]
+        super().__delitem__(key)
         
     def map(self, mapping):
         """Map the values of the configuration onto new names.
@@ -191,7 +154,7 @@ class ConfigFile(object):
         """
         a = {}
         for dest, src in mapping.items():
-            if src in self.cfg:
+            if src in self:
                 a[dest] = self.value(src)
         return a
     
@@ -247,12 +210,12 @@ class ConfigFile(object):
             First = False
         # get length of longest key:
         maxkey = 0
-        for key in self.cfg.keys():
+        for key in self.keys():
             if maxkey < len(key):
                 maxkey = len(key)
         # write out parameter:
         section = ''
-        for key, v in self.cfg.items():
+        for key, v in self.items():
             # possible section entry:
             if comments and key in self.sections:
                 section = self.sections[key]
@@ -324,9 +287,9 @@ class ConfigFile(object):
                 key, val = line.split(':', 1)
                 key = key.strip()
                 # only read values of existing keys:
-                if not key in self.cfg:
+                if not key in self:
                     continue
-                cv = self.cfg[key]
+                cv = self[key]
                 vals = val.strip().split(' ')
                 if hasattr(cv, '__len__') and (not isinstance(cv, str)):
                     unit = ''
@@ -344,13 +307,13 @@ class ConfigFile(object):
                             cv[0] = vals[0]
                 else:
                     if type(cv[0]) == bool:
-                        self.cfg[key] = (vals[0].lower() == 'true'
-                                         or vals[0].lower() == 'yes')
+                        self[key] = (vals[0].lower() == 'true'
+                                     or vals[0].lower() == 'yes')
                     else:
                         try:
-                            self.cfg[key] = type(cv)(vals[0])
+                            self[key] = type(cv)(vals[0])
                         except ValueError:
-                            self.cfg[key] = vals[0]
+                            self[key] = vals[0]
                         
     def load_files(self, cfgfile, filepath, maxlevel=3, verbose=0):
         """Load configuration from current working directory as well as from several levels of a file path.
@@ -377,7 +340,7 @@ class ConfigFile(object):
         # load configuration files from higher directories:
         filepath = Path(filepath)
         parents = filepath.resolve().parents
-        for k in range(min(maxlevel, len(parents)):
+        for k in range(min(maxlevel, len(parents))):
             path = parents[k] / cfgfile
             if path.is_file():
                 if verbose > 0:
