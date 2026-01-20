@@ -3759,7 +3759,7 @@ class TableData(object):
                         v = float(c)
                         numbers += 1
                     except ValueError:
-                        break
+                        pass
                 if numbers == 0:
                     key_cols.append(cols)
                     key_indices.append(indices)
