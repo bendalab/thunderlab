@@ -427,7 +427,7 @@ def metadata_relacs(filepath, store_empty=False, first_only=False,
         relacs_dir = relacs_dir.parent
     info_path = relacs_dir / 'info.dat'
     if not info_path.is_file():
-        return dict(), []
+        return dict()
     data = relacs_header(info_path, store_empty, first_only,
                          lower_keys, flat, add_sections)
     return data
@@ -1589,8 +1589,8 @@ class DataLoader(AudioLoader):
                 raise ValueError('.gz files not supported')
             sf = open(path, 'rb')
             self.sf.append(sf)
-            if verbose > 0:
-                print(f'open_relacs(filepath) with filepath={path}')
+            if self.verbose > 0:
+                print(f'open_relacs("{path}")')
             # file size:
             sf.seek(0, os.SEEK_END)
             frames = sf.tell()//4
@@ -1628,7 +1628,7 @@ class DataLoader(AudioLoader):
         self.basename = self._basename_relacs
         self.ampl_min = -amax
         self.ampl_max = +amax
-        self._load_metadata = self._metadata_relacs
+        self._load_metadata = metadata_relacs
         # TODO: load markers:
         self._locs = np.zeros((0, 2), dtype=int)
         self._labels = np.zeros((0, 2), dtype=object)
@@ -1662,17 +1662,6 @@ class DataLoader(AudioLoader):
             data = f.read(r_size*4)
             buffer[:, i] = np.frombuffer(data, dtype=np.float32)
         
-
-    def _metadata_relacs(self, store_empty=False, first_only=False):
-        """ Load meta-data of a relacs data set.
-        """
-        path = self.filepath
-        if not path.is_dir():
-            path = path.parent
-        info_path = path / 'info.dat'
-        if not info_path.is_file():
-            return {}
-        return relacs_header(info_path, store_empty, first_only)
 
     def _basename_relacs(self, path=None):
         """ Base name of the relacs data files.
@@ -1757,8 +1746,8 @@ class DataLoader(AudioLoader):
                 raise ValueError('.gz files not supported')
             sf = open(path, 'rb')
             self.sf.append(sf)
-            if verbose > 0:
-                print(f'open_fishgrid(filepath) with filepath={path}')
+            if self.verbose > 0:
+                print(f'open_fishgrid("{path}")')
             # grid channels:
             self.grid_channels.append(grid_sizes[g])
             self.grid_offs.append(offs)
@@ -1923,6 +1912,8 @@ class DataLoader(AudioLoader):
             from scipy.io import loadmat
             data_dict = loadmat(filepath, squeeze_me=True)
             self.format = 'MAT'
+        if self.verbose > 0:
+            print(f'open_container("{filepath}")')
         self.buffer, self.rate, self.unit, amax = \
             extract_container_data(data_dict, datakey, samplekey,
                                    timekey, amplkey, unitkey, amax, unit)
@@ -2011,8 +2002,8 @@ class DataLoader(AudioLoader):
         self.file_paths = [self.filepath]
         self.file_indices = [0]
         self.sf = open(self.filepath, 'rb')
-        if verbose > 0:
-            print(f'open_raw(filepath) with filepath={filepath}')
+        if self.verbose > 0:
+            print(f'open_raw("{self.filepath}")')
         self.rate = float(rate)
         # file size:
         self.channels = int(channels)
@@ -2136,7 +2127,7 @@ class DataLoader(AudioLoader):
 
     # open multiple files as one:
     def open_multiple(self, filepaths, buffersize=10.0, backsize=0.0,
-                      verbose=0, rate=None, channels=None,
+                      verbose=0, mode='strict', rate=None, channels=None,
                       unit=None, amax=None, end_indices=None):
         """Open multiple files as a single concatenated array.
 
@@ -2150,6 +2141,9 @@ class DataLoader(AudioLoader):
             Part of the buffer to be loaded before the requested start index in seconds.
         verbose: int
             If larger than zero show detailed error/warning messages.
+        mode: 'relaxed' or 'strict'
+            If 'strict', only concatenate files if they contain
+            a start time in their meta data.
         rate: float
             If provided, do a minimal initialization (no checking)
             using the provided sampling rate (in Hertz), channels,
@@ -2261,6 +2255,8 @@ class DataLoader(AudioLoader):
                                     f'{self.ampl_max} in {self.filepath}'
                     # check start time of recording:
                     stime = get_datetime(md)
+                    if mode == 'strict' and (start_time is None or stime is None):
+                        error_str = 'file does not contain a start time in its meta data'
                     if start_time is not None and stime is not None and \
                        abs(start_time - stime) > timedelta(seconds=self._max_time_diff):
                         error_str = f'start time does not indicate continuous recording: ' \
