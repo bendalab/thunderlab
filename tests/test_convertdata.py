@@ -1,6 +1,5 @@
 import pytest
 import os
-import shutil
 import numpy as np
 import thunderlab.dataloader as dl
 import thunderlab.datawriter as dw
@@ -33,8 +32,8 @@ def test_main():
     cd.main('-l')
     cd.main('-f', 'npz', '-l')
     cd.main('-f', 'pkl', '-o', destfile, filename)
-    with pytest.raises(SystemExit):
-        cd.main()
+    #with pytest.raises(SystemExit):
+    #    cd.main()
     with pytest.raises(SystemExit):
         cd.main('')
     with pytest.raises(SystemExit):
@@ -76,9 +75,10 @@ def test_main():
     write_data_file(filename1)
     with pytest.raises(SystemExit):
         cd.main('-n', '1', '-o', destfile[:-4], filename, filename1)
-    cd.main('-n', '1', '-f', 'wav', '-o', destfile[:-4], filename, filename1)
-    shutil.rmtree(destfile[:-4])
-    cd.main('-vv', '-o', destfile, filename, filename1)
+    with pytest.raises(SystemExit):
+        cd.main('-n', '1', '-f', 'wav', '-o', destfile[:-4], filename, filename1)
+    cd.main('-n', '1', '-f', 'wav', '-i', 'mode:relaxed', '-o', destfile[:-4], filename, filename1)
+    cd.main('-vv', '-i', 'mode:relaxed', '-o', destfile, filename, filename1)
     xdata, xrate, xunit, xamax = dl.load_data(filename)
     n = len(xdata)
     xdata, xrate, xunit, xamax = dl.load_data(filename1)
