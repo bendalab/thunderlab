@@ -3297,7 +3297,8 @@ class TableData(object):
             self.write(base_name, **kwargs)
             return file_name
         else:
-            base_name = Path(base_name + file_name)
+            base_name = Path(base_name)
+            base_name = base_name.with_name(base_name.stem + file_name)
             file_name = self.write(base_name, **kwargs)
             return file_name
 
