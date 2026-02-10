@@ -226,60 +226,6 @@ def psd(data, ratetime, freq_resolution, min_nfft=16, max_nfft=None,
     return freqs, np.squeeze(power)
 
 
-def multi_psd(data, ratetime, freq_resolution=0.2,
-              num_windows=1,
-              min_nfft=16, overlap_frac=0.5,
-              detrend='constant', window='hann'):
-    """Power spectra computed for consecutive data windows.
-
-    See also psd() for more information on power spectra with given
-    frequency resolution.
-
-    Parameters
-    ----------
-    data: 1-D array
-        Data from which power spectra are computed.
-    ratetime: float or array
-        If float, sampling rate of the data in Hertz.
-        If array, assume `ratetime` to be the time array
-        corresponding to the data.
-        Compute sampling rate as `1/(ratetime[1]-ratetime[0])`.
-    freq_resolution: float
-        Frequency resolution of psd in Hertz.
-    num_windows: int
-        Data are chopped into `num_windows` segments that overlap by half
-        for which power spectra are computed.
-    min_nfft: int
-        Smallest value of nfft to be used.
-    overlap_frac: float
-        Fraction of overlap for the fft windows within a single power spectrum.
-    detrend: string
-        If 'constant' subtract mean of data.
-        If 'linear' subtract line fitted to the data.
-        If 'none' do not deternd the data.
-    window: string
-        Function used for windowing data segements.
-        One of hann, blackman, hamming, bartlett, boxcar, triang, parzen,
-        bohman, blackmanharris, nuttall, fattop, barthann
-        (see scipy.signal window functions).
-
-    Returns
-    -------
-    multi_psd_data: list of 2-D arrays
-        List of the power spectra for each window and frequency resolution
-        (`psd_data[i][freq, power]`).
-    """
-    rate = ratetime if np.isscalar(ratetime) else 1.0/(ratetime[1]-ratetime[0])
-    n_incr = len(data)//(num_windows+1)  # overlap by half a window
-    multi_psd_data = []
-    for k in range(num_windows):
-        freq, power = psd(data[k*n_incr:(k+2)*n_incr], rate,
-                          freq_resolution, min_nfft, 2*n_incr,
-                          overlap_frac, detrend, window)
-        multi_psd_data.append(np.column_stack((freq, power)))
-    return multi_psd_data
-
-
 def spectrogram(data, ratetime, freq_resolution=0.2, min_nfft=16,
                 max_nfft=None, overlap_frac=0.5,
                 detrend='constant', window='hann'):
