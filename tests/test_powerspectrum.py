@@ -15,39 +15,30 @@ def test_decibel():
             assert p.shape == l.shape, 'power()'
 
 
-def test_powerspectrum():
+def test_psd():
     # generate data
     fundamental = 300.  # Hz
     rate = 100000
     time = np.arange(0, 8, 1/rate)
     data = np.sin(time * 2 * np.pi * fundamental)
-
-    # run multi_psd with two windows:
-    psd_data = ps.multi_psd(data, rate, freq_resolution=0.5,
-                            num_windows=2)
-    assert round(psd_data[0][np.argmax(psd_data[0][:,1]),0]) == fundamental, 'peak in PSD is not the fundamental frequency given.'
-    assert round(psd_data[1][np.argmax(psd_data[1][:,1]),0]) == fundamental, 'peak in PSD is not the fundamental frequency given.'
     
-    # run multi_psd with one window:
-    psd_data = ps.multi_psd(data, rate, freq_resolution=0.5)
-    assert round(psd_data[0][np.argmax(psd_data[0][:,1]),0]) == fundamental, 'peak in PSD is not the fundamental frequency given.'
+    freqs, power = ps.psd(data, rate, freq_resolution=0.5)
+    assert round(freqs[np.argmax(power)]) == fundamental, 'peak in PSD is not the fundamental frequency given.'
 
     # check detrend:
     for detrend in ['none', 'constant', 'mean', 'linear']:
-        psd_data = ps.multi_psd(data, rate, freq_resolution=0.5,
-                                detrend=detrend)
+        freqs, power = ps.psd(data, rate, freq_resolution=0.5,
+                              detrend=detrend)
 
-    # run multi_psd with two windows with mlab:
+    # run with mlab:
     ps.psdscipy = False
-    psd_data = ps.multi_psd(data, rate, freq_resolution=0.5,
-                            num_windows=2)
-    assert round(psd_data[0][np.argmax(psd_data[0][:,1]),0]) == fundamental, 'peak in PSD is not the fundamental frequency given.'
-    assert round(psd_data[1][np.argmax(psd_data[1][:,1]),0]) == fundamental, 'peak in PSD is not the fundamental frequency given.'
+    freqs, power = ps.psd(data, rate, freq_resolution=0.5)
+    assert round(freqs[np.argmax(power)]) == fundamental, 'peak in PSD is not the fundamental frequency given.'
 
     # check detrend with mlab:
     for detrend in ['constant', 'mean', 'linear']:
-        psd_data = ps.multi_psd(data, rate, freq_resolution=0.5,
-                                detrend=detrend)
+        freqs, power = ps.psd(data, rate, freq_resolution=0.5,
+                              detrend=detrend)
 
 
 def test_spectrogram():
@@ -135,8 +126,8 @@ def test_peak_freqs():
     
 def test_config():
     cfg = ConfigFile()
-    ps.add_multi_psd_config(cfg)
-    ps.multi_psd_args(cfg)
+    ps.add_spectrum_config(cfg)
+    ps.spectrum_args(cfg)
 
     
 def test_main():

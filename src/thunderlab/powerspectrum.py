@@ -13,7 +13,6 @@
 ## Power spectra                
 
 - `psd()`: power spectrum for a given frequency resolution.
-- `multi_psd()`: power spectra for consecutive data windows and mutiple frequency resolutions.
 - `spectrogram()`: spectrogram of a given frequency resolution and overlap fraction.
 
 ## Power spectrum analysis
@@ -26,8 +25,8 @@
 
 ## Configuration parameter
 
-- `add_multi_psd_config()`: add parameters for multi_psd() to configuration.
-- `multi_psd_args()`: retrieve parameters for mulit_psd() from configuration.
+- `add_spectrum_config()`: add parameters for psd() and spectrogram() to configuration.
+- `sepctrum_args()`: retrieve parameters for psd() and spectrogram() from configuration.
 """
 
 import numpy as np
@@ -473,7 +472,7 @@ def peak_freqs(onsets, offsets, data, rate, freq_resolution=0.2,
         if 'max_nfft' in kwargs:
             del kwargs['max_nfft']
         f, power = psd(data[i0:i1], rate, freq_resolution,
-                       max_nfft=i1-i0, **kwargs)
+                       max_nfft=i1 - i0, **kwargs)
         if thresh is None:
             fpeak = f[np.argmax(power)]
         else:
@@ -487,29 +486,29 @@ def peak_freqs(onsets, offsets, data, rate, freq_resolution=0.2,
     return np.array(freqs)
 
 
-def add_multi_psd_config(cfg, freq_resolution=0.2,
-                         num_resolutions=1, num_windows=1):
-    """Add all parameters needed for the multi_psd() function as
-    a new section to a configuration.
+def add_spectrum_config(cfg, freq_resolution=0.2, overlap_frac=0.5,
+                        detrend='constant', window='hann'):
+    """Add all parameters needed for the psd() and spectrogram() functions as a new section to a configuration.
 
     Parameters
     ----------
     cfg: ConfigFile
         The configuration.
         
-    See multi_psd() for details on the remaining arguments.
+    See psd() and spectrogram() for details on the remaining arguments.
     """
-    cfg.add_section('Power spectrum estimation:')
-    cfg.add('frequencyResolution', freq_resolution, 'Hz', 'Frequency resolution of the power spectrum.')
-    cfg.add('numberPSDWindows', num_resolutions, '', 'Number of windows on which power spectra are computed.')
+    cfg.add_section('Power spectra and spectrograms:')
+    cfg.add('frequencyResolution', freq_resolution, 'Hz', 'Frequency resolution of power spectra and spectrograms.')
+    cfg.add('overlapFraction', 100*overlap_frac, '%', 'Overlap of subsequent data segments in power spectra and spectrograms.')
+    cfg.add('detrendMethod', detrend, '', 'Detrend method to be applied on data segments for computing power spectra and spectrograms ("constant", "linear", or "none".')
+    cfg.add('windowFunction', window, '', 'Window function applied on data segements for computing power spectra and spectrograms (one of "hann", "blackman", "hamming", "bartlett", "boxcar", "triang", "parzen", "bohman", "blackmanharris", "nuttall", "fattop", "barthann").')
 
 
-def multi_psd_args(cfg):
-    """Translates a configuration to the
-    respective parameter names of the multi_psd() function.
+def spectrum_args(cfg):
+    """Translates a configuration to the respective parameter names of the psd() and spectrogram() functions.
     
     The return value can then be passed as key-word arguments to
-    this functions.
+    these functions.
 
     Parameters
     ----------
@@ -519,11 +518,14 @@ def multi_psd_args(cfg):
     Returns
     -------
     a: dict
-        Dictionary with names of arguments of the multi_psd() function
-        and their values as supplied by `cfg`.
+        Dictionary with names of arguments of the psd() and spectrogram()
+        functions and their values as supplied by `cfg`.
     """
     a = cfg.map({'freq_resolution': 'frequencyResolution',
-                 'num_windows': 'numberPSDResolutions'})
+                 'overlap_frac': 'overlapFraction',
+                 'detrend': 'detrendMethod',
+                 'window': 'windowFunction'})
+    a['overlap_frac'] *= 0.01
     return a
 
 
@@ -537,18 +539,17 @@ def main():
     time = np.arange(0.0, 8.0, 1.0/rate)
     data = np.sin(2*np.pi*fundamentals[0]*time) + 0.5*np.sin(2*np.pi*fundamentals[1]*time)
 
-    # compute power spectra:
-    psd_data = multi_psd(data, rate, freq_resolution=0.5, num_windows=3,
-                         detrend='none', window='hann')
+    # compute power spectrum:
+    freqs, power = psd(data, rate, freq_resolution=0.5,
+                       detrend='none', window='hann')
+    df = np.mean(np.diff(freqs))
+    nfft = int(rate/df)
 
-    # plot power spectra:
+    # plot power spectrum:
     fig, ax = plt.subplots()
-    for k in range(len(psd_data)):
-        df = np.mean(np.diff(psd_data[k][:,0]))
-        nfft = int(rate/df)
-        plot_decibel_psd(ax, psd_data[k][:,0], psd_data[k][:,1],
-                         sstyle=dict(lw=2,
-                                     label=f'$\\Delta f={df:.1f}$ Hz, nnft={nfft}'))
+    plot_decibel_psd(ax, freqs, power,
+                     sstyle=dict(lw=2,
+                                 label=f'$\\Delta f={df:.1f}$ Hz, nnft={nfft}'))
     ax.legend(loc='upper right')
     plt.show()
 
