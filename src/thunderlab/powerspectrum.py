@@ -34,13 +34,13 @@ import numpy as np
 from scipy.signal import get_window
 from matplotlib.mlab import psd as mpsd
 try:
-    from scipy.signal import welch
+    from scipy.signal import welch as swelch
     psdscipy  = True
 except ImportError:
     psdscipy  = False
 from matplotlib.mlab import specgram as mspecgram
 try:
-    from scipy.signal import spectrogram as sspecgram
+    from scipy.signal import spectrogram as sspectrogram
     specgramscipy = True
 except ImportError:
     specgramscipy = False
@@ -207,21 +207,23 @@ def psd(data, ratetime, freq_resolution, min_nfft=16, max_nfft=None,
     rate = ratetime if np.isscalar(ratetime) else 1.0/(ratetime[1]-ratetime[0])
     n_fft = nfft(rate, freq_resolution, min_nfft, max_nfft)
     noverlap = int(n_fft * overlap_frac)
+    if n_fft >= len(data):
+        noverlap = len(data) - 1
     if psdscipy:
         if detrend == 'none':
             detrend = False
         elif detrend == 'mean':
             detrend = 'constant'
-        freqs, power = welch(data, fs=rate, nperseg=n_fft, nfft=None,
-                             noverlap=noverlap, detrend=detrend,
-                             window=window, scaling='density')
+        freqs, power = swelch(data, fs=rate, nperseg=n_fft, nfft=None,
+                              noverlap=noverlap, detrend=detrend,
+                              window=window, scaling='density')
     else:
         if detrend == 'constant':
             detrend = 'mean'
         power, freqs = mpsd(data, Fs=rate, NFFT=n_fft,
-                                noverlap=noverlap, detrend=detrend,
-                                window=get_window(window, n_fft),
-                                scale_by_freq=True)
+                            noverlap=noverlap, detrend=detrend,
+                            window=get_window(window, n_fft),
+                            scale_by_freq=True)
     # squeeze is necessary when n_fft is too large with respect to the data:
     return freqs, np.squeeze(power)
 
@@ -242,6 +244,9 @@ def spectrogram(data, ratetime, freq_resolution=0.2, min_nfft=16,
     df = np.mean(np.diff(freq))  # the actual frequency resolution
     nfft = int(samplingrate/df)
     ```
+
+    Uses `scipy signal.spectrogram()` if available, otherwise
+    `matplotlib.mlab.specgram()`.
     
     Parameters
     ----------
@@ -287,13 +292,15 @@ def spectrogram(data, ratetime, freq_resolution=0.2, min_nfft=16,
     rate = ratetime if np.isscalar(ratetime) else 1.0/(ratetime[1]-ratetime[0])
     n_fft = nfft(rate, freq_resolution, min_nfft, max_nfft)
     noverlap = int(n_fft * overlap_frac)
+    if n_fft >= len(data):
+        noverlap = len(data) - 1
     if specgramscipy:
-        freqs, time, spec = sspecgram(data, fs=rate, window=window,
-                                      nperseg=n_fft, noverlap=noverlap,
-                                      detrend=detrend, scaling='density',
-                                      mode='psd', axis=0)
+        freqs, time, spec = sspectrogram(data, fs=rate, window=window,
+                                         nperseg=n_fft, noverlap=noverlap,
+                                         detrend=detrend, scaling='density',
+                                         mode='psd', axis=0)
         if data.ndim > 1:
-            # scipy spectrogram() returns f x n x t
+            # scipy spectrogram() returns f x n x t:
             spec = np.transpose(spec, (0, 2, 1))
     else:
         if data.ndim > 1:
@@ -301,18 +308,18 @@ def spectrogram(data, ratetime, freq_resolution=0.2, min_nfft=16,
             for k in range(data.shape[1]):
                 try:
                     ssx, freqs, time = mspecgram(data[:,k], NFFT=n_fft, Fs=rate,
-                                                  noverlap=noverlap,
-                                                  detrend=detrend,
-                                                  scale_by_freq=True,
-                                                  scale='linear',
-                                                  mode='psd',
-                                                  window=get_window(window, n_fft))
+                                                 noverlap=noverlap,
+                                                 detrend=detrend,
+                                                 scale_by_freq=True,
+                                                 scale='linear',
+                                                 mode='psd',
+                                                 window=get_window(window, n_fft))
                 except TypeError:
                     ssx, freqs, time = mspecgram(data[:,k], NFFT=n_fft, Fs=rate,
-                                                  noverlap=noverlap,
-                                                  detrend=detrend,
-                                                  scale_by_freq=True,
-                                                  window=get_window(window, n_fft))
+                                                 noverlap=noverlap,
+                                                 detrend=detrend,
+                                                 scale_by_freq=True,
+                                                 window=get_window(window, n_fft))
                 if spec is None:
                     spec = np.zeros((len(freqs), len(time), data.shape[1]))
                 spec[:,:,k] = ssx
