@@ -152,14 +152,17 @@ def power(decibel, ref_power=1.0):
     return ref_power * 10.0 ** (0.1 * decibel)
 
 
-def psd(data, ratetime, freq_resolution, min_nfft=16, max_nfft=None,
-        overlap_frac=0.5, detrend='constant', window='hann'):
+def psd(data, ratetime, freq_resolution=10, overlap_frac=0.5,
+        n_fft=None, n_overlap=None, min_nfft=16, max_nfft=None,
+        detrend='constant', window='hann'):
     """Power spectrum density of a given frequency resolution.
 
-    NFFT is computed from the requested frequency resolution and the
-    sampling rate.  Check the returned frequency array for the actually
-    used frequency resolution.  The frequency intervals are smaller or
-    equal to `freq_resolution`.  NFFT can be retrieved by dividing
+    If `freq_resolution` is given, the number of samples used for each
+    FFT segment is computed from the requested frequency resolution
+    and the sampling rate.  Check the returned frequency array for the
+    actually used frequency resolution.  The frequency intervals are
+    smaller or equal to `freq_resolution`.  The actually used number
+    of samples used for each FFT segment can be retrieved by dividing
     the sampling rate by the actual frequency resolution:
     ```
     freq, power = psd(data, samplingrate, 0.1)
@@ -179,14 +182,25 @@ def psd(data, ratetime, freq_resolution, min_nfft=16, max_nfft=None,
         If array, assume `ratetime` to be the time array
         corresponding to the data.
         Compute sampling rate as `1/(ratetime[1]-ratetime[0])`.
-    freq_resolution: float
-        Frequency resolution of the psd in Hertz.
+    freq_resolution: float or None
+        Desired frequency resolution of the power spectrum in Hertz.
+        See `nfft()` for details.
+        Alternatively, the number of samples used for computing FFTs
+        can be specified by the `n_fft` argument.
+    overlap_frac: float or None
+        Fraction of overlap between subsequent FFT segments
+        (0: no overlap, 1: complete overlap).
+        Alternatively, the overlap can be specified by the `n_overlap` argument.
+    n_fft: int or None
+        If `freq_resolution` is None, then this is the number of
+        samples used for each FFT segment.
+    n_overlap: int or None    
+        If `overlap_frac` is None, then this is the number of
+        samples subsequent FFT segments overlap.
     min_nfft: int
         Smallest value of nfft to be used.
     max_nfft: int or None
         If not None, largest value of nfft to be used.
-    overlap_frac: float
-        Fraction of overlap for the fft windows.
     detrend: string
         If 'constant' or 'mean' subtract mean of data.
         If 'linear' subtract line fitted to the data.
@@ -200,36 +214,48 @@ def psd(data, ratetime, freq_resolution, min_nfft=16, max_nfft=None,
     Returns
     -------
     freq: 1-D array
-        Frequencies corresponding to power array.
+        Frequencies corresponding to `power` array.
     power: 1-D array
         Power spectral density in [data]^2/Hz.
+
+    Raises
+    ------
+    ValueError:
+        Both, `freq_resolution`and `n_fft` are not specified, or
+        both, `overlap_frac`and `n_overlap` are not specified.
     """
     rate = ratetime if np.isscalar(ratetime) else 1.0/(ratetime[1]-ratetime[0])
-    n_fft = nfft(rate, freq_resolution, min_nfft, max_nfft)
-    noverlap = int(n_fft * overlap_frac)
+    if freq_resolution is not None:
+        n_fft = nfft(rate, freq_resolution, min_nfft, max_nfft)
+    if n_fft is None:
+        raise ValueError('freq_resolution or n_fft needs to be specified')
+    if overlap_frac is not None:
+        n_overlap = int(n_fft*overlap_frac)
+    if n_overlap is None:
+        raise ValueError('overlap_frac or n_overlap needs to be specified')
     if n_fft >= len(data):
-        noverlap = len(data) - 1
+        n_overlap = len(data) - 1
     if psdscipy:
         if detrend == 'none':
             detrend = False
         elif detrend == 'mean':
             detrend = 'constant'
         freqs, power = swelch(data, fs=rate, nperseg=n_fft, nfft=None,
-                              noverlap=noverlap, detrend=detrend,
+                              noverlap=n_overlap, detrend=detrend,
                               window=window, scaling='density')
     else:
         if detrend == 'constant':
             detrend = 'mean'
         power, freqs = mpsd(data, Fs=rate, NFFT=n_fft,
-                            noverlap=noverlap, detrend=detrend,
+                            noverlap=n_overlap, detrend=detrend,
                             window=get_window(window, n_fft),
                             scale_by_freq=True)
     # squeeze is necessary when n_fft is too large with respect to the data:
     return freqs, np.squeeze(power)
 
 
-def spectrogram(data, ratetime, freq_resolution=0.2, min_nfft=16,
-                max_nfft=None, overlap_frac=0.5,
+def spectrogram(data, ratetime, freq_resolution=0.2, overlap_frac=0.5,
+                n_fft=None, n_overlap=None, min_nfft=16, max_nfft=None,
                 detrend='constant', window='hann'):
     """Spectrogram of a given frequency resolution.
 
@@ -259,15 +285,25 @@ def spectrogram(data, ratetime, freq_resolution=0.2, min_nfft=16,
         corresponding to the data.
         The sampling rate is then computed as `1/(ratetime[1]-ratetime[0])`.
     freq_resolution: float
-        Frequency resolution for the spectrogram in Hertz. See `nfft()`
-        for details.
+        Desired frequency resolution of the spectrogram in Hertz.
+        See `nfft()` for details.
+        Alternatively, the number of samples used for computing FFTs
+        can be specified by the `n_fft` argument.
+    overlap_frac: float
+        Fraction of overlap between subsequent FFT segments
+        (0: no overlap, 1: complete overlap).
+        Alternatively, the overlap can be specified by the `n_overlap` argument.
+    n_fft: int or None
+        If `freq_resolution` is None, then this is the number of
+        samples used for each FFT segment.
+    n_overlap: int or None    
+        If `overlap_frac` is None, then this is the number of
+        samples subsequent FFT segments overlap.
     min_nfft: int
         Smallest value of nfft to be used. See `nfft()` for details.
     max_nfft: int or None
         If not None, largest value of nfft to be used.
         See `nfft()` for details.
-    overlap_frac: float
-        Overlap of the nffts (0 = no overlap; 1 = complete overlap).
     detrend: string or False
         If 'constant' subtract mean of each data segment.
         If 'linear' subtract line fitted to each data segment.
@@ -288,15 +324,27 @@ def spectrogram(data, ratetime, freq_resolution=0.2, min_nfft=16,
         Power spectral density for each frequency and time.
         First dimension is frequency and second dimension is time.
         Optional last dimension is channel.
+
+    Raises
+    ------
+    ValueError:
+        Both, `freq_resolution`and `n_fft` are not specified, or
+        both, `overlap_frac`and `n_overlap` are not specified.
     """
     rate = ratetime if np.isscalar(ratetime) else 1.0/(ratetime[1]-ratetime[0])
-    n_fft = nfft(rate, freq_resolution, min_nfft, max_nfft)
-    noverlap = int(n_fft * overlap_frac)
+    if freq_resolution is not None:
+        n_fft = nfft(rate, freq_resolution, min_nfft, max_nfft)
+    if n_fft is None:
+        raise ValueError('freq_resolution or n_fft needs to be specified')
+    if overlap_frac is not None:
+        n_overlap = int(n_fft*overlap_frac)
+    if n_overlap is None:
+        raise ValueError('overlap_frac or n_overlap needs to be specified')
     if n_fft >= len(data):
-        noverlap = len(data) - 1
+        n_overlap = len(data) - 1
     if specgramscipy:
         freqs, time, spec = sspectrogram(data, fs=rate, window=window,
-                                         nperseg=n_fft, noverlap=noverlap,
+                                         nperseg=n_fft, noverlap=n_overlap,
                                          detrend=detrend, scaling='density',
                                          mode='psd', axis=0)
         if data.ndim > 1:
@@ -308,7 +356,7 @@ def spectrogram(data, ratetime, freq_resolution=0.2, min_nfft=16,
             for k in range(data.shape[1]):
                 try:
                     ssx, freqs, time = mspecgram(data[:,k], NFFT=n_fft, Fs=rate,
-                                                 noverlap=noverlap,
+                                                 noverlap=n_overlap,
                                                  detrend=detrend,
                                                  scale_by_freq=True,
                                                  scale='linear',
@@ -316,7 +364,7 @@ def spectrogram(data, ratetime, freq_resolution=0.2, min_nfft=16,
                                                  window=get_window(window, n_fft))
                 except TypeError:
                     ssx, freqs, time = mspecgram(data[:,k], NFFT=n_fft, Fs=rate,
-                                                 noverlap=noverlap,
+                                                 noverlap=n_overlap,
                                                  detrend=detrend,
                                                  scale_by_freq=True,
                                                  window=get_window(window, n_fft))
@@ -326,14 +374,14 @@ def spectrogram(data, ratetime, freq_resolution=0.2, min_nfft=16,
         else:
             try:
                 spec, freqs, time = mspecgram(data, NFFT=n_fft, Fs=rate,
-                                              noverlap=noverlap,
+                                              noverlap=n_overlap,
                                               detrend=detrend,
                                               scale_by_freq=True, scale='linear',
                                               mode='psd',
                                               window=get_window(window, n_fft))
             except TypeError:
                 spec, freqs, time = mspecgram(data, NFFT=n_fft, Fs=rate,
-                                              noverlap=noverlap,
+                                              noverlap=n_overlap,
                                               detrend=detrend,
                                               scale_by_freq=True,
                                               window=get_window(window, n_fft))
