@@ -152,7 +152,7 @@ def power(decibel, ref_power=1.0):
     return ref_power * 10.0 ** (0.1 * decibel)
 
 
-def psd(data, ratetime, freq_resolution=10, overlap_frac=0.5,
+def psd(data, ratetime, freq_resolution=1, overlap_frac=0.5,
         n_fft=None, n_overlap=None, min_nfft=16, max_nfft=None,
         detrend='constant', window='hann'):
     """Power spectrum density of a given frequency resolution.
@@ -266,9 +266,19 @@ def spectrogram(data, ratetime, freq_resolution=0.2, overlap_frac=0.5,
     sampling rate divided by the actual frequency resolution:
 
     ```
-    spec, freq, time = spectrum(data, samplingrate, 0.1) # request 0.1Hz resolution
+    freqs, times, spec = spectrum(data, samplingrate, 0.1) # request 0.1Hz resolution
     df = np.mean(np.diff(freq))  # the actual frequency resolution
+    df = freqs[1]                # same
     nfft = int(samplingrate/df)
+    ```
+
+    You can plot the spectrogram directly with `pcolormesh()` with
+    `shading='nearest'` (default):
+
+    ```
+    fig, ax = plt.subplots()
+    ax.pcolormesh(times, freqs, decibel(spec),
+                   vmin=-100, shading='nearest')
     ```
 
     Uses `scipy signal.spectrogram()` if available, otherwise
@@ -318,8 +328,9 @@ def spectrogram(data, ratetime, freq_resolution=0.2, overlap_frac=0.5,
     -------
     freqs: array
         Frequencies of the spectrogram.
+        First element is zero. Second element is frequency resolution.
     time: array
-        Time of the nfft windows.
+        Times of the nfft segments, centered on the segments.
     spectrum: 2D or 3D array
         Power spectral density for each frequency and time.
         First dimension is frequency and second dimension is time.
@@ -370,13 +381,14 @@ def spectrogram(data, ratetime, freq_resolution=0.2, overlap_frac=0.5,
                                                  window=get_window(window, n_fft))
                 if spec is None:
                     spec = np.zeros((len(freqs), len(time), data.shape[1]))
-                spec[:,:,k] = ssx
+                spec[:, :, k] = ssx
         else:
             try:
                 spec, freqs, time = mspecgram(data, NFFT=n_fft, Fs=rate,
                                               noverlap=n_overlap,
                                               detrend=detrend,
-                                              scale_by_freq=True, scale='linear',
+                                              scale_by_freq=True,
+                                              scale='linear',
                                               mode='psd',
                                               window=get_window(window, n_fft))
             except TypeError:
@@ -536,7 +548,7 @@ def main():
 
     # generate data:
     fundamentals = [300, 450]  # Hz
-    rate = 100000.0      # Hz
+    rate = 100_000.0      # Hz
     time = np.arange(0.0, 8.0, 1.0/rate)
     data = np.sin(2*np.pi*fundamentals[0]*time) + 0.5*np.sin(2*np.pi*fundamentals[1]*time)
 
@@ -547,11 +559,27 @@ def main():
     nfft = int(rate/df)
 
     # plot power spectrum:
-    fig, ax = plt.subplots()
-    plot_decibel_psd(ax, freqs, power,
+    fig, (ax1, ax2) = plt.subplots(1, 2, layout='constrained')
+    plot_decibel_psd(ax1, freqs, power,
                      sstyle=dict(lw=2,
-                                 label=f'$\\Delta f={df:.1f}$ Hz, nnft={nfft}'))
-    ax.legend(loc='upper right')
+                                 label=f'$\\Delta f={df:.1f}$Hz, nnft={nfft}'))
+    ax1.legend(loc='upper left')
+
+    # compute spectrogram:
+    freqs, times, power = spectrogram(data, rate, freq_resolution=2)
+    df = np.mean(np.diff(freqs))
+    dt = 1/df
+    # plot spectrogram:
+    ax2.pcolormesh(times, freqs, decibel(power, min_power=1e-40),
+                   vmin=-100, shading='nearest')
+    ax2.text(0.05, 0.98, f'$\\Delta f={df:.2f}$Hz, $\\Delta t={dt:.2f}$s',
+             transform=ax2.transAxes, va='top',
+             bbox=dict(boxstyle='round', facecolor='white'))
+    ax2.set_xlim(time[0], time[-1] + time[1])
+    ax2.set_ylim(0, 600)
+    ax2.set_xlabel('Time [s]')
+    ax2.set_ylabel('Frequency [Hz]')
+    
     plt.show()
 
 

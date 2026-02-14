@@ -20,10 +20,22 @@ def test_psd():
     fundamental = 300.  # Hz
     rate = 100000
     time = np.arange(0, 8, 1/rate)
-    data = np.sin(time * 2 * np.pi * fundamental)
+    data = np.sin(time*2*np.pi*fundamental)
     
     freqs, power = ps.psd(data, rate, freq_resolution=0.5)
-    assert round(freqs[np.argmax(power)]) == fundamental, 'peak in PSD is not the fundamental frequency given.'
+    assert abs(freqs[np.argmax(power)] - fundamental) < 1, 'peak in PSD is not the fundamental frequency given.'
+    
+    freqs, power = ps.psd(data, rate, freq_resolution=None, n_fft=2**14)
+    assert abs(freqs[np.argmax(power)] - fundamental) < 1, 'peak in PSD is not the fundamental frequency given.'
+    
+    freqs, power = ps.psd(data, rate, overlap_frac=None, n_overlap=2**10)
+    assert abs(freqs[np.argmax(power)] - fundamental) < 1, 'peak in PSD is not the fundamental frequency given.'
+
+    with pytest.raises(ValueError):
+        freqs, power = ps.psd(data, rate, freq_resolution=None)
+        freqs, power = ps.psd(data, rate, overlap_frac=None)
+        freqs, power = ps.psd(data, rate,
+                              freq_resolution=None, overlap_frac=None)
 
     # check detrend:
     for detrend in ['none', 'constant', 'mean', 'linear']:
@@ -46,13 +58,29 @@ def test_spectrogram():
     fundamental = 300.  # Hz
     rate = 100000
     time = np.arange(0, 8, 1/rate)
-    data = np.sin(time * 2 * np.pi * fundamental)
+    data = np.sin(time*2*np.pi*fundamental)
     n = 4
     datan = np.zeros((len(time), n))
     for k in range(n):
-        datan[:,k] = np.sin(time * 2 * np.pi * (k+1) * fundamental)
+        datan[:,k] = np.sin(time*2*np.pi*(k+1)*fundamental)
 
     freqs, time, spec = ps.spectrogram(data, rate, freq_resolution=2)
+    idx = np.argmax(spec, 0)
+    assert spec.shape[0] == len(freqs), 'spectrogram() frequency dimension'
+    assert spec.shape[1] == len(time), 'spectrogram() time dimension'
+    assert np.all(idx == idx[0]), 'spectrogram() peak positions'
+    assert np.abs(freqs[idx[0]] - fundamental) < 3, 'peak in spectrogram() is not the fundamental frequency given.'
+
+    freqs, time, spec = ps.spectrogram(data, rate, freq_resolution=None,
+                                       n_fft=2**14)
+    idx = np.argmax(spec, 0)
+    assert spec.shape[0] == len(freqs), 'spectrogram() frequency dimension'
+    assert spec.shape[1] == len(time), 'spectrogram() time dimension'
+    assert np.all(idx == idx[0]), 'spectrogram() peak positions'
+    assert np.abs(freqs[idx[0]] - fundamental) < 3, 'peak in spectrogram() is not the fundamental frequency given.'
+
+    freqs, time, spec = ps.spectrogram(data, rate, freq_resolution=2,
+                                       overlap_frac=None, n_overlap=2**10)
     idx = np.argmax(spec, 0)
     assert spec.shape[0] == len(freqs), 'spectrogram() frequency dimension'
     assert spec.shape[1] == len(time), 'spectrogram() time dimension'
@@ -63,6 +91,13 @@ def test_spectrogram():
     assert spec.shape[0] == len(freqs), 'spectrogram() frequency dimension'
     assert spec.shape[1] == len(time), 'spectrogram() time dimension'
     assert spec.shape[2] == n, 'spectrogram() channel dimension'
+
+    with pytest.raises(ValueError):
+        freqs, time, spec = ps.spectrogram(data, rate, freq_resolution=None)
+        freqs, time, spec = ps.spectrogram(data, rate, overlap_frac=None)
+        freqs, time, spec = ps.spectrogram(data, rate,
+                                           freq_resolution=None,
+                                           overlap_frac=None)
 
     ps.specgramscipy = False
     freqs, time, spec = ps.spectrogram(data, rate, freq_resolution=2)
@@ -83,7 +118,7 @@ def test_plot_decibel_psd():
     fundamental = 300.  # Hz
     rate = 100000
     time = np.arange(0, 8, 1/rate)
-    data = np.sin(time * 2 * np.pi * fundamental)
+    data = np.sin(time*2*np.pi*fundamental)
     freqs, power = ps.psd(data, rate, freq_resolution=1)
     
     fig, ax = plt.subplots()
@@ -91,6 +126,7 @@ def test_plot_decibel_psd():
     ps.plot_decibel_psd(ax, freqs, power, max_freq=0)
     ps.plot_decibel_psd(ax, freqs, power, log_freq=True)
     ps.plot_decibel_psd(ax, freqs, power, log_freq=True, min_freq=0)
+    plt.close(fig)
 
     
 def test_peak_freqs():
