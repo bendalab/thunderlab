@@ -152,7 +152,7 @@ def power(decibel, ref_power=1.0):
     return ref_power * 10.0 ** (0.1 * decibel)
 
 
-def psd(data, ratetime, freq_resolution=1, overlap_frac=0.5,
+def psd(data, ratetime, freq_resolution=1.0, overlap_frac=0.5,
         n_fft=None, n_overlap=None, min_nfft=16, max_nfft=None,
         detrend='constant', window='hann'):
     """Power spectrum density of a given frequency resolution.
@@ -254,7 +254,7 @@ def psd(data, ratetime, freq_resolution=1, overlap_frac=0.5,
     return freqs, np.squeeze(power)
 
 
-def spectrogram(data, ratetime, freq_resolution=0.2, overlap_frac=0.5,
+def spectrogram(data, ratetime, freq_resolution=1.0, overlap_frac=0.5,
                 n_fft=None, n_overlap=None, min_nfft=16, max_nfft=None,
                 detrend='constant', window='hann'):
     """Spectrogram of a given frequency resolution.
@@ -451,7 +451,7 @@ def plot_decibel_psd(ax, freqs, power, ref_power=1.0, min_power=1e-20,
     ax.set_ylabel('Power [dB]')
 
 
-def peak_freqs(onsets, offsets, data, rate, freq_resolution=0.2,
+def peak_freqs(onsets, offsets, data, rate, freq_resolution=1.0,
                thresh=None, **kwargs):
     """Peak frequencies computed from power spectra of data snippets.
 
@@ -499,7 +499,7 @@ def peak_freqs(onsets, offsets, data, rate, freq_resolution=0.2,
     return np.array(freqs)
 
 
-def add_spectrum_config(cfg, freq_resolution=0.2, overlap_frac=0.5,
+def add_spectrum_config(cfg, freq_resolution=1.0, overlap_frac=0.5,
                         detrend='constant', window='hann'):
     """Add all parameters needed for the psd() and spectrogram() functions as a new section to a configuration.
 
