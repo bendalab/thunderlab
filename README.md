@@ -62,6 +62,7 @@ Click on the modules for more information.
 ### Basic data analysis
 
 - [`eventdetection`](https://bendalab.github.io/thunderlab/api/eventdetection.html): Detect and handle peaks and troughs as well as threshold crossings in data arrays.
+- [`fourier`](https://bendalab.github.io/thunderlab/api/fourier.html): Extract Fourier coefficients and synthesize periodic functions.
 - [`powerspectrum`](https://bendalab.github.io/thunderlab/api/powerspectrum.html): Compute and plot powerspectra and spectrograms for a given minimum frequency resolution.
 - [`voronoi`](https://bendalab.github.io/thunderlab/api/voronoi.html): Analyse Voronoi diagrams based on scipy.spatial.
 
