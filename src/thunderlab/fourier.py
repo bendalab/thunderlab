@@ -15,15 +15,16 @@ coefficients.
 import numpy as np
 
 
-def fourier_coeffs(data, rate, freq, n_harmonics):
+def fourier_coeffs(data, ratetime, freq, n_harmonics):
     """ Extract Fourier coefficients from data.
 
     Parameters
     ----------
     data: 1D array of float
         Time series of data.
-    rate: float
-        Sampling rate of data.
+    ratetime: float or 1-D array of float
+        Times corresponding to `data`.
+        If single float, then sampling rate of the data.
     freq: float
         Fundamental frequency of Fourier series.
     n_harmonics: int
@@ -36,9 +37,11 @@ def fourier_coeffs(data, rate, freq, n_harmonics):
         The first one is the offset and the second one is the coefficient
         of the fundamental.
     """
-    deltat = 1/rate
-    t = np.arange(len(data))*deltat
-    iomega = -2j*np.pi*freq*t
+    if isinstance(ratetime, (list, tuple, np.ndarray)):
+        time = ratetime
+    else:
+        time = np.arange(len(data))/ratetime
+    iomega = -2j*np.pi*freq*time
     fac = 2/len(data)       # = 2*deltat/T
     coeffs = np.zeros(n_harmonics, dtype=complex)
     for k in range(n_harmonics):

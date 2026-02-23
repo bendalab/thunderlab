@@ -23,6 +23,11 @@ def test_fourier():
     assert len(acoeffs) == len(bcoeffs), 'different number of coefficients'
     assert np.all(np.abs(np.abs(acoeffs) - np.abs(bcoeffs)) < 1e-2), 'magnitudes differ'
     assert np.all(np.abs(np.angle(acoeffs[1:]) - np.angle(bcoeffs[1:])) < 1e-2), 'phases differ'
+    
+    bcoeffs = f.fourier_coeffs(data, time, freq, len(acoeffs))
+    assert len(acoeffs) == len(bcoeffs), 'different number of coefficients'
+    assert np.all(np.abs(np.abs(acoeffs) - np.abs(bcoeffs)) < 1e-2), 'magnitudes differ'
+    assert np.all(np.abs(np.angle(acoeffs[1:]) - np.angle(bcoeffs[1:])) < 1e-2), 'phases differ'
 
     ncoeffs = f.normalize_fourier_coeffs(bcoeffs)
     assert np.abs(ncoeffs[0]) == 0.0, 'offset not null'
