@@ -69,7 +69,7 @@ def normalize_fourier_coeffs(coeffs):
     return coeffs
 
 
-def fourier_synthesis(freq, coeffs, rate, n):
+def fourier_synthesis(freq, coeffs, ratetime, n=None):
     """ Compute periodic waveform from Fourier coefficients.
 
     Parameters
@@ -80,10 +80,11 @@ def fourier_synthesis(freq, coeffs, rate, n):
         For each harmonics the complex valued Fourier coefficient
         as, for example, returned by `fourier_coeffs()`.
         The first one is the offset.
-    rate: float
-        Sampling rate of the waveform.
+    ratetime: float or 1-D array of float
+        Time points for which the waveform is calculated.
+        If single float, then sampling rate of the computed waveform.
     n: int
-        Number of samples.
+        Number of samples if `ratetime` is float.
 
     Returns
     -------
@@ -93,7 +94,10 @@ def fourier_synthesis(freq, coeffs, rate, n):
         The waveform is computed for a sampling rate `rate` and contains
         `n` samples.
     """
-    time = np.arange(n)/rate
+    if isinstance(ratetime, (list, tuple, np.ndarray)):
+        time = ratetime
+    else:
+        time = np.arange(n)/ratetime
     iomega = 2j*np.pi*freq*time
     wave = np.zeros(len(time))
     for k in range(len(coeffs)):

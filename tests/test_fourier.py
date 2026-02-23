@@ -14,7 +14,10 @@ def test_fourier():
     rate = 100_000
     n = 100_000
     freq = 473.5
-    data = f.fourier_synthesis(freq, acoeffs, rate, n)
+    data1 = f.fourier_synthesis(freq, acoeffs, rate, n)
+    time = np.arange(n)/rate
+    data = f.fourier_synthesis(freq, acoeffs, time)
+    assert np.all(np.abs(data1-data) < 1e-8), 'synthesized waveforms differ'
 
     bcoeffs = f.fourier_coeffs(data, rate, freq, len(acoeffs))
     assert len(acoeffs) == len(bcoeffs), 'different number of coefficients'
