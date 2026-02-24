@@ -18,6 +18,13 @@ import numpy as np
 def fourier_coeffs(data, ratetime, freq, n_harmonics):
     """ Extract Fourier coefficients from data.
 
+    Decompose a periodic signal \\(x(t)\\) with known fundamental frequency
+    \\(f_1\\) into a Fourier series:
+    \\[ x(t) \\approx \\Re \\sum_{k=0}^n c_k e^{i 2 \\pi k f_1 t} \\]
+    with the Fourier coefficients
+    \\[ c_k = \\frac{2}{jT} \\int_{0}^{jT} x(t) e^{-i 2 \\pi k f_1 t} \\, dt \\]
+    integrated over integer multiples of the period \\(T=1/f_1\\).
+
     Parameters
     ----------
     data: 1D array of float
@@ -35,12 +42,21 @@ def fourier_coeffs(data, ratetime, freq, n_harmonics):
     coeffs: 1D array of complex
         For each harmonics the complex valued Fourier coefficient.
         The first one is the offset and the second one is the coefficient
-        of the fundamental.
+        of the fundamental. If the number ofdata samples is less than
+        a single period, then a zero-sized array is returned.
     """
     if isinstance(ratetime, (list, tuple, np.ndarray)):
         time = ratetime
     else:
         time = np.arange(len(data))/ratetime
+    # integrate over full periods:
+    n_periods = int(np.floor((time[-1] - time[0])*freq))
+    if n_periods < 1:
+        return np.zeros(0, dtype=complex)
+    n_max = np.argmax(time > time[0] + n_periods/freq)
+    data = data[:n_max]
+    time = time[:n_max]
+    # Fourier projections:
     iomega = -2j*np.pi*freq*time
     fac = 2/len(data)       # = 2*deltat/T
     coeffs = np.zeros(n_harmonics, dtype=complex)
@@ -74,6 +90,13 @@ def normalize_fourier_coeffs(coeffs):
 
 def fourier_synthesis(freq, coeffs, ratetime, n=None):
     """ Compute periodic waveform from Fourier coefficients.
+
+    Given the Fourier coefficients
+    \\[ c_k = \\frac{2}{jT} \\int_{0}^{jT} x(t) e^{-i 2 \\pi k f_1 t} \\, dt \\]
+    integrated over integer multiples of the period \\(T=1/f_1\\) of a signal
+    \\(x(t)\\) with fundamental frequency \\(f_1\\), compute
+    the Fourier series
+    \\[ x(t) \\approx \\Re \\sum_{k=0}^n c_k e^{i 2 \\pi k f_1 t} \\]
 
     Parameters
     ----------
