@@ -166,7 +166,7 @@ class ConfigFile(dict):
                             except ValueError:
                                 errors.append(f'configuration parameter "{key}": cannot convert "{val}" to {vt}')
                     else:
-                        errors.append(f'key "{key}" not found in configuration parameters')
+                        errors.append(f'configuration parameter "{key}:{val}" not found in configuration parameters')
         return errors if len(errors) > 0 else None
 
     def __delitem__(self, key):
