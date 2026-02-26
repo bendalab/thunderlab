@@ -35,7 +35,10 @@ def fourier_coeffs(data, ratetime, freq, n_harmonics):
     freq: float
         Fundamental frequency of Fourier series.
     n_harmonics: int
-        Number of harmonics.
+        Number of harmonics inclusively the zeroth one.
+        That is, if `n_harmonics` is set to two,
+        then the zeroth harmonics (offset) and the fundamental
+        frequency (first harmonics) are returned.
 
     Returns
     -------
@@ -81,9 +84,9 @@ def normalize_fourier_coeffs(coeffs):
     coeffs: 1D array of complex
         The normalized Fourier coefficients.
     """
-    phi0 = np.angle(coeffs[1])
+    phi1 = np.angle(coeffs[1])
     for k in range(1, len(coeffs)):
-        coeffs[k] *= np.exp(-1j*k*phi0)
+        coeffs[k] *= np.exp(-1j*k*phi1)
     coeffs[0] = 0 + 0j
     return coeffs
 
