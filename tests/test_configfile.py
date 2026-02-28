@@ -4,7 +4,7 @@ import thunderlab.configfile as cf
 import thunderlab.tabledata as td
 
 
-def test_config_file():
+def test_load_write():
     cfg = cf.ConfigFile()
     td.add_write_table_config(cfg)
 
@@ -50,12 +50,33 @@ def test_config_file():
     os.remove(cfgfile)
     os.remove(cfgdifffile)
 
-    # set values:
+
+def test_set_values():
+    cfg = cf.ConfigFile()
+    td.add_write_table_config(cfg)
+
     cfg.set_values(['fileUnitStyle: row, fileSections: 5',
                     'fileCenterColumns: false'])
     assert cfg['fileUnitStyle'][0] == 'row', 'set_values'
     assert cfg['fileSections'][0] == '5', 'set_values'
     assert cfg['fileCenterColumns'][0] == False, 'set_values'
+
+
+def test_map():
+    cfg = cf.ConfigFile()
+    td.add_write_table_config(cfg)
+    
+    # map values:
+    m = dict(style='fileUnitStyle', secs='fileSections',
+             center='fileCenterColumns')
+    a = cfg.map(m)
+    assert a['style'] == cfg.value('fileUnitStyle')
+    assert a['secs'] == cfg.value('fileSections')
+    assert a['center'] == cfg.value('fileCenterColumns')
+    a = cfg.map(**m)
+    assert a['style'] == cfg.value('fileUnitStyle')
+    assert a['secs'] == cfg.value('fileSections')
+    assert a['center'] == cfg.value('fileCenterColumns')
 
 
 def test_main():

@@ -187,7 +187,7 @@ class ConfigFile(dict):
                     self.sections[next_key] = sec
         super().__delitem__(key)
         
-    def map(self, mapping):
+    def map(self, *args, **kwargs):
         """Map the values of the configuration onto new names.
 
         Use this function to generate key-word arguments
@@ -196,8 +196,14 @@ class ConfigFile(dict):
         Parameters
         ----------
         mapping: dict
-            Dictionary with its keys being the new names
-            and its values being the parameter names of the configuration.
+            If provided as the first argument, then
+            dictionary with keys being the new names
+            and corresponding values being the parameter names
+            of the configuration.
+        kwargs: dict
+            Further key-word arguments with keys being the new names
+            and corresponding values being the parameter names
+            of the configuration
 
         Returns
         -------
@@ -206,6 +212,10 @@ class ConfigFile(dict):
             and the corresponding values retrieved from the configuration
             using the values from mapping.
         """
+        mapping = {}
+        for a in args:
+            mapping.update(**a)
+        mapping.update(**kwargs)
         a = {}
         for dest, src in mapping.items():
             if src in self:
