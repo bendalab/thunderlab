@@ -534,10 +534,10 @@ def spectrum_args(cfg):
         Dictionary with names of arguments of the psd() and spectrogram()
         functions and their values as supplied by `cfg`.
     """
-    a = cfg.map({'freq_resolution': 'frequencyResolution',
-                 'overlap_frac': 'overlapFraction',
-                 'detrend': 'detrendMethod',
-                 'window': 'windowFunction'})
+    a = cfg.map(freq_resolution='frequencyResolution',
+                overlap_frac='overlapFraction',
+                detrend='detrendMethod',
+                window='windowFunction'})
     a['overlap_frac'] *= 0.01
     return a
 

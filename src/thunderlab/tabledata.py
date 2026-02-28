@@ -3934,17 +3934,17 @@ writing a table to a file.
         Dictionary with names of arguments of the `TableData.write` function
         and their values as supplied by `cfg`.
     """
-    d = cfg.map({'table_format': 'fileFormat',
-                 'delimiter': 'fileDelimiter',
-                 'unit_style': 'fileUnitStyle',
-                 'column_numbers': 'fileColumnNumbers',
-                 'sections': 'fileSections',
-                 'align_columns': 'fileAlignColumns',
-                 'shrink_width': 'fileShrinkColumnWidth',
-                 'missing': 'fileMissing',
-                 'center_columns': 'fileCenterColumns',
-                 'latex_label_command': 'fileLaTeXLabelCommand',
-                 'latex_merge_std': 'fileLaTeXMergeStd'})
+    d = cfg.map(table_format='fileFormat',
+                delimiter='fileDelimiter',
+                unit_style='fileUnitStyle',
+                column_numbers='fileColumnNumbers',
+                sections='fileSections',
+                align_columns='fileAlignColumns',
+                shrink_width='fileShrinkColumnWidth',
+                missing='fileMissing',
+                center_columns='fileCenterColumns',
+                latex_label_command='fileLaTeXLabelCommand',
+                latex_merge_std='fileLaTeXMergeStd'})
     if 'sections' in d:
         if d['sections'] != 'auto':
             d['sections'] = int(d['sections'])
