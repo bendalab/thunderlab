@@ -537,7 +537,7 @@ def spectrum_args(cfg):
     a = cfg.map(freq_resolution='frequencyResolution',
                 overlap_frac='overlapFraction',
                 detrend='detrendMethod',
-                window='windowFunction'})
+                window='windowFunction')
     a['overlap_frac'] *= 0.01
     return a
 

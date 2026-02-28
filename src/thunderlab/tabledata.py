@@ -3944,7 +3944,7 @@ writing a table to a file.
                 missing='fileMissing',
                 center_columns='fileCenterColumns',
                 latex_label_command='fileLaTeXLabelCommand',
-                latex_merge_std='fileLaTeXMergeStd'})
+                latex_merge_std='fileLaTeXMergeStd')
     if 'sections' in d:
         if d['sections'] != 'auto':
             d['sections'] = int(d['sections'])
