@@ -1,0 +1,2506 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>thunderlab.multivariateexplorer API documentation</title>
+<meta name="description" content="Simple GUI for viewing and exploring multivariate data …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\(","\\)"] ], processEscapes: true } });</script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>thunderlab.multivariateexplorer</code></h1>
+</header>
+<section id="section-intro">
+<p>Simple GUI for viewing and exploring multivariate data.</p>
+<ul>
+<li><code>class MultiVariateExplorer</code>: simple matplotlib-based GUI for viewing and exploring multivariate data.</li>
+<li><code><a title="thunderlab.multivariateexplorer.categorize" href="#thunderlab.multivariateexplorer.categorize">categorize()</a></code>: convert categorial string data into integer categories.</li>
+<li><code><a title="thunderlab.multivariateexplorer.select_features" href="#thunderlab.multivariateexplorer.select_features">select_features()</a></code>: assemble list of column indices.</li>
+<li><code><a title="thunderlab.multivariateexplorer.select_coloring" href="#thunderlab.multivariateexplorer.select_coloring">select_coloring()</a></code>: select column from data table for colorizing the data.</li>
+<li><code><a title="thunderlab.multivariateexplorer.list_available_features" href="#thunderlab.multivariateexplorer.list_available_features">list_available_features()</a></code>: print available features on console.</li>
+</ul>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="thunderlab.multivariateexplorer.categorize"><code class="name flex">
+<span>def <span class="ident">categorize</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def categorize(data):
+    &#34;&#34;&#34;Convert categorial string data into integer categories.
+
+    Parameters
+    ----------
+    data: list or ndarray of str
+        Data with textual categories.
+
+    Returns
+    -------
+    categories: list of str
+        A sorted unique list of the strings in `data`,
+        that is the names of the categories.
+    cdata: ndarray of int
+        A copy of the input `data` where each string value is replaced
+        by an integer number that is an index into the returned `categories`.
+    &#34;&#34;&#34;
+    cats = sorted(set(data))
+    cdata = np.array([cats.index(x) for x in data], dtype=int)
+    return cats, cdata</code></pre>
+</details>
+<div class="desc"><p>Convert categorial string data into integer categories.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>list</code> or <code>ndarray</code> of <code>str</code></dt>
+<dd>Data with textual categories.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>categories</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>A sorted unique list of the strings in <code>data</code>,
+that is the names of the categories.</dd>
+<dt><strong><code>cdata</code></strong> :&ensp;<code>ndarray</code> of <code>int</code></dt>
+<dd>A copy of the input <code>data</code> where each string value is replaced
+by an integer number that is an index into the returned <code>categories</code>.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.multivariateexplorer.select_features"><code class="name flex">
+<span>def <span class="ident">select_features</span></span>(<span>data, columns)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def select_features(data, columns):
+    &#34;&#34;&#34;Assemble list of column indices.
+
+    Parameters
+    ----------
+    data: TableData
+        The table from which to select features.
+    columns: list of str
+        Feature names (column headers) to be selected from the data.
+        If a column is listed twice (even times) it is not added.
+
+    Returns
+    -------
+    data_cols: list of int
+        List of indices into data columns for selecting features.
+    &#34;&#34;&#34;
+    if len(columns) == 0:
+        data_cols = list(np.arange(len(data)))
+    else:
+        data_cols = []
+        for c in columns:
+            idx = data.index(c)
+            if idx is None:
+                print(f&#39;&#34;{c}&#34; is not a valid data column&#39;)
+            elif idx in data_cols:
+                data_cols.remove(idx)
+            else:
+                data_cols.append(idx)
+    return data_cols</code></pre>
+</details>
+<div class="desc"><p>Assemble list of column indices.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>TableData</code></dt>
+<dd>The table from which to select features.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>Feature names (column headers) to be selected from the data.
+If a column is listed twice (even times) it is not added.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>data_cols</code></strong> :&ensp;<code>list</code> of <code>int</code></dt>
+<dd>List of indices into data columns for selecting features.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.multivariateexplorer.select_coloring"><code class="name flex">
+<span>def <span class="ident">select_coloring</span></span>(<span>data, data_cols, color_col)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def select_coloring(data, data_cols, color_col):
+    &#34;&#34;&#34;Select column from data table for colorizing the data.
+
+    Pass the output of this function on to MultivariateExplorer.set_colors().
+
+    Parameters
+    ----------
+    data: TableData
+        Table with all EOD properties from which columns are selected.
+    data_cols: list of int
+        List of columns selected to be explored.
+    color_col: str or int
+        Column to be selected for coloring the data.
+        If &#39;row&#39; then use the row index of the data in the table for coloring.
+
+    Returns
+    -------
+    colors: int or list of values or None
+        Either index of `data_cols` or additional data from the data table
+        to be used for coloring.
+    color_label: str or None
+        Label for labeling the color bar.
+    color_idx: int or None
+        Index of color column in `data`.
+    error: None or str
+        In case an invalid column is selected, an error string.
+    &#34;&#34;&#34;
+    color_idx = data.index(color_col)
+    colors = None
+    color_label = None
+    if color_idx is None and color_col != &#39;row&#39;:
+        return None, None, None, f&#39;&#34;{color_col}&#34; is not a valid column for color code&#39;
+    if color_idx is None:
+        colors = -2
+    elif color_idx in data_cols:
+        colors = data_cols.index(color_idx)
+    else:
+        if len(data.unit(color_idx)) &gt; 0 and not data.unit(color_idx) in [&#39;-&#39;, &#39;1&#39;]:
+            color_label = f&#39;{data.label(color_idx)} [{data.unit(color_idx)}]&#39;
+        else:
+            color_label = data.label(color_idx)
+        colors = data[:, color_idx]
+    return colors, color_label, color_idx, None</code></pre>
+</details>
+<div class="desc"><p>Select column from data table for colorizing the data.</p>
+<p>Pass the output of this function on to MultivariateExplorer.set_colors().</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>TableData</code></dt>
+<dd>Table with all EOD properties from which columns are selected.</dd>
+<dt><strong><code>data_cols</code></strong> :&ensp;<code>list</code> of <code>int</code></dt>
+<dd>List of columns selected to be explored.</dd>
+<dt><strong><code>color_col</code></strong> :&ensp;<code>str</code> or <code>int</code></dt>
+<dd>Column to be selected for coloring the data.
+If 'row' then use the row index of the data in the table for coloring.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>colors</code></strong> :&ensp;<code>int</code> or <code>list</code> of <code>values</code> or <code>None</code></dt>
+<dd>Either index of <code>data_cols</code> or additional data from the data table
+to be used for coloring.</dd>
+<dt><strong><code>color_label</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>Label for labeling the color bar.</dd>
+<dt><strong><code>color_idx</code></strong> :&ensp;<code>int</code> or <code>None</code></dt>
+<dd>Index of color column in <code>data</code>.</dd>
+<dt><strong><code>error</code></strong> :&ensp;<code>None</code> or <code>str</code></dt>
+<dd>In case an invalid column is selected, an error string.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.multivariateexplorer.list_available_features"><code class="name flex">
+<span>def <span class="ident">list_available_features</span></span>(<span>data, data_cols=[], color_col=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def list_available_features(data, data_cols=[], color_col=None):
+    &#34;&#34;&#34;Print available features on console.
+
+    Parameters
+    ----------
+    data: TableData
+        The full data table.
+    data_cols: list of int
+        List of indices of columns (features) in the table
+        that are passed on to the MultivariateExplorer.
+    color_col: int or None
+        Index of columns (feature) in the table
+        that is initially used for color coding the data.
+    &#34;&#34;&#34;
+    print(&#39;available features:&#39;)
+    for k, c in enumerate(data.keys()):
+        s = [&#39; &#39;] * 3
+        if k in data_cols:
+            s[1] = &#39;*&#39;
+        if color_col is not None and k == color_col:
+            s[0] = &#39;C&#39;
+        print(&#39;&#39;.join(s) + c)
+    if len(data_cols) &gt; 0:
+        print(&#39;*: feature selected for exploration&#39;)
+    if color_col is not None:
+        print(&#39;C: feature selected for color coding the data&#39;)</code></pre>
+</details>
+<div class="desc"><p>Print available features on console.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>TableData</code></dt>
+<dd>The full data table.</dd>
+<dt><strong><code>data_cols</code></strong> :&ensp;<code>list</code> of <code>int</code></dt>
+<dd>List of indices of columns (features) in the table
+that are passed on to the MultivariateExplorer.</dd>
+<dt><strong><code>color_col</code></strong> :&ensp;<code>int</code> or <code>None</code></dt>
+<dd>Index of columns (feature) in the table
+that is initially used for color coding the data.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.multivariateexplorer.demo"><code class="name flex">
+<span>def <span class="ident">demo</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def demo():
+    &#34;&#34;&#34;Run the multivariate explorer with a random test data set.
+    &#34;&#34;&#34;
+    # generate data:
+    n = 100
+    data = []
+    data.append(np.random.randn(n) + 2.0)
+    data.append(1.0+0.1*data[0] + 1.5*np.random.randn(n))
+    data.append(10*(-3.0*data[0] + 2.0*data[1] + 1.8*np.random.randn(n)))
+    idx = np.random.randint(0, 3, n)
+    names = [&#39;aaa&#39;, &#39;bbb&#39;, &#39;ccc&#39;]
+    data.append([names[i] for i in idx])
+    # generate waveforms:
+    waveforms = []
+    time = np.arange(0.0, 10.0, 0.01)
+    for r in range(len(data[0])):
+        x = data[0][r]*np.sin(2.0*np.pi*data[1][r]*time + data[2][r])
+        y = data[0][r]*np.exp(-0.5*((time-data[1][r])/(0.2*data[2][r]))**2.0)
+        waveforms.append(np.column_stack((time, x, y)))
+        #waveforms.append([np.column_stack((time, x)), np.column_stack((time, y))])
+    # initialize explorer:
+    expl = MultivariateExplorer(data,
+                                list(map(chr, np.arange(len(data))+ord(&#39;A&#39;))),
+                                &#39;Explorer&#39;)
+    expl.set_wave_data(waveforms, &#39;Time&#39;, [&#39;Sine&#39;, &#39;Gauss&#39;])
+    # explore data:
+    expl.set_colors()
+    expl.show()</code></pre>
+</details>
+<div class="desc"><p>Run the multivariate explorer with a random test data set.</p></div>
+</dd>
+<dt id="thunderlab.multivariateexplorer.main"><code class="name flex">
+<span>def <span class="ident">main</span></span>(<span>*cargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def main(*cargs):
+    # parse command line:
+    parser = argparse.ArgumentParser(add_help=False,
+        description=&#39;View and explore multivariate data.&#39;,
+        epilog = f&#39;version {__version__} by Benda-Lab (2019-{__year__})&#39;)
+    parser.add_argument(&#39;-h&#39;, &#39;--help&#39;, nargs=0, action=PrintHelp,
+                        help=&#39;show this help message and exit&#39;)
+    parser.add_argument(&#39;--version&#39;, action=&#39;version&#39;, version=__version__)
+    parser.add_argument(&#39;-l&#39;, dest=&#39;list_features&#39;, action=&#39;store_true&#39;,
+                        help=&#39;list all available data columns (features) and exit&#39;)
+    parser.add_argument(&#39;-d&#39;, dest=&#39;data_cols&#39;, action=&#39;append&#39;,
+                        default=[], metavar=&#39;COLUMN&#39;,
+                        help=&#39;data columns (features) to be explored&#39;)
+    parser.add_argument(&#39;-c&#39;, dest=&#39;color_col&#39;, default=None,
+                        type=str, metavar=&#39;COLUMN&#39;,
+                        help=&#39;data column to be used for color code or &#34;row&#34;&#39;)
+    parser.add_argument(&#39;-m&#39;, dest=&#39;color_map&#39;, default=&#39;jet&#39;,
+                        type=str, metavar=&#39;CMAP&#39;,
+                        help=&#39;name of color map to be used&#39;)
+    parser.add_argument(&#39;file&#39;, nargs=&#39;?&#39;, default=&#39;&#39;, type=str,
+                        help=&#39;a file containing a table of data (csv file or similar)&#39;)
+    if len(cargs) == 0:
+        cargs = None
+    args = parser.parse_args(cargs)
+    if args.file:
+        # load data:
+        data = TableData(args.file)
+        data_cols = select_features(data, args.data_cols)
+        # select column used for coloring the data:
+        colors, color_label, color_col, error = \
+          select_coloring(data, data_cols, args.color_col)
+        if error:
+            parser.error(error)
+        # list features:
+        if args.list_features:
+            list_available_features(data, data_cols, color_col)
+            parser.exit()
+        # explore data:
+        expl = MultivariateExplorer(data[:, data_cols])
+        expl.set_colors(colors, color_label, args.color_map)
+        expl.show()
+    else:
+        demo()</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="thunderlab.multivariateexplorer.MultivariateExplorer"><code class="flex name class">
+<span>class <span class="ident">MultivariateExplorer</span></span>
+<span>(</span><span>data, labels=None, title=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MultivariateExplorer(object):
+    &#34;&#34;&#34;Simple matplotlib-based GUI for viewing and exploring multivariate data.
+
+    Shown are scatter plots of all pairs of variables or PCA axis.
+    Points in the scatter plots are colored according to the values of one of the variables.
+    Data points can be selected and optionally corresponding waveforms are shown.
+
+    First you initialize the explorer with the data. Then you optionally
+    specify how to colorize the data and provide waveform data
+    associated with the data. Finally you show the figure:
+    ```
+    expl = MultivariateExplorer(data)
+    expl.set_colors(2)
+    expl.set_wave_data(waveforms, &#39;Time [s]&#39;, &#39;Sine&#39;)
+    expl.show()
+    ```
+
+    The `compute_pca() function computes a principal component analysis (PCA)
+    on the input data, and `save_pca()` writes the principal components to a file.
+
+    Customize the appearance and information provided by subclassing
+    MultivariateExplorer and reimplementing the functions
+    - fix_scatter_plot()
+    - fix_waveform_plot()
+    - list_selection()
+    - analyze_selection()
+    See the documentation of these functions for details.
+    &#34;&#34;&#34;
+
+    mouse_actions = [
+        (&#39;left click&#39;, &#39;select sample&#39;),
+        (&#39;left and drag&#39;, &#39;rectangular selection of samples and/or zoom&#39;),
+        (&#39;shift + left click/drag&#39;, &#39;add samples to selection&#39;),
+        (&#39;ctrl + left click/drag&#39;,  &#39;remove samples from selection&#39;)
+    ]
+    &#34;&#34;&#34;List of tuples with mouse actions and a description of their action.&#34;&#34;&#34;
+        
+    key_actions = [
+        (&#39;c, C&#39;, &#39;cycle color map trough data columns&#39;),
+        (&#39;p,P&#39;, &#39;toggle between features, PCs, and scaled PCs&#39;),
+        (&#39;&lt;, pageup&#39;, &#39;decrease number of displayed featured/PCs&#39;),
+        (&#39;&gt;, pagedown&#39;, &#39;increase number of displayed features/PCs&#39;),
+        (&#39;o, z&#39;,  &#39;toggle zoom mode on or off&#39;),
+        (&#39;backspace&#39;, &#39;zoom back&#39;),
+        (&#39;n, N&#39;, &#39;decrease, increase number of bins of histograms&#39;),
+        (&#39;H&#39;, &#39;toggle between scatter plot and 2D histogram&#39;),
+        (&#39;left, right, up, down&#39;, &#39;show and move magnified scatter plot&#39;),
+        (&#39;escape&#39;, &#39;close magnified scatter plot&#39;),
+        (&#39;ctrl + a&#39;, &#39;select all&#39;),
+        (&#39;+, -&#39;, &#39;increase, decrease pick radius&#39;),
+        (&#39;0&#39;, &#39;reset pick radius&#39;),
+        (&#39;l&#39;, &#39;list selection on console&#39;),
+        (&#39;w&#39;,  &#39;toggle maximized waveform plot&#39;),
+        (&#39;h&#39;,  &#39;toggle help window&#39;),
+    ]
+    &#34;&#34;&#34;List of tuples with key shortcuts and a description of their action.&#34;&#34;&#34;
+    
+    def __init__(self, data, labels=None, title=None):
+        &#34;&#34;&#34;Initialize explorer with scatter-plot data.
+
+        Parameters
+        ----------
+        data: TableData, 2D array, or list of 1D arrays
+            The data to be explored. Each column is a variable.
+            For the 2D array the columns are the second dimension,
+            for a list of 1D arrays, the list goes over columns,
+            i.e. each 1D array is one column.
+        labels: list of str
+            If data is not a TableData, then this provides labels
+            for the data columns.
+        title: str
+            Title for the window.
+        &#34;&#34;&#34;
+        # data. categories and labels:
+        self.raw_data = None     # original data table as 2D numpy array (samples x features)
+        self.raw_labels = None   # for each feature a label, optional with unit
+        self.categories = []     # for each feature None or list of categories
+        if isinstance(data, TableData):
+            for c, col in enumerate(data):
+                if not isinstance(data[col][0], (int, float,
+                                                 np.integer, np.floating)):
+                    # categorial data:
+                    cats, data[:,c] = categorize(data[col])
+                    self.categories.append(cats)
+                else:
+                    self.categories.append(None)
+            self.raw_data = data.array()
+            if labels is None:
+                self.raw_labels = []
+                for c in range(data.columns()):
+                    if len(data.unit(c)) &gt; 0 and not data.unit(c) in [&#39;-&#39;, &#39;1&#39;]:
+                        self.raw_labels.append(f&#39;{data.label(c)} [{data.unit(c)}]&#39;)
+                    else:
+                        self.raw_labels.append(data.label(c))
+            else:
+                self.raw_labels = labels
+        else:
+            if isinstance(data, np.ndarray):
+                self.raw_data = data
+                self.categories = [None] * data.shape[1]
+            else:
+                for c, col in enumerate(data):
+                    if not isinstance(col[0], (int, float,
+                                               np.integer, np.floating)):
+                        # categorial data:
+                        cats, data[c] = categorize(col)
+                        self.categories.append(cats)
+                    else:
+                        self.categories.append(None)
+                self.raw_data = np.asarray(data).T
+            self.raw_labels = labels
+        # remove columns containing only invalid numbers:
+        cols = np.all(~np.isfinite(self.raw_data), 0)
+        if np.sum(cols) &gt; 0:
+            print(&#39;removed columns containing no numbers:&#39;,
+                  [l for l, c in zip(self.raw_labels, cols) if c])
+        self.raw_data = self.raw_data[:, ~cols]
+        self.raw_labels = [l for l, c in zip(self.raw_labels, cols) if not c]
+        # remove rows containing invalid numbers:
+        self.valid_samples = ~np.any(~np.isfinite(self.raw_data), 1)
+        self.raw_data = self.raw_data[self.valid_samples, :]
+        if np.sum(~self.valid_samples) &gt; 0:
+            print(f&#39;removed {np.sum(~self.valid_samples)} rows containing invalid numbers:&#39;)
+            for k in range(len(self.valid_samples)):
+                if not self.valid_samples[k]:
+                    print(k)
+        self.valid_rows = [k for k in range(len(self.valid_samples))
+                           if self.valid_samples[k]]
+        # title for the window:
+        self.title = title if title is not None else &#39;MultivariateExplorer&#39;
+        # data, pca-data, scaled-pca data (no pca data yet):
+        self.all_data = [self.raw_data, None, None]
+        self.all_labels = [self.raw_labels, None, None]
+        self.all_maxcols = [self.raw_data.shape[1], None, None]
+        self.all_titles = [&#39;data&#39;, &#39;PCA&#39;, &#39;scaled PCA&#39;] # added to window title 
+        # pca:
+        self.pca_tables = [None, None]  # raw and scaled pca coefficients
+        self._pca_header(self.raw_data, self.raw_labels)  # prepare header of the pca tables
+        # start showing raw data:
+        self.show_mode = 0                       # show data, pca or scaled pca
+        self.data = self.all_data[self.show_mode]       # the data shown
+        self.labels = self.all_labels[self.show_mode]   # the feature labels shown
+        self.maxcols = self.all_maxcols[self.show_mode] # maximum number of features currently shown
+        if self.maxcols &gt; 6:
+            self.maxcols = 6
+        # waveform data:
+        self.wave_data = []
+        self.wave_nested = False
+        self.wave_has_xticks = []
+        self.wave_xlabels = []
+        self.wave_ylabels = []
+        self.wave_title = False
+        # colors:
+        self.color_map = plt.get_cmap(&#39;jet&#39;)
+        self.extra_colors = None         # additional data column to be used for coloring
+        self.extra_color_label = None    # label for extra_colors
+        self.extra_categories = None     # category name for extra_colors if needed
+        self.color_set_index = 0         # -1: rows and extra_colors, 0: data, 1: pca, 2: scaled pca
+        self.color_index = 0             # column used for coloring with color_set_index
+        self.color_values = None         # data column currently used for coloring as specified by color_set_index and color_index
+        self.color_label = None          # label of data currently used for coloring
+        self.data_colors = None          # actual colors for color_values
+        self.color_vmin = None
+        self.color_vmax = None
+        self.color_ticks = None
+        self.cbax = None                 # axes of color bar
+        # figure variables:
+        self.plt_params = {}
+        for k in [&#39;toolbar&#39;, &#39;keymap.quit&#39;, &#39;keymap.back&#39;, &#39;keymap.forward&#39;,
+                  &#39;keymap.zoom&#39;, &#39;keymap.pan&#39;, &#39;keymap.xscale&#39;, &#39;keymap.yscale&#39;]:
+            self.plt_params[k] = plt.rcParams[k]
+            if k != &#39;toolbar&#39;:
+                plt.rcParams[k] = &#39;&#39;
+        self.xborder = 100.0       # pixel for ylabels
+        self.yborder = 50.0        # pixel for xlabels
+        self.spacing = 10.0        # pixel between plots
+        self.mborder = 20.0        # pixel around magnified plot
+        self.pick_radius = 4.0
+        # histogram plots:
+        self.hist_ax = []          # list of histogram axes
+        self.hist_indices = []     # feature index of the histogram axes
+        self.hist_selector = []    # for each histogram axes a selector
+        self.hist_nbins = 30       # number of bins for computing histograms
+        # scatter plots:
+        self.scatter_ax = []       # list of axes with scatter plots (1D)
+        self.scatter_indices = []  # for each axes a tuple of the column and row index
+        self.scatter_artists = []  # artists of selected scatter points
+        self.scatter_selector = [] # selector for each axes
+        self.scatter = True        # scatter (True) or density (False)
+        self.mark_data = []        # list of indices of selected data
+        self.significance_level = 0.05 # r is bold if p is below
+        self.select_zooms = False
+        self.zoom_stack = []
+        # magnified scatter plot:
+        self.magnified_on = False
+        self.magnified_backdrop = None
+        self.magnified_size = np.array([0.6, 0.6])
+        # waveform plots:
+        self.wave_ax = []
+        # help window:
+        self.help_ax = None
+
+
+    def set_wave_data(self, data, xlabels=&#39;&#39;, ylabels=[], title=False):
+        &#34;&#34;&#34;Add waveform data to explorer.
+
+        Parameters
+        ----------
+        data: list of (list of) 2D arrays
+            Waveform data associated with each row of the data.
+            Elements of the outer list correspond to the rows of the data.
+            The inner 2D arrays contain a common x-axes (first column)
+            and one or more corresponding y-values (second and optional higher columns).
+            Each column for y-values is plotted in its own axes on top of each other,
+            from top to bottom.
+            The optional inner list of 2D arrays contains several 2D arrays as ascribed above
+            each with its own common x-axes.
+        xlabel: str or list of str
+            The xlabels for the waveform plots. If only a string is given, then
+            there will be a common xaxis for all the plots, and only the lowest
+            one gets a labeled xaxis. If a list of strings is given, each waveform
+            plot gets its own labeled x-axis.
+        ylabels: list of str
+            The ylabels for each of the waveform plots.
+        title: bool or str
+            If True or a string, povide space on top of the waveform plots for a title.
+            If string, set this as the title for the waveform plots.
+        &#34;&#34;&#34;
+        self.wave_data = []
+        if data is not None and len(data) &gt; 0:
+            self.wave_data = data
+            self.wave_has_xticks = []
+            self.wave_nested = isinstance(data[0], (list, tuple))
+            if self.wave_nested:
+                for data in self.wave_data[0]:
+                    for k in range(data.shape[1]-2):
+                        self.wave_has_xticks.append(False)
+                    self.wave_has_xticks.append(True)
+            else:
+                for k in range(self.wave_data[0].shape[1]-2):
+                    self.wave_has_xticks.append(False)
+                self.wave_has_xticks.append(True)
+            if isinstance(xlabels, (list, tuple)):
+                self.wave_xlabels = xlabels
+            else:
+                self.wave_xlabels = [xlabels]
+            self.wave_ylabels = ylabels
+            self.wave_title = title
+        self.wave_ax = []
+
+        
+    def set_colors(self, colors=0, color_label=None, color_map=None):
+        &#34;&#34;&#34;Set data column used to color scatter plots.
+        
+        Parameters
+        ----------
+        colors: int or 1D array
+           Index to colum in data to be used for coloring scatter plots.
+           -2 for coloring row index of data.
+           Or data array used to color scalar plots.
+        color_label: str
+           If colors is an array, this is a label describing the data.
+           It is used to label the color bar.
+        color_map: str or None
+            Name of a matplotlib color map.
+            If None &#39;jet&#39; is used.
+        &#34;&#34;&#34;
+        if isinstance(colors, (np.integer, int)):
+            if colors &lt; 0:
+                self.color_set_index = -1
+                self.color_index = 0
+            else:
+                self.color_set_index = 0
+                self.color_index = colors
+        else:
+            if not isinstance(colors[0], (int, float,
+                                          np.integer, np.floating)):
+                # categorial data:
+                self.extra_categories, self.extra_colors = categorize(colors)
+            else:
+                self.extra_colors = colors
+            self.extra_colors = self.extra_colors[self.valid_samples]
+            self.extra_color_label = color_label
+            self.color_set_index = -1
+            self.color_index = 1
+        self.color_map = plt.get_cmap(color_map if color_map else &#39;jet&#39;)
+
+        
+    def show(self, ioff=True):
+        &#34;&#34;&#34;Show interactive scatter plots for exploration.
+        &#34;&#34;&#34;
+        if ioff:
+            plt.ioff()
+        else:
+            plt.ion()
+        plt.rcParams[&#39;toolbar&#39;] = &#39;None&#39;
+        plt.rcParams[&#39;keymap.quit&#39;] = &#39;ctrl+w, alt+q, ctrl+q, q&#39;
+        plt.rcParams[&#39;font.size&#39;] = 12
+        self.fig = plt.figure(facecolor=&#39;white&#39;, figsize=(10, 8))
+        self.fig.canvas.manager.set_window_title(self.title + &#39;: &#39; + self.all_titles[self.show_mode])
+        self.fig.canvas.mpl_connect(&#39;key_press_event&#39;, self._on_key)
+        self.fig.canvas.mpl_connect(&#39;resize_event&#39;, self._on_resize)
+        self.fig.canvas.mpl_connect(&#39;pick_event&#39;, self._on_pick)
+        if self.color_map is None:
+            self.color_map = plt.get_cmap(&#39;jet&#39;)
+        self._set_color_column()
+        self._init_hist_plots()
+        self._init_scatter_plots()
+        self.wave_ax = []
+        if self.wave_data is not None and len(self.wave_data) &gt; 0:
+            axx = None
+            xi = 0
+            for k, has_xticks in enumerate(self.wave_has_xticks):
+                ax = self.fig.add_subplot(1, len(self.wave_has_xticks),
+                                          1+k, sharex=axx)
+                self.wave_ax.append(ax)
+                if has_xticks:
+                    if xi &gt;= len(self.wave_xlabels):
+                        self.wave_xlabels.append(&#39;&#39;)
+                    ax.set_xlabel(self.wave_xlabels[xi])
+                    xi += 1
+                    axx = None
+                else:
+                    #ax.xaxis.set_major_formatter(plt.NullFormatter())
+                    if axx is None:
+                        axx = ax
+            for ax, ylabel in zip(self.wave_ax, self.wave_ylabels):
+                ax.set_ylabel(ylabel)
+            if not isinstance(self.wave_title, bool) and self.wave_title:
+                self.wave_ax[0].set_title(self.wave_title)
+            self.fix_waveform_plot(self.wave_ax, self.mark_data)
+        self._plot_magnified_scatter()
+        self._plot_help()
+        plt.show()
+
+
+    def _pca_header(self, data, labels):
+        &#34;&#34;&#34;Set up header for the table of principal components.
+
+        Parameters
+        ----------
+        data: ndarray of float
+            The data (samples x features) without invalid (infinite or
+            NaN) numbers.
+        labels: list of str
+            Labels of the features.
+        &#34;&#34;&#34;
+        lbs = []
+        for l, d in zip(labels, data):
+            if &#39;[&#39; in l:
+                lbs.append(l.split(&#39;[&#39;)[0].strip())
+            elif &#39;/&#39; in l:
+                lbs.append(l.split(&#39;/&#39;)[0].strip())
+            else:
+                lbs.append(l)
+        header = TableData(header=lbs, formats=&#39;%.3f&#39;)
+        header.insert(0, [&#39;PC&#39;] + [&#39;-&#39;]*header.nsecs, &#39;&#39;, &#39;%d&#39;)
+        header.insert(1, &#39;variance&#39;, &#39;%&#39;, &#39;%.3f&#39;)
+        for k in range(len(self.pca_tables)):
+            self.pca_tables[k] = TableData(header)
+
+                
+    def compute_pca(self, scale=False, write=False):
+        &#34;&#34;&#34;Compute PCA based on the data.
+
+        Parameters
+        ----------
+        scale: boolean
+            If True standardize data before computing PCA, i.e. remove mean
+            of each variabel and divide by its standard deviation.
+        write: boolean
+            If True write PCA components to standard out.
+        &#34;&#34;&#34;
+        # pca:
+        pca = decomposition.PCA()
+        if scale:
+            scaler = preprocessing.StandardScaler()
+            scaler.fit(self.raw_data)
+            pca.fit(scaler.transform(self.raw_data))
+            pca_label = &#39;sPC&#39;
+        else:
+            pca.fit(self.raw_data)
+            pca_label = &#39;PC&#39;
+        for k in range(len(pca.components_)):
+            if np.abs(np.min(pca.components_[k])) &gt; np.max(pca.components_[k]):
+                pca.components_[k] *= -1.0
+        pca_data = pca.transform(self.raw_data)
+        pca_labels = [f&#39;{pca_label}{k+1} &#39; + (f&#39;({100*v:.1f}%)&#39; if v &gt; 0.01 else (f&#39;{100*v:.2f}%&#39;))
+                           for k, v in enumerate(pca.explained_variance_ratio_)]
+        if np.min(pca.explained_variance_ratio_) &gt;= 0.01:
+            pca_maxcols = pca_data.shape[1]
+        else:
+            pca_maxcols = np.argmax(pca.explained_variance_ratio_ &lt; 0.01)
+        if pca_maxcols &lt; 2:
+            pca_maxcols = 2
+        if pca_maxcols &gt; 6:
+            pca_maxcols = 6
+        # table with PCA feature weights:
+        pca_table = self.pca_tables[1] if scale else self.pca_tables[0]
+        pca_table.clear_data()
+        pca_table.set_section(0, pca_label, pca_table.nsecs)
+        for k, comp in enumerate(pca.components_):
+            pca_table.add(k+1, 0)
+            pca_table.add(100.0*pca.explained_variance_ratio_[k])
+            pca_table.add(comp)
+        if write:
+            pca_table.write(table_format=&#39;out&#39;, unit_style=&#39;none&#39;)
+        # submit data:
+        if scale:
+            self.all_data[2] = pca_data
+            self.all_labels[2] = pca_labels
+            self.all_maxcols[2] = pca_maxcols
+        else:
+            self.all_data[1] = pca_data
+            self.all_labels[1] = pca_labels
+            self.all_maxcols[1] = pca_maxcols
+
+            
+    def save_pca(self, file_name, scale, **kwargs):
+        &#34;&#34;&#34;Write PCA data to file.
+
+        Parameters
+        ----------
+        file_name: str
+            Name of ouput file.
+        scale: boolean
+            If True write PCA components of standardized PCA.
+        kwargs: dict
+            Additional parameter for TableData.write()
+        &#34;&#34;&#34;
+        if scale:
+            pca_file = file_name + &#39;-pcacor&#39;
+            pca_table = self.pca_tables[1]
+        else:
+            pca_file = file_name + &#39;-pcacov&#39;
+            pca_table = self.pca_tables[0]
+        if &#39;unit_style&#39; in kwargs:
+            del kwargs[&#39;unit_style&#39;]
+        if &#39;table_format&#39; in kwargs:
+            pca_table.write(pca_file, unit_style=&#39;none&#39;, **kwargs)
+        else:
+            pca_file += &#39;.dat&#39;
+            pca_table.write(pca_file, unit_style=&#39;none&#39;)
+
+            
+    def _set_color_column(self):
+        &#34;&#34;&#34;Initialize variables used for colorization of scatter points.&#34;&#34;&#34;
+        if self.color_set_index == -1:
+            if self.color_index == 0:
+                self.color_values = np.arange(self.data.shape[0], dtype=float)
+                self.color_label = &#39;sample&#39;
+            elif self.color_index == 1:
+                self.color_values = self.extra_colors
+                self.color_label = self.extra_color_label
+        else:
+            self.color_values = self.all_data[self.color_set_index][:,self.color_index]
+            self.color_label = self.all_labels[self.color_set_index][self.color_index]
+        self.color_vmin, self.color_vmax, self.color_ticks = \
+          self.fix_scatter_plot(self.cbax, self.color_values,
+                                self.color_label, &#39;c&#39;)
+        if self.color_ticks is None:
+            if self.color_set_index == 0 and \
+               self.categories[self.color_index] is not None:
+                self.color_ticks = np.arange(len(self.categories[self.color_index]))
+            elif self.color_set_index == -1 and \
+                 self.color_index == 1 and \
+                 self.extra_categories is not None:
+                self.color_ticks = np.arange(len(self.extra_categories))
+        self.data_colors = self.color_map((self.color_values - self.color_vmin)/(self.color_vmax - self.color_vmin))
+
+
+    def _add_backdrop(self, ax):
+        bbox = ax.get_tightbbox(self.fig.canvas.get_renderer())
+        if bbox is not None:
+            self.magnified_backdrop = \
+                patches.Rectangle((bbox.x0 - self.mborder,
+                                   bbox.y0 - self.mborder),
+                                  bbox.width + 2*self.mborder,
+                                  bbox.height + 2*self.mborder,
+                                  transform=None, clip_on=False,
+                                  facecolor=&#39;#f7f7f7&#39;, edgecolor=&#39;none&#39;,
+                                  zorder=-5)
+            ax.add_patch(self.magnified_backdrop)
+
+            
+    def _create_selector(self, ax):
+        try:
+            selector = \
+                widgets.RectangleSelector(ax, self._on_select,
+                                          useblit=True, button=1,
+                                          minspanx=0, minspany=0,
+                                          spancoords=&#39;pixels&#39;,
+                                          props=dict(facecolor=&#39;gray&#39;,
+                                                     edgecolor=&#39;gray&#39;,
+                                                     alpha=0.2,
+                                                     fill=True),
+                                          state_modifier_keys=dict(move=&#39;&#39;,
+                                                                   clear=&#39;&#39;,
+                                                                   square=&#39;&#39;,
+                                                                   center=&#39;ctrl&#39;))
+        except TypeError:
+            # old matplotlib:
+            selector = widgets.RectangleSelector(ax, self._on_select,
+                                                 useblit=True, button=1)
+        return selector
+    
+                            
+    def _plot_hist(self, ax, magnifiedax):
+        &#34;&#34;&#34;Plot and label a histogram.&#34;&#34;&#34;
+        try:
+            idx = self.hist_ax.index(ax)
+            c = self.hist_indices[idx]
+            in_hist = True
+        except ValueError:
+            idx = self.scatter_ax.index(ax)
+            c = self.scatter_indices[idx][0]
+            in_hist = False
+        ax.clear()
+        #ax.relim()
+        #ax.autoscale(True)
+        x = self.data[:,c]
+        ax.hist(x, self.hist_nbins)
+        #ax.autoscale(False)
+        ax.set_xlabel(self.labels[c])
+        ax.xaxis.set_major_locator(plt.AutoLocator())
+        ax.xaxis.set_major_formatter(plt.ScalarFormatter())
+        if self.show_mode == 0:
+            if self.categories[c] is not None:
+                ax.set_xticks(np.arange(len(self.categories[c])))
+                ax.set_xticklabels(self.categories[c])
+            self.fix_scatter_plot(ax, self.data[:,c], self.labels[c], &#39;x&#39;)
+        if magnifiedax:
+            ax.text(0.05, 0.9, f&#39;n={len(self.data)}&#39;,
+                    transform=ax.transAxes, zorder=100)
+            ax.set_ylabel(&#39;count&#39;)
+            cax = self.hist_ax[self.scatter_indices[-1][0]]
+            ax.set_xlim(cax.get_xlim())
+        else:
+            if c == 0:
+                ax.text(0.05, 0.9, f&#39;n={len(self.data)}&#39;,
+                        transform=ax.transAxes, zorder=100)
+                ax.set_ylabel(&#39;count&#39;)
+            else:
+                ax.yaxis.set_major_formatter(plt.NullFormatter())
+        selector = self._create_selector(ax)
+        if in_hist:
+            self.hist_selector[idx] = selector
+        else:
+            self.scatter_selector[idx] = selector
+            self.scatter_artists[idx] = None
+        ax.relim(True)
+        if magnifiedax:
+            self._add_backdrop(ax)
+            
+
+    def _set_hist_ylim(self):
+        ymax = np.max([ax.get_ylim() for ax in self.hist_ax[:self.maxcols]], 0)[1]
+        for ax in self.hist_ax:
+            ax.set_ylim(0, ymax)
+
+                        
+    def _init_hist_plots(self):
+        &#34;&#34;&#34;Initial plots of the histograms.&#34;&#34;&#34;
+        n = self.data.shape[1]
+        self.hist_ax = []
+        for r in range(n):
+            ax = self.fig.add_subplot(n, n, (n-1)*n+r+1)
+            self.hist_ax.append(ax)
+            self.hist_indices.append(r)
+            self.hist_selector.append(None)
+            self._plot_hist(ax, False)
+        self._set_hist_ylim()
+
+                        
+    def _plot_scatter(self, ax, magnifiedax, cax=None):
+        &#34;&#34;&#34;Plot a scatter plot.&#34;&#34;&#34;
+        idx = self.scatter_ax.index(ax)
+        c, r = self.scatter_indices[idx]
+        if self.scatter: # scatter plot
+            ax.clear()
+            a = ax.scatter(self.data[:,c], self.data[:,r], s=50,
+                           edgecolors=&#39;white&#39;, linewidths=0.5,
+                           picker=self.pick_radius, zorder=10)
+            a.set_facecolor(self.data_colors)
+            pr, pp = pearsonr(self.data[:,c], self.data[:,r])
+            fw = &#39;bold&#39; if pp &lt; self.significance_level/self.data.shape[1] else &#39;normal&#39;
+            if pr &lt; 0:
+                ax.text(0.95, 0.9, f&#39;r={pr:.2f}, p={pp:.3f}&#39;, fontweight=fw,
+                        transform=ax.transAxes, ha=&#39;right&#39;, zorder=100)
+            else:
+                ax.text(0.05, 0.9, f&#39;r={pr:.2f}, p={pp:.3f}&#39;, fontweight=fw,
+                        transform=ax.transAxes, zorder=100)
+            # color bar:
+            if cax is not None:
+                a = ax.scatter(self.data[:, c], self.data[:, r],
+                               c=self.color_values, cmap=self.color_map)
+                self.fig.colorbar(a, cax=cax, ticks=self.color_ticks)
+                a.remove()
+                cax.set_ylabel(self.color_label)
+                self.color_vmin, self.color_vmax, self.color_ticks = \
+                  self.fix_scatter_plot(self.cbax, self.color_values,
+                                        self.color_label, &#39;c&#39;)
+                if self.color_ticks is None:
+                    if self.color_set_index == 0 and \
+                       self.categories[self.color_index] is not None:
+                        cax.set_yticklabels(self.categories[self.color_index])
+                    elif self.color_set_index == -1 and \
+                         self.color_index == 1 and \
+                         self.extra_categories is not None:
+                        cax.set_yticklabels(self.extra_categories)
+        else: # histogram
+            if self.show_mode == 0:
+                self.fix_scatter_plot(ax, self.data[:,c], self.labels[c], &#39;x&#39;)
+                self.fix_scatter_plot(ax, self.data[:,r], self.labels[r], &#39;y&#39;)
+            axrange = [ax.get_xlim(), ax.get_ylim()]
+            ax.clear()
+            ax.hist2d(self.data[:,c], self.data[:,r], self.hist_nbins,
+                      range=axrange, cmap=plt.get_cmap(&#39;Greys&#39;))
+        # selected data:
+        a = ax.scatter(self.data[self.mark_data, c],
+                       self.data[self.mark_data, r], s=100,
+                       edgecolors=&#39;black&#39;, linewidths=0.5,
+                       picker=self.pick_radius, zorder=11)
+        a.set_facecolor(self.data_colors[self.mark_data])
+        self.scatter_artists[idx] = a
+        ax.xaxis.set_major_locator(plt.AutoLocator())
+        ax.yaxis.set_major_locator(plt.AutoLocator())
+        ax.xaxis.set_major_formatter(plt.ScalarFormatter())
+        ax.yaxis.set_major_formatter(plt.ScalarFormatter())
+        if self.show_mode == 0:
+            if self.categories[c] is not None:
+                ax.set_xticks(np.arange(len(self.categories[c])))
+                ax.set_xticklabels(self.categories[c])
+            if self.categories[r] is not None:
+                ax.set_yticks(np.arange(len(self.categories[r])))
+                ax.set_yticklabels(self.categories[r])
+        if magnifiedax:
+            ax.set_xlabel(self.labels[c])
+            ax.set_ylabel(self.labels[r])
+            cax = self.scatter_ax[self.scatter_indices[:-1].index(self.scatter_indices[-1])]
+            ax.set_xlim(cax.get_xlim())
+            ax.set_ylim(cax.get_ylim())
+        else:
+            if c == 0:
+                ax.set_ylabel(self.labels[r])
+        if self.show_mode == 0:
+            self.fix_scatter_plot(ax, self.data[:, c], self.labels[c], &#39;x&#39;)
+            self.fix_scatter_plot(ax, self.data[:, r], self.labels[r], &#39;y&#39;)
+        if not magnifiedax:
+            ax.xaxis.set_major_formatter(plt.NullFormatter())
+            if c &gt; 0:
+                ax.yaxis.set_major_formatter(plt.NullFormatter())
+        ax.set_xlim(*self.hist_ax[c].get_xlim())
+        ax.set_ylim(*self.hist_ax[r].get_xlim())
+        if magnifiedax:
+            self._add_backdrop(ax)
+        selector = self._create_selector(ax)
+        self.scatter_selector[idx] = selector
+        ax.relim(True)
+
+        
+    def _init_scatter_plots(self):
+        &#34;&#34;&#34;Initial plots of scatter plots.&#34;&#34;&#34;
+        self.cbax = self.fig.add_axes([0.5, 0.5, 0.1, 0.5])
+        cbax = self.cbax
+        n = self.data.shape[1]
+        for r in range(1, n):
+            for c in range(r):
+                ax = self.fig.add_subplot(n, n, (r-1)*n+c+1)
+                self.scatter_ax.append(ax)
+                self.scatter_indices.append([c, r])
+                self.scatter_artists.append(None)
+                self.scatter_selector.append(None)
+                self._plot_scatter(ax, False, cbax)
+                cbax = None
+
+                
+    def _plot_magnified_scatter(self):
+        &#34;&#34;&#34;Initial plot of the magnified scatter plot.&#34;&#34;&#34;
+        ax = self.fig.add_axes([0.5, 0.9, 0.05, 0.05])
+        ax.set_visible(False)
+        self.magnified_on = False
+        c = 0
+        r = 1
+        a = ax.scatter(self.data[:, c], self.data[:, r],
+                       s=50, edgecolors=&#39;none&#39;)
+        a.set_facecolor(self.data_colors)
+        a = ax.scatter(self.data[self.mark_data, c],
+                       self.data[self.mark_data, r], s=80)
+        a.set_facecolor(self.data_colors[self.mark_data])
+        ax.set_xlabel(self.labels[c])
+        ax.set_ylabel(self.labels[r])
+        self.fix_scatter_plot(ax, self.data[:, c], self.labels[c], &#39;x&#39;)
+        self.fix_scatter_plot(ax, self.data[:, r], self.labels[r], &#39;y&#39;)
+        self.scatter_ax.append(ax)
+        self.scatter_indices.append([c, r])
+        self.scatter_artists.append(a)
+        self.scatter_selector.append(None)
+
+        
+    def _plot_help(self):
+        ax = self.fig.add_subplot(1, 1, 1)
+        ax.set_position([0.02, 0.02, 0.96, 0.96])
+        ax.xaxis.set_major_locator(plt.NullLocator())
+        ax.yaxis.set_major_locator(plt.NullLocator())
+        n = len(self.mouse_actions) + len(self.key_actions) + 4
+        dy = 1/n
+        y = 1 - 1.5*dy
+        ax.text(0.05, y, &#39;Key shortcuts&#39;, transform=ax.transAxes,
+                fontweight=&#39;bold&#39;)
+        y -= dy
+        for a, d in self.key_actions:
+            ax.text(0.05, y, a, transform=ax.transAxes)
+            ax.text(0.3, y, d, transform=ax.transAxes)
+            y -= dy
+        y -= dy
+        ax.text(0.05, y, &#39;Mouse actions&#39;, transform=ax.transAxes,
+                fontweight=&#39;bold&#39;)
+        y -= dy
+        for a, d in self.mouse_actions:
+            ax.text(0.05, y, a, transform=ax.transAxes)
+            ax.text(0.3, y, d, transform=ax.transAxes)
+            y -= dy
+        ax.set_visible(False)
+        self.help_ax = ax
+        
+        
+    def fix_scatter_plot(self, ax, data, label, axis):
+        &#34;&#34;&#34;Customize an axes of a scatter plot.
+
+        This function is called after a scatter plot has been plotted.
+        Once for the x axes, once for the y axis and once for the color bar.
+        Reimplement this function to set appropriate limits and ticks.
+
+        Return values are only used for the color bar (`axis=&#39;c&#39;`).
+        Otherwise they are ignored.
+
+        For example, ticks for phase variables can be nicely labeled
+        using the unicode character for pi:
+        ```
+        if &#39;phase&#39; in label:
+            if axis == &#39;y&#39;:
+                ax.set_ylim(0.0, 2.0*np.pi)
+                ax.set_yticks(np.arange(0.0, 2.5*np.pi, 0.5*np.pi))
+                ax.set_yticklabels([&#39;0&#39;, u&#39;\u03c0/2&#39;, u&#39;\u03c0&#39;, u&#39;3\u03c0/2&#39;, u&#39;2\u03c0&#39;])
+        ```
+        
+        Parameters
+        ----------
+        ax: matplotlib axes
+            Axes of the scatter plot or color bar to be worked on.
+        data: 1D array
+            Data array of the axes.
+        label: str
+            Label coresponding to the data array.
+        axis: str
+            &#39;x&#39;, &#39;y&#39;: set properties of x or y axes of ax.
+            &#39;c&#39;: set properies of color bar axes (note that ax can be None!)
+                 and return vmin, vmax, and ticks.
+
+        Returns
+        -------
+        min: float
+            minimum value of color bar axis
+        max: float
+            maximum value of color bar axis
+        ticks: list of float
+            position of ticks for color bar axis
+        &#34;&#34;&#34;
+        return np.nanmin(data), np.nanmax(data), None
+
+    
+    def fix_waveform_plot(self, axs, indices):
+        &#34;&#34;&#34;Customize waveform plots.
+
+        This function is called once after new data have been plotted
+        into the waveform plots.  Reimplement this function to customize
+        these plots. In particular to set axis limits and labels, plot
+        title, etc.
+        You may even open a new figure (with non-blocking `show()`).
+
+        The following member variables might be usefull:
+        - `self.wave_data`: the full list of waveform data.
+        - `self.wave_nested`: True if the elements of `self.wave_data` are lists of 2D arrays. Otherwise the elements are 2D arrays. The first column of a 2D array contains the x-values, further columns y-values.
+        - `self.wave_has_xticks`: List of booleans for each axis. True if the axis has its own xticks.
+        - `self.wave_xlabels`: List of xlabels (only for the axis where the corresponding entry in `self.wave_has_xticks` is True).
+        - `self.wave_ylabels`: for each axis its ylabel
+        
+        For example, you can set the linewidth of all plotted waveforms via:
+        ```
+        for ax in axs:
+            for l in ax.lines:
+                l.set_linewidth(3.0)
+        ```
+        or enable markers to be plotted:
+        ```
+        for ax, yl in zip(axs, self.wave_ylabels):
+            if &#39;Power&#39; in yl:
+                for l in ax.lines:
+                    l.set_marker(&#39;.&#39;)
+                    l.set_markersize(15.0)
+                    l.set_markeredgewidth(0.5)
+                    l.set_markeredgecolor(&#39;k&#39;)
+                    l.set_markerfacecolor(l.get_color())
+        ```
+        Usefull is to reduce the maximum number of y-ticks:
+        ```
+        axs[0].yaxis.get_major_locator().set_params(nbins=7)
+        ```
+        or
+        ```
+        import matplotlib.ticker as ticker
+        axs[0].yaxis.set_major_locator(ticker.MaxNLocator(nbins=4))
+        ```
+
+        Parameters
+        ----------
+        axs: list of matplotlib axes
+            Axis of the waveform plots to be worked on.
+        indices: list of int
+            Indices of the waveforms that have been selected and plotted.
+        &#34;&#34;&#34;
+        pass
+
+    
+    def list_selection(self, indices):
+        &#34;&#34;&#34;List information about the current selection of data points.
+
+        This function is called when &#39;l&#39; is pressed.  Reimplement this
+        function, for example, to print some meaningfull information
+        about the current selection of data points on console. You may
+        do, however, whatever you want in this function.
+
+        Parameters
+        ----------
+        indices: list of int
+            Indices of the data points that have been selected.
+        &#34;&#34;&#34;
+        print(&#39;&#39;)
+        print(&#39;selected rows in data table:&#39;)
+        for i in indices:
+            print(self.valid_rows[i])
+
+            
+    def analyze_selection(self, index):
+        &#34;&#34;&#34;Provide further information about a single selected data point.
+
+        This function is called when a single data item was double
+        clicked.  Reimplement this function to provide some further
+        details on this data point.  This can be an additional figure
+        window. In this case show it non-blocking:
+        `plt.show(block=False)`
+
+        Parameters
+        ----------
+        index: int
+            The index of the selected data point.
+        &#34;&#34;&#34;
+        pass
+
+    
+    def _set_magnified_pos(self, width, height):
+        &#34;&#34;&#34;Set position of magnified plot.&#34;&#34;&#34;
+        if self.magnified_on:
+            xoffs = self.xborder/width
+            yoffs = self.yborder/height
+            if self.scatter_indices[-1][1] &lt; self.data.shape[1]:
+                idx = self.scatter_indices[:-1].index(self.scatter_indices[-1])
+                pos = self.scatter_ax[idx].get_position().get_points()
+            else:
+                pos = self.hist_ax[self.scatter_indices[-1][0]].get_position().get_points()
+            pos[0] = np.mean(pos, 0) - 0.5*self.magnified_size
+            if pos[0][0] &lt; xoffs: pos[0][0] = xoffs
+            if pos[0][1] &lt; yoffs: pos[0][1] = yoffs
+            pos[1] = pos[0] + self.magnified_size
+            if pos[1][0] &gt; 1.0-self.spacing/width: pos[1][0] = 1.0-self.spacing/width
+            if pos[1][1] &gt; 1.0-self.spacing/height: pos[1][1] = 1.0-self.spacing/height
+            pos[0] = pos[1] - self.magnified_size
+            self.scatter_ax[-1].set_position([pos[0][0], pos[0][1],
+                                             self.magnified_size[0], self.magnified_size[1]])
+            self.scatter_ax[-1].set_visible(True)
+        else:
+            self.scatter_ax[-1].set_position([0.5, 0.9, 0.05, 0.05])
+            self.scatter_ax[-1].set_visible(False)
+
+            
+    def _make_selection(self, ax, key, x0, x1, y0, y1):
+        &#34;&#34;&#34;Select points from a scatter or histogram plot.&#34;&#34;&#34;
+        if not key in [&#39;shift&#39;, &#39;control&#39;]:
+            self.mark_data = []
+        if ax in self.scatter_ax:
+            axi = self.scatter_ax.index(ax)
+            # from scatter plots:
+            c, r = self.scatter_indices[axi]
+            if r &lt; self.data.shape[1]:
+                # from scatter:
+                for ind, (x, y) in enumerate(zip(self.data[:, c], self.data[:, r])):
+                    if x &gt;= x0 and x &lt;= x1 and y &gt;= y0 and y &lt;= y1:
+                        if ind in self.mark_data:
+                            if key == &#39;control&#39;:
+                                self.mark_data.remove(ind)
+                        elif key != &#39;control&#39;:
+                            self.mark_data.append(ind)
+            else:
+                # from histogram:
+                for ind, x in enumerate(self.data[:, c]):
+                    if x &gt;= x0 and x &lt;= x1:
+                        if ind in self.mark_data:
+                            if key == &#39;control&#39;:
+                                self.mark_data.remove(ind)
+                        elif key != &#39;control&#39;:
+                            self.mark_data.append(ind)
+        elif ax in self.hist_ax:
+            r = self.hist_indices[self.hist_ax.index(ax)]
+            # from histogram:
+            for ind, x in enumerate(self.data[:, r]):
+                if x &gt;= x0 and x &lt;= x1:
+                    if ind in self.mark_data:
+                        if key == &#39;control&#39;:
+                            self.mark_data.remove(ind)
+                    elif key != &#39;control&#39;:
+                        self.mark_data.append(ind)
+
+                        
+    def _update_selection(self):
+        &#34;&#34;&#34;Highlight selected points in the scatter plots and plot corresponding waveforms.&#34;&#34;&#34;
+        # update scatter plots:
+        for artist, (c, r) in zip(self.scatter_artists, self.scatter_indices):
+            if artist is not None:
+                if len(self.mark_data) == 0:
+                    artist.set_offsets(np.zeros((0, 2)))
+                else:
+                    artist.set_offsets(list(zip(self.data[self.mark_data, c],
+                                                self.data[self.mark_data, r])))
+                    artist.set_facecolors(self.data_colors[self.mark_data])
+        # waveform plots:
+        if len(self.wave_ax) &gt; 0:
+            axdi = 0
+            axti = 1
+            for xi, ax in enumerate(self.wave_ax):
+                ax.clear()
+                if len(self.mark_data) &gt; 0:
+                    for idx in self.mark_data:
+                        if self.wave_nested:
+                            data = self.wave_data[idx][axdi]
+                        else:
+                            data = self.wave_data[idx]
+                        if data is not None:
+                            ax.plot(data[:, 0], data[:, axti],
+                                    c=self.data_colors[idx],
+                                    picker=self.pick_radius)
+                axti += 1
+                if self.wave_has_xticks[xi]:
+                    ax.set_xlabel(self.wave_xlabels[axdi])
+                    axti = 1
+                    axdi += 1
+                #else:
+                #    ax.xaxis.set_major_formatter(plt.NullFormatter())
+            for ax, ylabel in zip(self.wave_ax, self.wave_ylabels):
+                ax.set_ylabel(ylabel)
+            if not isinstance(self.wave_title, bool) and self.wave_title:
+                self.wave_ax[0].set_title(self.wave_title)
+            self.fix_waveform_plot(self.wave_ax, self.mark_data)
+        self.fig.canvas.draw()
+
+        
+    def _set_limits(self, ax, x0, x1, y0, y1):
+        if ax in self.hist_ax:
+            ax.set_xlim(x0, x1)
+            for hax in self.hist_ax:
+                hax.set_ylim(y0, y1)
+            cc = self.hist_indices[self.hist_ax.index(ax)]
+            for sax, (c, r) in zip(self.scatter_ax, self.scatter_indices):
+                if c == cc:
+                    sax.set_xlim(x0, x1)
+                if r == cc:
+                    sax.set_ylim(x0, x1)
+        if ax in self.scatter_ax:
+            idx = self.scatter_ax.index(ax)
+            cc, rr = self.scatter_indices[idx]
+            self.hist_ax[cc].set_xlim(x0, x1)
+            self.hist_ax[rr].set_xlim(y0, y1)
+            for sax, (c, r) in zip(self.scatter_ax, self.scatter_indices):
+                if c == cc:
+                    sax.set_xlim(x0, x1)
+                if c == rr:
+                    sax.set_xlim(y0, y1)
+                if r == cc:
+                    sax.set_ylim(x0, x1)
+                if r == rr:
+                    sax.set_ylim(y0, y1)
+
+                    
+    def _on_key(self, event):
+        &#34;&#34;&#34;Handle key events.&#34;&#34;&#34;
+        #print(&#39;pressed&#39;, event.key)
+        if event.key in [&#39;left&#39;, &#39;right&#39;, &#39;up&#39;, &#39;down&#39;]:
+            if self.magnified_on:
+                mc, mr = self.scatter_indices[-1]
+                if event.key == &#39;left&#39;:
+                    if mc &gt; 0:
+                        self.scatter_indices[-1][0] -= 1
+                    elif mr &gt; 1:
+                        if mr &gt;= self.data.shape[1]:
+                            self.scatter_indices[-1][1] = self.maxcols - 1
+                        else:
+                            self.scatter_indices[-1][1] -= 1
+                        self.scatter_indices[-1][0] = self.scatter_indices[-1][1] - 1
+                    else:
+                        self.scatter_indices[-1][0] = self.data.shape[1] - 1
+                        self.scatter_indices[-1][1] = self.data.shape[1]
+                elif event.key == &#39;right&#39;:
+                    if mc &lt; mr - 1 and mc &lt; self.maxcols - 1:
+                        self.scatter_indices[-1][0] += 1
+                    elif mr &lt; self.maxcols:
+                        self.scatter_indices[-1][0] = 0
+                        self.scatter_indices[-1][1] += 1
+                        if mr &gt;= self.maxcols:
+                            self.scatter_indices[-1][1] = self.data.shape[1]
+                    else:
+                        self.scatter_indices[-1][0] = 0
+                        self.scatter_indices[-1][1] = 1
+                elif event.key == &#39;up&#39;:
+                    if mr &gt; mc + 1:
+                        if mr &gt;= self.data.shape[1]:
+                            self.scatter_indices[-1][1] = self.maxcols - 1
+                        else:
+                            self.scatter_indices[-1][1] -= 1
+                    elif mc &gt; 0:
+                        self.scatter_indices[-1][0] -= 1
+                        self.scatter_indices[-1][1] = self.data.shape[1]
+                    else:
+                        self.scatter_indices[-1][0] = self.data.shape[1] - 1
+                        self.scatter_indices[-1][1] = self.data.shape[1]
+                elif event.key == &#39;down&#39;:
+                    if mr &lt; self.maxcols:
+                        self.scatter_indices[-1][1] += 1
+                        if mr &gt;= self.maxcols:
+                            self.scatter_indices[-1][1] = self.data.shape[1]
+                    elif mc &lt; self.maxcols - 1:
+                        self.scatter_indices[-1][0] += 1
+                        self.scatter_indices[-1][1] = mc + 2
+                        if self.scatter_indices[-1][1] &gt;= self.maxcols:
+                            self.scatter_indices[-1][1] = self.data.shape[1]
+                    else:
+                        self.scatter_indices[-1][0] = 0
+                        self.scatter_indices[-1][1] = 1
+            for k in reversed(range(len(self.zoom_stack))):
+                if self.zoom_stack[k][0] == self.scatter_ax[-1]:
+                    del self.zoom_stack[k]
+            self.scatter_ax[-1].clear()
+            self.scatter_ax[-1].set_visible(True)
+            self.magnified_on = True
+            self._set_magnified_pos(self.fig.get_window_extent().width,
+                                    self.fig.get_window_extent().height)
+            if self.scatter_indices[-1][1] &lt; self.data.shape[1]:
+                self._plot_scatter(self.scatter_ax[-1], True)
+            else:
+                self._plot_hist(self.scatter_ax[-1], True)
+            self.fig.canvas.draw()
+        else:
+            if event.key == &#39;escape&#39;:
+                if len(self.scatter_ax) &gt;= self.data.shape[1]:
+                    self.scatter_ax[-1].set_position([0.5, 0.9, 0.05, 0.05])
+                    self.magnified_on = False
+                    self.scatter_ax[-1].set_visible(False)
+                    self.fig.canvas.draw()
+            elif event.key in &#39;oz&#39;:
+                self.select_zooms = not self.select_zooms
+            elif event.key == &#39;backspace&#39;:
+                if len(self.zoom_stack) &gt; 0:
+                    self._set_limits(*self.zoom_stack.pop())
+                    self.fig.canvas.draw()
+            elif event.key in &#39;+=&#39;:
+                self.pick_radius *= 1.5
+            elif event.key in &#39;-&#39;:
+                if self.pick_radius &gt; 5.0:
+                    self.pick_radius /= 1.5
+            elif event.key in &#39;0&#39;:
+                self.pick_radius = 4.0
+            elif event.key in [&#39;pageup&#39;, &#39;pagedown&#39;, &#39;&lt;&#39;, &#39;&gt;&#39;]:
+                if event.key in [&#39;pageup&#39;, &#39;&lt;&#39;] and self.maxcols &gt; 2:
+                    self.maxcols -= 1
+                elif event.key in [&#39;pagedown&#39;, &#39;&gt;&#39;] and self.maxcols &lt; self.raw_data.shape[1]:
+                    self.maxcols += 1
+                for ax in self.hist_ax:
+                    self._plot_hist(ax, False)
+                self._update_layout()
+            elif event.key == &#39;w&#39;:
+                if len(self.wave_data) &gt; 0:
+                    if self.maxcols &gt; 0:
+                        self.all_maxcols[self.show_mode] = self.maxcols
+                        self.maxcols = 0
+                    else:
+                        self.maxcols = self.all_maxcols[self.show_mode]
+                    self._set_layout(self.fig.get_window_extent().width,
+                                     self.fig.get_window_extent().height)
+                    self.fig.canvas.draw()
+            elif event.key == &#39;ctrl+a&#39;:
+                self.mark_data = list(range(len(self.data)))
+                self._update_selection()
+            elif event.key in &#39;cC&#39;:
+                if event.key in &#39;c&#39;:
+                    self.color_index -= 1
+                    if self.color_index &lt; 0:
+                        self.color_set_index -= 1
+                        if self.color_set_index &lt; -1:
+                            self.color_set_index = len(self.all_data)-1
+                        if self.color_set_index &gt;= 0:
+                            if self.all_data[self.color_set_index] is None:
+                                self.compute_pca(self.color_set_index&gt;1, True)
+                            self.color_index = self.all_data[self.color_set_index].shape[1]-1
+                        else:
+                            self.color_index = 0 if self.extra_colors is None else 1
+                    self._set_color_column()
+                else:
+                    self.color_index += 1
+                    if (self.color_set_index &gt;= 0 and \
+                        self.color_index &gt;= self.all_data[self.color_set_index].shape[1]) or \
+                        (self.color_set_index &lt; 0 and \
+                         self.color_index &gt;= (1 if self.extra_colors is None else 2)):
+                        self.color_index = 0
+                        self.color_set_index += 1
+                        if self.color_set_index &gt;= len(self.all_data):
+                            self.color_set_index = -1
+                        elif self.all_data[self.color_set_index] is None:
+                            self.compute_pca(self.color_set_index&gt;1, True)
+                    self._set_color_column()
+                for ax in self.scatter_ax:
+                    ax.collections[0].set_facecolors(self.data_colors)
+                for a in self.scatter_artists:
+                    if a is not None:
+                        a.set_facecolors(self.data_colors[self.mark_data])
+                for ax in self.wave_ax:
+                    for l, c in zip(ax.lines, self.data_colors[self.mark_data]):
+                        l.set_color(c)
+                        l.set_markerfacecolor(c)
+                self._plot_scatter(self.scatter_ax[0], False, self.cbax)
+                self.fix_scatter_plot(self.cbax, self.color_values,
+                                      self.color_label, &#39;c&#39;)
+                self.fig.canvas.draw()
+            elif event.key in &#39;nN&#39;:
+                if event.key in &#39;N&#39;:
+                    self.hist_nbins = (self.hist_nbins*3)//2
+                elif self.hist_nbins &gt;= 15:
+                    self.hist_nbins = (self.hist_nbins*2)//3
+                else:
+                    self.hist_nbins = 10
+                for ax in self.hist_ax:
+                    self._plot_hist(ax, False)
+                self._set_hist_ylim()
+                if self.scatter_indices[-1][1] &gt;= self.data.shape[1]:
+                    self._plot_hist(self.scatter_ax[-1], True, True)
+                elif not self.scatter:
+                    self._plot_scatter(self.scatter_ax[-1], True)
+                if not self.scatter:
+                    for ax in self.scatter_ax[:-1]:
+                        self._plot_scatter(ax, False)
+                self.fig.canvas.draw()
+            elif event.key in &#39;H&#39;:
+                self.scatter = not self.scatter
+                for ax in self.scatter_ax[:-1]:
+                    self._plot_scatter(ax, False)
+                if self.scatter_indices[-1][1] &lt; self.data.shape[1]:
+                    self._plot_scatter(self.scatter_ax[-1], True)
+                self.fig.canvas.draw()
+            elif event.key in &#39;pP&#39;:
+                if len(self.scatter_ax) &gt;= self.data.shape[1]:
+                    self.scatter_ax[-1].set_position([0.5, 0.9, 0.05, 0.05])
+                    self.scatter_indices[-1] = [0, 1]
+                    self.magnified_on = False
+                    self.scatter_ax[-1].set_visible(False)
+                self.all_maxcols[self.show_mode] = self.maxcols
+                if event.key == &#39;P&#39;:
+                    self.show_mode += 1
+                    if self.show_mode &gt;= len(self.all_data):
+                        self.show_mode = 0
+                else:
+                    self.show_mode -= 1
+                    if self.show_mode &lt; 0:
+                        self.show_mode = len(self.all_data)-1
+                if self.show_mode == 1:
+                    print(&#39;principal components&#39;)
+                elif self.show_mode == 2:
+                    print(&#39;scaled principal components&#39;)
+                else:
+                    print(&#39;data&#39;)
+                if self.all_data[self.show_mode] is None:
+                    self.compute_pca(self.show_mode&gt;1, True)
+                self.data = self.all_data[self.show_mode]
+                self.labels = self.all_labels[self.show_mode]
+                self.maxcols = self.all_maxcols[self.show_mode]
+                self.zoom_stack = []
+                self.fig.canvas.manager.set_window_title(self.title + &#39;: &#39; + self.all_titles[self.show_mode])
+                for ax in self.hist_ax:
+                    self._plot_hist(ax, False)
+                self._set_hist_ylim()
+                for ax in self.scatter_ax:
+                    self._plot_scatter(ax, False)
+                self._update_layout()
+            elif event.key in &#39;l&#39;:
+                if len(self.mark_data) &gt; 0:
+                    self.list_selection(self.mark_data)
+            elif event.key in &#39;h&#39;:
+                self.help_ax.set_visible(not self.help_ax.get_visible())
+                self.fig.canvas.draw()
+
+            
+    def _on_select(self, eclick, erelease):
+        &#34;&#34;&#34;Handle selection events.&#34;&#34;&#34;
+        if eclick.dblclick:
+            if len(self.mark_data) &gt; 0:
+                self.analyze_selection(self.mark_data[-1])
+            return
+        x0 = min(eclick.xdata, erelease.xdata)
+        x1 = max(eclick.xdata, erelease.xdata)
+        y0 = min(eclick.ydata, erelease.ydata)
+        y1 = max(eclick.ydata, erelease.ydata)
+        ax = erelease.inaxes
+        if ax is None:
+            ax = eclick.inaxes
+        xmin, xmax = ax.get_xlim()
+        ymin, ymax = ax.get_ylim()
+        dx = 0.02*(xmax-xmin)
+        dy = 0.02*(ymax-ymin)
+        if x1 - x0 &lt; dx and y1 - y0 &lt; dy:
+            bbox = ax.get_window_extent().transformed(self.fig.dpi_scale_trans.inverted())
+            width, height = bbox.width, bbox.height
+            width *= self.fig.dpi
+            height *= self.fig.dpi
+            dx = self.pick_radius*(xmax-xmin)/width
+            dy = self.pick_radius*(ymax-ymin)/height
+            x0 = erelease.xdata - dx
+            x1 = erelease.xdata + dx
+            y0 = erelease.ydata - dy
+            y1 = erelease.ydata + dy
+        elif self.select_zooms:
+            self.zoom_stack.append((ax, xmin, xmax, ymin, ymax))
+            self._set_limits(ax, x0, x1, y0, y1)
+        self._make_selection(ax, erelease.key, x0, x1, y0, y1)
+        self._update_selection()
+
+        
+    def _on_pick(self, event):
+        &#34;&#34;&#34;Handle pick events.&#34;&#34;&#34;
+        for ax in self.wave_ax:
+            for k, l in enumerate(ax.lines):
+                if l is event.artist:
+                    self.mark_data = [self.mark_data[k]]
+        for ax in self.scatter_ax:
+            if ax.collections[0] is event.artist:
+                self.mark_data = event.ind
+        self._update_selection()
+        if event.mouseevent.dblclick:
+            if len(self.mark_data) &gt; 0:
+                self.analyze_selection(self.mark_data[-1])
+
+                    
+    def _set_layout(self, width, height):
+        &#34;&#34;&#34;Update positions and visibility of all plots.&#34;&#34;&#34;
+        xoffs = self.xborder/width
+        yoffs = self.yborder/height
+        xs = self.spacing/width
+        ys = self.spacing/height
+        if self.maxcols &gt; 0:
+            dx = (1.0-xoffs)/self.maxcols
+            dy = (1.0-yoffs)/self.maxcols
+            xw = dx - xs
+            yw = dy - ys
+        # histograms:
+        for c, ax in enumerate(self.hist_ax):
+            if c &lt; self.maxcols:
+                ax.set_position([xoffs+c*dx, yoffs, xw, yw])
+                ax.set_visible(True)
+            else:
+                ax.set_visible(False)
+                ax.set_position([0.99, 0.01, 0.01, 0.01])
+        # scatter plots:
+        for ax, (c, r) in zip(self.scatter_ax[:-1], self.scatter_indices[:-1]):
+            if r &lt; self.maxcols:
+                ax.set_position([xoffs+c*dx, yoffs+(self.maxcols-r)*dy, xw, yw])
+                ax.set_visible(True)
+            else:
+                ax.set_visible(False)
+                ax.set_position([0.99, 0.01, 0.01, 0.01])
+        # color bar:
+        if self.maxcols &gt; 0:
+            self.cbax.set_position([xoffs+dx, yoffs+(self.maxcols-1)*dy, 0.3*xoffs, yw])
+            self.cbax.set_visible(True)
+        else:
+            self.cbax.set_visible(False)
+            self.cbax.set_position([0.99, 0.01, 0.01, 0.01])
+        # magnified plot:
+        if self.maxcols &gt; 0:
+            self._set_magnified_pos(width, height)
+            if self.magnified_backdrop is not None:
+                bbox = self.scatter_ax[-1].get_tightbbox(self.fig.canvas.get_renderer())
+                if bbox is not None:
+                    self.magnified_backdrop.set_bounds(bbox.x0 - self.mborder,
+                                                       bbox.y0 - self.mborder,
+                                                       bbox.width + 2*self.mborder,
+                                                       bbox.height + 2*self.mborder)
+        else:
+            self.scatter_ax[-1].set_position([0.5, 0.9, 0.05, 0.05])
+            self.scatter_ax[-1].set_visible(False)
+        # waveform plots:
+        if len(self.wave_ax) &gt; 0:
+            if self.maxcols &gt; 0:
+                x0 = xoffs+((self.maxcols+1)//2)*dx
+                y0 = ((self.maxcols+1)//2)*dy
+                if self.maxcols%2 == 0:
+                    x0 += xoffs
+                    y0 += yoffs - ys
+                else:
+                    y0 += ys
+            else:
+                x0 = xoffs
+                y0 = 0.0
+            yp = 1.0
+            dy = 1.0-y0
+            dy -= np.sum(self.wave_has_xticks)*yoffs
+            yp -= ys
+            dy -= ys
+            if self.wave_title:
+                yp -= 2*ys
+                dy -= 2*ys
+            dy /= len(self.wave_ax)
+            for ax, has_xticks in zip(self.wave_ax, self.wave_has_xticks):
+                yp -= dy
+                ax.set_position([x0, yp, 1.0-x0-xs, dy])
+                if has_xticks:
+                    yp -= yoffs
+                else:
+                    yp -= ys
+
+            
+    def _update_layout(self):
+        &#34;&#34;&#34;Update content and position of magnified plot.&#34;&#34;&#34;
+        if self.scatter_indices[-1][1] &lt; self.data.shape[1]:
+            if self.scatter_indices[-1][1] &gt;= self.maxcols:
+                self.scatter_indices[-1][1] = self.maxcols-1
+            if self.scatter_indices[-1][0] &gt;= self.scatter_indices[-1][1]:
+                self.scatter_indices[-1][0] = self.scatter_indices[-1][1]-1
+            self._plot_scatter(self.scatter_ax[-1], True)
+        else:
+            if self.scatter_indices[-1][0] &gt;= self.maxcols:
+                self.scatter_indices[-1][0] = self.maxcols-1
+                self._plot_hist(self.scatter_ax[-1], True)
+        self._set_hist_ylim()
+        self._set_layout(self.fig.get_window_extent().width,
+                         self.fig.get_window_extent().height)
+        self.fig.canvas.draw()
+
+        
+    def _on_resize(self, event):
+        &#34;&#34;&#34;Adapt layout of plots to new figure size.&#34;&#34;&#34;
+        self._set_layout(event.width, event.height)</code></pre>
+</details>
+<div class="desc"><p>Simple matplotlib-based GUI for viewing and exploring multivariate data.</p>
+<p>Shown are scatter plots of all pairs of variables or PCA axis.
+Points in the scatter plots are colored according to the values of one of the variables.
+Data points can be selected and optionally corresponding waveforms are shown.</p>
+<p>First you initialize the explorer with the data. Then you optionally
+specify how to colorize the data and provide waveform data
+associated with the data. Finally you show the figure:</p>
+<pre><code>expl = MultivariateExplorer(data)
+expl.set_colors(2)
+expl.set_wave_data(waveforms, 'Time [s]', 'Sine')
+expl.show()
+</code></pre>
+<p>The `compute_pca() function computes a principal component analysis (PCA)
+on the input data, and <code>save_pca()</code> writes the principal components to a file.</p>
+<p>Customize the appearance and information provided by subclassing
+MultivariateExplorer and reimplementing the functions
+- fix_scatter_plot()
+- fix_waveform_plot()
+- list_selection()
+- analyze_selection()
+See the documentation of these functions for details.</p>
+<p>Initialize explorer with scatter-plot data.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>TableData, 2D array,</code> or <code>list</code> of <code>1D arrays</code></dt>
+<dd>The data to be explored. Each column is a variable.
+For the 2D array the columns are the second dimension,
+for a list of 1D arrays, the list goes over columns,
+i.e. each 1D array is one column.</dd>
+<dt><strong><code>labels</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>If data is not a TableData, then this provides labels
+for the data columns.</dd>
+<dt><strong><code>title</code></strong> :&ensp;<code>str</code></dt>
+<dd>Title for the window.</dd>
+</dl></div>
+<h3>Class variables</h3>
+<dl>
+<dt id="thunderlab.multivariateexplorer.MultivariateExplorer.mouse_actions"><code class="name">var <span class="ident">mouse_actions</span></code></dt>
+<dd>
+<div class="desc"><p>List of tuples with mouse actions and a description of their action.</p></div>
+</dd>
+<dt id="thunderlab.multivariateexplorer.MultivariateExplorer.key_actions"><code class="name">var <span class="ident">key_actions</span></code></dt>
+<dd>
+<div class="desc"><p>List of tuples with key shortcuts and a description of their action.</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="thunderlab.multivariateexplorer.MultivariateExplorer.set_wave_data"><code class="name flex">
+<span>def <span class="ident">set_wave_data</span></span>(<span>self, data, xlabels='', ylabels=[], title=False)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_wave_data(self, data, xlabels=&#39;&#39;, ylabels=[], title=False):
+    &#34;&#34;&#34;Add waveform data to explorer.
+
+    Parameters
+    ----------
+    data: list of (list of) 2D arrays
+        Waveform data associated with each row of the data.
+        Elements of the outer list correspond to the rows of the data.
+        The inner 2D arrays contain a common x-axes (first column)
+        and one or more corresponding y-values (second and optional higher columns).
+        Each column for y-values is plotted in its own axes on top of each other,
+        from top to bottom.
+        The optional inner list of 2D arrays contains several 2D arrays as ascribed above
+        each with its own common x-axes.
+    xlabel: str or list of str
+        The xlabels for the waveform plots. If only a string is given, then
+        there will be a common xaxis for all the plots, and only the lowest
+        one gets a labeled xaxis. If a list of strings is given, each waveform
+        plot gets its own labeled x-axis.
+    ylabels: list of str
+        The ylabels for each of the waveform plots.
+    title: bool or str
+        If True or a string, povide space on top of the waveform plots for a title.
+        If string, set this as the title for the waveform plots.
+    &#34;&#34;&#34;
+    self.wave_data = []
+    if data is not None and len(data) &gt; 0:
+        self.wave_data = data
+        self.wave_has_xticks = []
+        self.wave_nested = isinstance(data[0], (list, tuple))
+        if self.wave_nested:
+            for data in self.wave_data[0]:
+                for k in range(data.shape[1]-2):
+                    self.wave_has_xticks.append(False)
+                self.wave_has_xticks.append(True)
+        else:
+            for k in range(self.wave_data[0].shape[1]-2):
+                self.wave_has_xticks.append(False)
+            self.wave_has_xticks.append(True)
+        if isinstance(xlabels, (list, tuple)):
+            self.wave_xlabels = xlabels
+        else:
+            self.wave_xlabels = [xlabels]
+        self.wave_ylabels = ylabels
+        self.wave_title = title
+    self.wave_ax = []</code></pre>
+</details>
+<div class="desc"><p>Add waveform data to explorer.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>list</code> of <code>(list of) 2D arrays</code></dt>
+<dd>Waveform data associated with each row of the data.
+Elements of the outer list correspond to the rows of the data.
+The inner 2D arrays contain a common x-axes (first column)
+and one or more corresponding y-values (second and optional higher columns).
+Each column for y-values is plotted in its own axes on top of each other,
+from top to bottom.
+The optional inner list of 2D arrays contains several 2D arrays as ascribed above
+each with its own common x-axes.</dd>
+<dt><strong><code>xlabel</code></strong> :&ensp;<code>str</code> or <code>list</code> of <code>str</code></dt>
+<dd>The xlabels for the waveform plots. If only a string is given, then
+there will be a common xaxis for all the plots, and only the lowest
+one gets a labeled xaxis. If a list of strings is given, each waveform
+plot gets its own labeled x-axis.</dd>
+<dt><strong><code>ylabels</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>The ylabels for each of the waveform plots.</dd>
+<dt><strong><code>title</code></strong> :&ensp;<code>bool</code> or <code>str</code></dt>
+<dd>If True or a string, povide space on top of the waveform plots for a title.
+If string, set this as the title for the waveform plots.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.multivariateexplorer.MultivariateExplorer.set_colors"><code class="name flex">
+<span>def <span class="ident">set_colors</span></span>(<span>self, colors=0, color_label=None, color_map=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_colors(self, colors=0, color_label=None, color_map=None):
+    &#34;&#34;&#34;Set data column used to color scatter plots.
+    
+    Parameters
+    ----------
+    colors: int or 1D array
+       Index to colum in data to be used for coloring scatter plots.
+       -2 for coloring row index of data.
+       Or data array used to color scalar plots.
+    color_label: str
+       If colors is an array, this is a label describing the data.
+       It is used to label the color bar.
+    color_map: str or None
+        Name of a matplotlib color map.
+        If None &#39;jet&#39; is used.
+    &#34;&#34;&#34;
+    if isinstance(colors, (np.integer, int)):
+        if colors &lt; 0:
+            self.color_set_index = -1
+            self.color_index = 0
+        else:
+            self.color_set_index = 0
+            self.color_index = colors
+    else:
+        if not isinstance(colors[0], (int, float,
+                                      np.integer, np.floating)):
+            # categorial data:
+            self.extra_categories, self.extra_colors = categorize(colors)
+        else:
+            self.extra_colors = colors
+        self.extra_colors = self.extra_colors[self.valid_samples]
+        self.extra_color_label = color_label
+        self.color_set_index = -1
+        self.color_index = 1
+    self.color_map = plt.get_cmap(color_map if color_map else &#39;jet&#39;)</code></pre>
+</details>
+<div class="desc"><p>Set data column used to color scatter plots.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>colors</code></strong> :&ensp;<code>int</code> or <code>1D array</code></dt>
+<dd>&nbsp;</dd>
+<dt>Index to colum in data to be used for coloring scatter plots.</dt>
+<dt>-2 for coloring row index of data.</dt>
+<dt>Or data array used to color scalar plots.</dt>
+<dt><strong><code>color_label</code></strong> :&ensp;<code>str</code></dt>
+<dd>&nbsp;</dd>
+<dt>If colors is an array, this is a label describing the data.</dt>
+<dt>It is used to label the color bar.</dt>
+<dt><strong><code>color_map</code></strong> :&ensp;<code>str</code> or <code>None</code></dt>
+<dd>Name of a matplotlib color map.
+If None 'jet' is used.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.multivariateexplorer.MultivariateExplorer.show"><code class="name flex">
+<span>def <span class="ident">show</span></span>(<span>self, ioff=True)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def show(self, ioff=True):
+    &#34;&#34;&#34;Show interactive scatter plots for exploration.
+    &#34;&#34;&#34;
+    if ioff:
+        plt.ioff()
+    else:
+        plt.ion()
+    plt.rcParams[&#39;toolbar&#39;] = &#39;None&#39;
+    plt.rcParams[&#39;keymap.quit&#39;] = &#39;ctrl+w, alt+q, ctrl+q, q&#39;
+    plt.rcParams[&#39;font.size&#39;] = 12
+    self.fig = plt.figure(facecolor=&#39;white&#39;, figsize=(10, 8))
+    self.fig.canvas.manager.set_window_title(self.title + &#39;: &#39; + self.all_titles[self.show_mode])
+    self.fig.canvas.mpl_connect(&#39;key_press_event&#39;, self._on_key)
+    self.fig.canvas.mpl_connect(&#39;resize_event&#39;, self._on_resize)
+    self.fig.canvas.mpl_connect(&#39;pick_event&#39;, self._on_pick)
+    if self.color_map is None:
+        self.color_map = plt.get_cmap(&#39;jet&#39;)
+    self._set_color_column()
+    self._init_hist_plots()
+    self._init_scatter_plots()
+    self.wave_ax = []
+    if self.wave_data is not None and len(self.wave_data) &gt; 0:
+        axx = None
+        xi = 0
+        for k, has_xticks in enumerate(self.wave_has_xticks):
+            ax = self.fig.add_subplot(1, len(self.wave_has_xticks),
+                                      1+k, sharex=axx)
+            self.wave_ax.append(ax)
+            if has_xticks:
+                if xi &gt;= len(self.wave_xlabels):
+                    self.wave_xlabels.append(&#39;&#39;)
+                ax.set_xlabel(self.wave_xlabels[xi])
+                xi += 1
+                axx = None
+            else:
+                #ax.xaxis.set_major_formatter(plt.NullFormatter())
+                if axx is None:
+                    axx = ax
+        for ax, ylabel in zip(self.wave_ax, self.wave_ylabels):
+            ax.set_ylabel(ylabel)
+        if not isinstance(self.wave_title, bool) and self.wave_title:
+            self.wave_ax[0].set_title(self.wave_title)
+        self.fix_waveform_plot(self.wave_ax, self.mark_data)
+    self._plot_magnified_scatter()
+    self._plot_help()
+    plt.show()</code></pre>
+</details>
+<div class="desc"><p>Show interactive scatter plots for exploration.</p></div>
+</dd>
+<dt id="thunderlab.multivariateexplorer.MultivariateExplorer.compute_pca"><code class="name flex">
+<span>def <span class="ident">compute_pca</span></span>(<span>self, scale=False, write=False)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def compute_pca(self, scale=False, write=False):
+    &#34;&#34;&#34;Compute PCA based on the data.
+
+    Parameters
+    ----------
+    scale: boolean
+        If True standardize data before computing PCA, i.e. remove mean
+        of each variabel and divide by its standard deviation.
+    write: boolean
+        If True write PCA components to standard out.
+    &#34;&#34;&#34;
+    # pca:
+    pca = decomposition.PCA()
+    if scale:
+        scaler = preprocessing.StandardScaler()
+        scaler.fit(self.raw_data)
+        pca.fit(scaler.transform(self.raw_data))
+        pca_label = &#39;sPC&#39;
+    else:
+        pca.fit(self.raw_data)
+        pca_label = &#39;PC&#39;
+    for k in range(len(pca.components_)):
+        if np.abs(np.min(pca.components_[k])) &gt; np.max(pca.components_[k]):
+            pca.components_[k] *= -1.0
+    pca_data = pca.transform(self.raw_data)
+    pca_labels = [f&#39;{pca_label}{k+1} &#39; + (f&#39;({100*v:.1f}%)&#39; if v &gt; 0.01 else (f&#39;{100*v:.2f}%&#39;))
+                       for k, v in enumerate(pca.explained_variance_ratio_)]
+    if np.min(pca.explained_variance_ratio_) &gt;= 0.01:
+        pca_maxcols = pca_data.shape[1]
+    else:
+        pca_maxcols = np.argmax(pca.explained_variance_ratio_ &lt; 0.01)
+    if pca_maxcols &lt; 2:
+        pca_maxcols = 2
+    if pca_maxcols &gt; 6:
+        pca_maxcols = 6
+    # table with PCA feature weights:
+    pca_table = self.pca_tables[1] if scale else self.pca_tables[0]
+    pca_table.clear_data()
+    pca_table.set_section(0, pca_label, pca_table.nsecs)
+    for k, comp in enumerate(pca.components_):
+        pca_table.add(k+1, 0)
+        pca_table.add(100.0*pca.explained_variance_ratio_[k])
+        pca_table.add(comp)
+    if write:
+        pca_table.write(table_format=&#39;out&#39;, unit_style=&#39;none&#39;)
+    # submit data:
+    if scale:
+        self.all_data[2] = pca_data
+        self.all_labels[2] = pca_labels
+        self.all_maxcols[2] = pca_maxcols
+    else:
+        self.all_data[1] = pca_data
+        self.all_labels[1] = pca_labels
+        self.all_maxcols[1] = pca_maxcols</code></pre>
+</details>
+<div class="desc"><p>Compute PCA based on the data.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>scale</code></strong> :&ensp;<code>boolean</code></dt>
+<dd>If True standardize data before computing PCA, i.e. remove mean
+of each variabel and divide by its standard deviation.</dd>
+<dt><strong><code>write</code></strong> :&ensp;<code>boolean</code></dt>
+<dd>If True write PCA components to standard out.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.multivariateexplorer.MultivariateExplorer.save_pca"><code class="name flex">
+<span>def <span class="ident">save_pca</span></span>(<span>self, file_name, scale, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_pca(self, file_name, scale, **kwargs):
+    &#34;&#34;&#34;Write PCA data to file.
+
+    Parameters
+    ----------
+    file_name: str
+        Name of ouput file.
+    scale: boolean
+        If True write PCA components of standardized PCA.
+    kwargs: dict
+        Additional parameter for TableData.write()
+    &#34;&#34;&#34;
+    if scale:
+        pca_file = file_name + &#39;-pcacor&#39;
+        pca_table = self.pca_tables[1]
+    else:
+        pca_file = file_name + &#39;-pcacov&#39;
+        pca_table = self.pca_tables[0]
+    if &#39;unit_style&#39; in kwargs:
+        del kwargs[&#39;unit_style&#39;]
+    if &#39;table_format&#39; in kwargs:
+        pca_table.write(pca_file, unit_style=&#39;none&#39;, **kwargs)
+    else:
+        pca_file += &#39;.dat&#39;
+        pca_table.write(pca_file, unit_style=&#39;none&#39;)</code></pre>
+</details>
+<div class="desc"><p>Write PCA data to file.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>file_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of ouput file.</dd>
+<dt><strong><code>scale</code></strong> :&ensp;<code>boolean</code></dt>
+<dd>If True write PCA components of standardized PCA.</dd>
+<dt><strong><code>kwargs</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Additional parameter for TableData.write()</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.multivariateexplorer.MultivariateExplorer.fix_scatter_plot"><code class="name flex">
+<span>def <span class="ident">fix_scatter_plot</span></span>(<span>self, ax, data, label, axis)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fix_scatter_plot(self, ax, data, label, axis):
+    &#34;&#34;&#34;Customize an axes of a scatter plot.
+
+    This function is called after a scatter plot has been plotted.
+    Once for the x axes, once for the y axis and once for the color bar.
+    Reimplement this function to set appropriate limits and ticks.
+
+    Return values are only used for the color bar (`axis=&#39;c&#39;`).
+    Otherwise they are ignored.
+
+    For example, ticks for phase variables can be nicely labeled
+    using the unicode character for pi:
+    ```
+    if &#39;phase&#39; in label:
+        if axis == &#39;y&#39;:
+            ax.set_ylim(0.0, 2.0*np.pi)
+            ax.set_yticks(np.arange(0.0, 2.5*np.pi, 0.5*np.pi))
+            ax.set_yticklabels([&#39;0&#39;, u&#39;\u03c0/2&#39;, u&#39;\u03c0&#39;, u&#39;3\u03c0/2&#39;, u&#39;2\u03c0&#39;])
+    ```
+    
+    Parameters
+    ----------
+    ax: matplotlib axes
+        Axes of the scatter plot or color bar to be worked on.
+    data: 1D array
+        Data array of the axes.
+    label: str
+        Label coresponding to the data array.
+    axis: str
+        &#39;x&#39;, &#39;y&#39;: set properties of x or y axes of ax.
+        &#39;c&#39;: set properies of color bar axes (note that ax can be None!)
+             and return vmin, vmax, and ticks.
+
+    Returns
+    -------
+    min: float
+        minimum value of color bar axis
+    max: float
+        maximum value of color bar axis
+    ticks: list of float
+        position of ticks for color bar axis
+    &#34;&#34;&#34;
+    return np.nanmin(data), np.nanmax(data), None</code></pre>
+</details>
+<div class="desc"><p>Customize an axes of a scatter plot.</p>
+<p>This function is called after a scatter plot has been plotted.
+Once for the x axes, once for the y axis and once for the color bar.
+Reimplement this function to set appropriate limits and ticks.</p>
+<p>Return values are only used for the color bar (<code>axis='c'</code>).
+Otherwise they are ignored.</p>
+<p>For example, ticks for phase variables can be nicely labeled
+using the unicode character for pi:</p>
+<pre><code>if 'phase' in label:
+    if axis == 'y':
+        ax.set_ylim(0.0, 2.0*np.pi)
+        ax.set_yticks(np.arange(0.0, 2.5*np.pi, 0.5*np.pi))
+        ax.set_yticklabels(['0', u'π/2', u'π', u'3π/2', u'2π'])
+</code></pre>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>ax</code></strong> :&ensp;<code>matplotlib axes</code></dt>
+<dd>Axes of the scatter plot or color bar to be worked on.</dd>
+<dt><strong><code>data</code></strong> :&ensp;<code>1D array</code></dt>
+<dd>Data array of the axes.</dd>
+<dt><strong><code>label</code></strong> :&ensp;<code>str</code></dt>
+<dd>Label coresponding to the data array.</dd>
+<dt><strong><code>axis</code></strong> :&ensp;<code>str</code></dt>
+<dd>'x', 'y': set properties of x or y axes of ax.
+'c': set properies of color bar axes (note that ax can be None!)
+and return vmin, vmax, and ticks.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>min</code></strong> :&ensp;<code>float</code></dt>
+<dd>minimum value of color bar axis</dd>
+<dt><strong><code>max</code></strong> :&ensp;<code>float</code></dt>
+<dd>maximum value of color bar axis</dd>
+<dt><strong><code>ticks</code></strong> :&ensp;<code>list</code> of <code>float</code></dt>
+<dd>position of ticks for color bar axis</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.multivariateexplorer.MultivariateExplorer.fix_waveform_plot"><code class="name flex">
+<span>def <span class="ident">fix_waveform_plot</span></span>(<span>self, axs, indices)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fix_waveform_plot(self, axs, indices):
+    &#34;&#34;&#34;Customize waveform plots.
+
+    This function is called once after new data have been plotted
+    into the waveform plots.  Reimplement this function to customize
+    these plots. In particular to set axis limits and labels, plot
+    title, etc.
+    You may even open a new figure (with non-blocking `show()`).
+
+    The following member variables might be usefull:
+    - `self.wave_data`: the full list of waveform data.
+    - `self.wave_nested`: True if the elements of `self.wave_data` are lists of 2D arrays. Otherwise the elements are 2D arrays. The first column of a 2D array contains the x-values, further columns y-values.
+    - `self.wave_has_xticks`: List of booleans for each axis. True if the axis has its own xticks.
+    - `self.wave_xlabels`: List of xlabels (only for the axis where the corresponding entry in `self.wave_has_xticks` is True).
+    - `self.wave_ylabels`: for each axis its ylabel
+    
+    For example, you can set the linewidth of all plotted waveforms via:
+    ```
+    for ax in axs:
+        for l in ax.lines:
+            l.set_linewidth(3.0)
+    ```
+    or enable markers to be plotted:
+    ```
+    for ax, yl in zip(axs, self.wave_ylabels):
+        if &#39;Power&#39; in yl:
+            for l in ax.lines:
+                l.set_marker(&#39;.&#39;)
+                l.set_markersize(15.0)
+                l.set_markeredgewidth(0.5)
+                l.set_markeredgecolor(&#39;k&#39;)
+                l.set_markerfacecolor(l.get_color())
+    ```
+    Usefull is to reduce the maximum number of y-ticks:
+    ```
+    axs[0].yaxis.get_major_locator().set_params(nbins=7)
+    ```
+    or
+    ```
+    import matplotlib.ticker as ticker
+    axs[0].yaxis.set_major_locator(ticker.MaxNLocator(nbins=4))
+    ```
+
+    Parameters
+    ----------
+    axs: list of matplotlib axes
+        Axis of the waveform plots to be worked on.
+    indices: list of int
+        Indices of the waveforms that have been selected and plotted.
+    &#34;&#34;&#34;
+    pass</code></pre>
+</details>
+<div class="desc"><p>Customize waveform plots.</p>
+<p>This function is called once after new data have been plotted
+into the waveform plots.
+Reimplement this function to customize
+these plots. In particular to set axis limits and labels, plot
+title, etc.
+You may even open a new figure (with non-blocking <code>show()</code>).</p>
+<p>The following member variables might be usefull:
+- <code>self.wave_data</code>: the full list of waveform data.
+- <code>self.wave_nested</code>: True if the elements of <code>self.wave_data</code> are lists of 2D arrays. Otherwise the elements are 2D arrays. The first column of a 2D array contains the x-values, further columns y-values.
+- <code>self.wave_has_xticks</code>: List of booleans for each axis. True if the axis has its own xticks.
+- <code>self.wave_xlabels</code>: List of xlabels (only for the axis where the corresponding entry in <code>self.wave_has_xticks</code> is True).
+- <code>self.wave_ylabels</code>: for each axis its ylabel</p>
+<p>For example, you can set the linewidth of all plotted waveforms via:</p>
+<pre><code>for ax in axs:
+    for l in ax.lines:
+        l.set_linewidth(3.0)
+</code></pre>
+<p>or enable markers to be plotted:</p>
+<pre><code>for ax, yl in zip(axs, self.wave_ylabels):
+    if 'Power' in yl:
+        for l in ax.lines:
+            l.set_marker('.')
+            l.set_markersize(15.0)
+            l.set_markeredgewidth(0.5)
+            l.set_markeredgecolor('k')
+            l.set_markerfacecolor(l.get_color())
+</code></pre>
+<p>Usefull is to reduce the maximum number of y-ticks:</p>
+<pre><code>axs[0].yaxis.get_major_locator().set_params(nbins=7)
+</code></pre>
+<p>or</p>
+<pre><code>import matplotlib.ticker as ticker
+axs[0].yaxis.set_major_locator(ticker.MaxNLocator(nbins=4))
+</code></pre>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>axs</code></strong> :&ensp;<code>list</code> of <code>matplotlib axes</code></dt>
+<dd>Axis of the waveform plots to be worked on.</dd>
+<dt><strong><code>indices</code></strong> :&ensp;<code>list</code> of <code>int</code></dt>
+<dd>Indices of the waveforms that have been selected and plotted.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.multivariateexplorer.MultivariateExplorer.list_selection"><code class="name flex">
+<span>def <span class="ident">list_selection</span></span>(<span>self, indices)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def list_selection(self, indices):
+    &#34;&#34;&#34;List information about the current selection of data points.
+
+    This function is called when &#39;l&#39; is pressed.  Reimplement this
+    function, for example, to print some meaningfull information
+    about the current selection of data points on console. You may
+    do, however, whatever you want in this function.
+
+    Parameters
+    ----------
+    indices: list of int
+        Indices of the data points that have been selected.
+    &#34;&#34;&#34;
+    print(&#39;&#39;)
+    print(&#39;selected rows in data table:&#39;)
+    for i in indices:
+        print(self.valid_rows[i])</code></pre>
+</details>
+<div class="desc"><p>List information about the current selection of data points.</p>
+<p>This function is called when 'l' is pressed.
+Reimplement this
+function, for example, to print some meaningfull information
+about the current selection of data points on console. You may
+do, however, whatever you want in this function.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>indices</code></strong> :&ensp;<code>list</code> of <code>int</code></dt>
+<dd>Indices of the data points that have been selected.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.multivariateexplorer.MultivariateExplorer.analyze_selection"><code class="name flex">
+<span>def <span class="ident">analyze_selection</span></span>(<span>self, index)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def analyze_selection(self, index):
+    &#34;&#34;&#34;Provide further information about a single selected data point.
+
+    This function is called when a single data item was double
+    clicked.  Reimplement this function to provide some further
+    details on this data point.  This can be an additional figure
+    window. In this case show it non-blocking:
+    `plt.show(block=False)`
+
+    Parameters
+    ----------
+    index: int
+        The index of the selected data point.
+    &#34;&#34;&#34;
+    pass</code></pre>
+</details>
+<div class="desc"><p>Provide further information about a single selected data point.</p>
+<p>This function is called when a single data item was double
+clicked.
+Reimplement this function to provide some further
+details on this data point.
+This can be an additional figure
+window. In this case show it non-blocking:
+<code>plt.show(block=False)</code></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>index</code></strong> :&ensp;<code>int</code></dt>
+<dd>The index of the selected data point.</dd>
+</dl></div>
+</dd>
+</dl>
+</dd>
+<dt id="thunderlab.multivariateexplorer.PrintHelp"><code class="flex name class">
+<span>class <span class="ident">PrintHelp</span></span>
+<span>(</span><span>option_strings,<br>dest,<br>nargs=None,<br>const=None,<br>default=None,<br>type=None,<br>choices=None,<br>required=False,<br>help=None,<br>metavar=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PrintHelp(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string):
+        parser.print_help()
+        print(&#39;&#39;)
+        print(&#39;mouse:&#39;)
+        for ma in MultivariateExplorer.mouse_actions:
+            print(&#39;%-23s %s&#39; % ma)
+        print(&#39;%-23s %s&#39; % (&#39;double left click&#39;, &#39;run thunderfish on selected EOD waveform&#39;))
+        print(&#39;&#39;)
+        print(&#39;key shortcuts:&#39;)
+        for ka in MultivariateExplorer.key_actions:
+            print(&#39;%-23s %s&#39; % ka)
+        parser.exit()      </code></pre>
+</details>
+<div class="desc"><p>Information about how to convert command line strings to Python objects.</p>
+<p>Action objects are used by an ArgumentParser to represent the information
+needed to parse a single argument from one or more strings from the
+command line. The keyword arguments to the Action constructor are also
+all attributes of Action instances.</p>
+<p>Keyword Arguments:</p>
+<pre><code>- option_strings -- A list of command-line option strings which
+    should be associated with this action.
+
+- dest -- The name of the attribute to hold the created object(s)
+
+- nargs -- The number of command-line arguments that should be
+    consumed. By default, one argument will be consumed and a single
+    value will be produced.  Other values include:
+        - N (an integer) consumes N arguments (and produces a list)
+        - '?' consumes zero or one arguments
+        - '*' consumes zero or more arguments (and produces a list)
+        - '+' consumes one or more arguments (and produces a list)
+    Note that the difference between the default and nargs=1 is that
+    with the default, a single value will be produced, while with
+    nargs=1, a list containing a single value will be produced.
+
+- const -- The value to be produced if the option is specified and the
+    option uses an action that takes no values.
+
+- default -- The value to be produced if the option is not specified.
+
+- type -- A callable that accepts a single string argument, and
+    returns the converted value.  The standard Python types str, int,
+    float, and complex are useful examples of such callables.  If None,
+    str is used.
+
+- choices -- A container of values that should be allowed. If not None,
+    after a command-line argument has been converted to the appropriate
+    type, an exception will be raised if it is not a member of this
+    collection.
+
+- required -- True if the action must always be specified at the
+    command line. This is only meaningful for optional command-line
+    arguments.
+
+- help -- The help string describing the argument.
+
+- metavar -- The name to be used for the option's argument with the
+    help string. If None, the 'dest' value will be used as the name.
+</code></pre></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>argparse.Action</li>
+<li>argparse._AttributeHolder</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="thunderlab" href="index.html">thunderlab</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="thunderlab.multivariateexplorer.categorize" href="#thunderlab.multivariateexplorer.categorize">categorize</a></code></li>
+<li><code><a title="thunderlab.multivariateexplorer.select_features" href="#thunderlab.multivariateexplorer.select_features">select_features</a></code></li>
+<li><code><a title="thunderlab.multivariateexplorer.select_coloring" href="#thunderlab.multivariateexplorer.select_coloring">select_coloring</a></code></li>
+<li><code><a title="thunderlab.multivariateexplorer.list_available_features" href="#thunderlab.multivariateexplorer.list_available_features">list_available_features</a></code></li>
+<li><code><a title="thunderlab.multivariateexplorer.demo" href="#thunderlab.multivariateexplorer.demo">demo</a></code></li>
+<li><code><a title="thunderlab.multivariateexplorer.main" href="#thunderlab.multivariateexplorer.main">main</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="thunderlab.multivariateexplorer.MultivariateExplorer" href="#thunderlab.multivariateexplorer.MultivariateExplorer">MultivariateExplorer</a></code></h4>
+<ul class="two-column">
+<li><code><a title="thunderlab.multivariateexplorer.MultivariateExplorer.set_wave_data" href="#thunderlab.multivariateexplorer.MultivariateExplorer.set_wave_data">set_wave_data</a></code></li>
+<li><code><a title="thunderlab.multivariateexplorer.MultivariateExplorer.set_colors" href="#thunderlab.multivariateexplorer.MultivariateExplorer.set_colors">set_colors</a></code></li>
+<li><code><a title="thunderlab.multivariateexplorer.MultivariateExplorer.show" href="#thunderlab.multivariateexplorer.MultivariateExplorer.show">show</a></code></li>
+<li><code><a title="thunderlab.multivariateexplorer.MultivariateExplorer.compute_pca" href="#thunderlab.multivariateexplorer.MultivariateExplorer.compute_pca">compute_pca</a></code></li>
+<li><code><a title="thunderlab.multivariateexplorer.MultivariateExplorer.save_pca" href="#thunderlab.multivariateexplorer.MultivariateExplorer.save_pca">save_pca</a></code></li>
+<li><code><a title="thunderlab.multivariateexplorer.MultivariateExplorer.fix_scatter_plot" href="#thunderlab.multivariateexplorer.MultivariateExplorer.fix_scatter_plot">fix_scatter_plot</a></code></li>
+<li><code><a title="thunderlab.multivariateexplorer.MultivariateExplorer.fix_waveform_plot" href="#thunderlab.multivariateexplorer.MultivariateExplorer.fix_waveform_plot">fix_waveform_plot</a></code></li>
+<li><code><a title="thunderlab.multivariateexplorer.MultivariateExplorer.list_selection" href="#thunderlab.multivariateexplorer.MultivariateExplorer.list_selection">list_selection</a></code></li>
+<li><code><a title="thunderlab.multivariateexplorer.MultivariateExplorer.analyze_selection" href="#thunderlab.multivariateexplorer.MultivariateExplorer.analyze_selection">analyze_selection</a></code></li>
+<li><code><a title="thunderlab.multivariateexplorer.MultivariateExplorer.mouse_actions" href="#thunderlab.multivariateexplorer.MultivariateExplorer.mouse_actions">mouse_actions</a></code></li>
+<li><code><a title="thunderlab.multivariateexplorer.MultivariateExplorer.key_actions" href="#thunderlab.multivariateexplorer.MultivariateExplorer.key_actions">key_actions</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="thunderlab.multivariateexplorer.PrintHelp" href="#thunderlab.multivariateexplorer.PrintHelp">PrintHelp</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>

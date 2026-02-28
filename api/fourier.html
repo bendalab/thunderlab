@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>thunderlab.fourier API documentation</title>
+<meta name="description" content="Fourier series …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\(","\\)"] ], processEscapes: true } });</script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>thunderlab.fourier</code></h1>
+</header>
+<section id="section-intro">
+<p>Fourier series</p>
+<p>Extract and normalize Fourier coefficients of a Fourier series of
+periodic functions, or synthesize periodic functions from Fourier
+coefficients.</p>
+<h2 id="functions">Functions</h2>
+<ul>
+<li><code><a title="thunderlab.fourier.fourier_coeffs" href="#thunderlab.fourier.fourier_coeffs">fourier_coeffs()</a></code>: extract Fourier coefficients from data.</li>
+<li><code><a title="thunderlab.fourier.normalize_fourier_coeffs" href="#thunderlab.fourier.normalize_fourier_coeffs">normalize_fourier_coeffs()</a></code>: set phase of first harmonics and offset to zero.</li>
+<li><code><a title="thunderlab.fourier.fourier_synthesis" href="#thunderlab.fourier.fourier_synthesis">fourier_synthesis()</a></code>: compute waveform from Fourier coefficients.</li>
+</ul>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="thunderlab.fourier.fourier_coeffs"><code class="name flex">
+<span>def <span class="ident">fourier_coeffs</span></span>(<span>data, ratetime, freq, n_harmonics)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fourier_coeffs(data, ratetime, freq, n_harmonics):
+    &#34;&#34;&#34; Extract Fourier coefficients from data.
+
+    Decompose a periodic signal \\(x(t)\\) with known fundamental frequency
+    \\(f_1\\) into a Fourier series:
+    \\[ x(t) \\approx \\Re \\sum_{k=0}^n c_k e^{i 2 \\pi k f_1 t} \\]
+    with the Fourier coefficients
+    \\[ c_k = \\frac{2}{jT} \\int_{0}^{jT} x(t) e^{-i 2 \\pi k f_1 t} \\, dt \\]
+    integrated over integer multiples of the period \\(T=1/f_1\\).
+
+    Parameters
+    ----------
+    data: 1D array of float
+        Time series of data.
+    ratetime: float or 1-D array of float
+        Times corresponding to `data`.
+        If single float, then sampling rate of the data.
+    freq: float
+        Fundamental frequency of Fourier series.
+    n_harmonics: int
+        Number of harmonics inclusively the zeroth one.
+        That is, if `n_harmonics` is set to two,
+        then the zeroth harmonics (offset) and the fundamental
+        frequency (first harmonics) are returned.
+
+    Returns
+    -------
+    coeffs: 1D array of complex
+        For each harmonics the complex valued Fourier coefficient.
+        The first one is the offset and the second one is the coefficient
+        of the fundamental. If the number ofdata samples is less than
+        a single period, then a zero-sized array is returned.
+    &#34;&#34;&#34;
+    if isinstance(ratetime, (list, tuple, np.ndarray)):
+        time = ratetime
+    else:
+        time = np.arange(len(data))/ratetime
+    # integrate over full periods:
+    n_periods = int(np.floor((time[-1] - time[0])*freq))
+    if n_periods &lt; 1:
+        return np.zeros(0, dtype=complex)
+    n_max = np.argmax(time &gt; time[0] + n_periods/freq)
+    data = data[:n_max]
+    time = time[:n_max]
+    # Fourier projections:
+    iomega = -2j*np.pi*freq*time
+    fac = 2/len(data)       # = 2*deltat/T
+    coeffs = np.zeros(n_harmonics, dtype=complex)
+    for k in range(n_harmonics):
+        coeffs[k] = np.sum(data*np.exp(iomega*k))*fac
+    return coeffs</code></pre>
+</details>
+<div class="desc"><p>Extract Fourier coefficients from data.</p>
+<p>Decompose a periodic signal <span><span class="MathJax_Preview">x(t)</span><script type="math/tex">x(t)</script></span> with known fundamental frequency
+<span><span class="MathJax_Preview">f_1</span><script type="math/tex">f_1</script></span> into a Fourier series:
+<span><span class="MathJax_Preview"> x(t) \approx \Re \sum_{k=0}^n c_k e^{i 2 \pi k f_1 t} </span><script type="math/tex; mode=display"> x(t) \approx \Re \sum_{k=0}^n c_k e^{i 2 \pi k f_1 t} </script></span>
+with the Fourier coefficients
+<span><span class="MathJax_Preview"> c_k = \frac{2}{jT} \int_{0}^{jT} x(t) e^{-i 2 \pi k f_1 t} \, dt </span><script type="math/tex; mode=display"> c_k = \frac{2}{jT} \int_{0}^{jT} x(t) e^{-i 2 \pi k f_1 t} \, dt </script></span>
+integrated over integer multiples of the period <span><span class="MathJax_Preview">T=1/f_1</span><script type="math/tex">T=1/f_1</script></span>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>1D array</code> of <code>float</code></dt>
+<dd>Time series of data.</dd>
+<dt><strong><code>ratetime</code></strong> :&ensp;<code>float</code> or <code>1-D array</code> of <code>float</code></dt>
+<dd>Times corresponding to <code>data</code>.
+If single float, then sampling rate of the data.</dd>
+<dt><strong><code>freq</code></strong> :&ensp;<code>float</code></dt>
+<dd>Fundamental frequency of Fourier series.</dd>
+<dt><strong><code>n_harmonics</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of harmonics inclusively the zeroth one.
+That is, if <code>n_harmonics</code> is set to two,
+then the zeroth harmonics (offset) and the fundamental
+frequency (first harmonics) are returned.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>coeffs</code></strong> :&ensp;<code>1D array</code> of <code>complex</code></dt>
+<dd>For each harmonics the complex valued Fourier coefficient.
+The first one is the offset and the second one is the coefficient
+of the fundamental. If the number ofdata samples is less than
+a single period, then a zero-sized array is returned.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.fourier.normalize_fourier_coeffs"><code class="name flex">
+<span>def <span class="ident">normalize_fourier_coeffs</span></span>(<span>coeffs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def normalize_fourier_coeffs(coeffs):
+    &#34;&#34;&#34;Set phase of first harmonics and offset to zero.
+
+    Parameters
+    ----------
+    coeffs: 1D array of complex
+        For each harmonic the complex valued Fourier coefficient
+        as, for example, returned by `fourier_coeffs()`.
+        The first one is the offset and the second one is the coefficient
+        of the fundamental.
+
+    Returns
+    -------
+    coeffs: 1D array of complex
+        The normalized Fourier coefficients.
+    &#34;&#34;&#34;
+    phi1 = np.angle(coeffs[1])
+    for k in range(1, len(coeffs)):
+        coeffs[k] *= np.exp(-1j*k*phi1)
+    coeffs[0] = 0 + 0j
+    return coeffs</code></pre>
+</details>
+<div class="desc"><p>Set phase of first harmonics and offset to zero.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>coeffs</code></strong> :&ensp;<code>1D array</code> of <code>complex</code></dt>
+<dd>For each harmonic the complex valued Fourier coefficient
+as, for example, returned by <code><a title="thunderlab.fourier.fourier_coeffs" href="#thunderlab.fourier.fourier_coeffs">fourier_coeffs()</a></code>.
+The first one is the offset and the second one is the coefficient
+of the fundamental.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>coeffs</code></strong> :&ensp;<code>1D array</code> of <code>complex</code></dt>
+<dd>The normalized Fourier coefficients.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.fourier.fourier_synthesis"><code class="name flex">
+<span>def <span class="ident">fourier_synthesis</span></span>(<span>freq, coeffs, ratetime, n=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fourier_synthesis(freq, coeffs, ratetime, n=None):
+    &#34;&#34;&#34; Compute periodic waveform from Fourier coefficients.
+
+    Given the Fourier coefficients
+    \\[ c_k = \\frac{2}{jT} \\int_{0}^{jT} x(t) e^{-i 2 \\pi k f_1 t} \\, dt \\]
+    integrated over integer multiples of the period \\(T=1/f_1\\) of a signal
+    \\(x(t)\\) with fundamental frequency \\(f_1\\), compute
+    the Fourier series
+    \\[ x(t) \\approx \\Re \\sum_{k=0}^n c_k e^{i 2 \\pi k f_1 t} \\]
+
+    Parameters
+    ----------
+    freq: float
+        Fundamental frequency.
+    coeffs: 1D array of complex
+        For each harmonics the complex valued Fourier coefficient
+        as, for example, returned by `fourier_coeffs()`.
+        The first one is the offset.
+    ratetime: float or 1-D array of float
+        Time points for which the waveform is calculated.
+        If single float, then sampling rate of the computed waveform.
+    n: int
+        Number of samples if `ratetime` is float.
+
+    Returns
+    -------
+    wave: 1D array of float
+        Waveform computed from Fourier series with fundamental frequency
+        `freq` and Fourier coefficients `coeffs` for each harmonic.
+        The waveform is computed for a sampling rate `rate` and contains
+        `n` samples.
+    &#34;&#34;&#34;
+    if isinstance(ratetime, (list, tuple, np.ndarray)):
+        time = ratetime
+    else:
+        time = np.arange(n)/ratetime
+    iomega = 2j*np.pi*freq*time
+    wave = np.zeros(len(time))
+    for k in range(len(coeffs)):
+        wave += np.real(coeffs[k]*np.exp(iomega*k))
+    return wave</code></pre>
+</details>
+<div class="desc"><p>Compute periodic waveform from Fourier coefficients.</p>
+<p>Given the Fourier coefficients
+<span><span class="MathJax_Preview"> c_k = \frac{2}{jT} \int_{0}^{jT} x(t) e^{-i 2 \pi k f_1 t} \, dt </span><script type="math/tex; mode=display"> c_k = \frac{2}{jT} \int_{0}^{jT} x(t) e^{-i 2 \pi k f_1 t} \, dt </script></span>
+integrated over integer multiples of the period <span><span class="MathJax_Preview">T=1/f_1</span><script type="math/tex">T=1/f_1</script></span> of a signal
+<span><span class="MathJax_Preview">x(t)</span><script type="math/tex">x(t)</script></span> with fundamental frequency <span><span class="MathJax_Preview">f_1</span><script type="math/tex">f_1</script></span>, compute
+the Fourier series
+<span><span class="MathJax_Preview"> x(t) \approx \Re \sum_{k=0}^n c_k e^{i 2 \pi k f_1 t} </span><script type="math/tex; mode=display"> x(t) \approx \Re \sum_{k=0}^n c_k e^{i 2 \pi k f_1 t} </script></span></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>freq</code></strong> :&ensp;<code>float</code></dt>
+<dd>Fundamental frequency.</dd>
+<dt><strong><code>coeffs</code></strong> :&ensp;<code>1D array</code> of <code>complex</code></dt>
+<dd>For each harmonics the complex valued Fourier coefficient
+as, for example, returned by <code><a title="thunderlab.fourier.fourier_coeffs" href="#thunderlab.fourier.fourier_coeffs">fourier_coeffs()</a></code>.
+The first one is the offset.</dd>
+<dt><strong><code>ratetime</code></strong> :&ensp;<code>float</code> or <code>1-D array</code> of <code>float</code></dt>
+<dd>Time points for which the waveform is calculated.
+If single float, then sampling rate of the computed waveform.</dd>
+<dt><strong><code>n</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of samples if <code>ratetime</code> is float.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>wave</code></strong> :&ensp;<code>1D array</code> of <code>float</code></dt>
+<dd>Waveform computed from Fourier series with fundamental frequency
+<code>freq</code> and Fourier coefficients <code>coeffs</code> for each harmonic.
+The waveform is computed for a sampling rate <code>rate</code> and contains
+<code>n</code> samples.</dd>
+</dl></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul>
+<li><a href="#functions">Functions</a></li>
+</ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="thunderlab" href="index.html">thunderlab</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="thunderlab.fourier.fourier_coeffs" href="#thunderlab.fourier.fourier_coeffs">fourier_coeffs</a></code></li>
+<li><code><a title="thunderlab.fourier.normalize_fourier_coeffs" href="#thunderlab.fourier.normalize_fourier_coeffs">normalize_fourier_coeffs</a></code></li>
+<li><code><a title="thunderlab.fourier.fourier_synthesis" href="#thunderlab.fourier.fourier_synthesis">fourier_synthesis</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>

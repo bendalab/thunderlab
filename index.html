@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="None" /><meta name="author" content="Benda-Lab" />
+      <link rel="shortcut icon" href="img/favicon.ico" />
+    <title>thunderlab</title>
+    <link rel="stylesheet" href="css/theme.css" />
+    <link rel="stylesheet" href="css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Home";
+        var mkdocs_page_input_path = "index.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="." class="icon icon-home"> thunderlab
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Home</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#software">Software</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#algorithms">Algorithms</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#inputoutput">Input/output</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#basic-data-analysis">Basic data analysis</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#used-by">Used by</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">User guide</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="multivariateexplorer/">Multivariate explorer</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="" href="api/index.html">API reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="cover/index.html">Coverage</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href=".">thunderlab</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Home</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <p><a href="https://github.com/bendalab/thunderlab/blob/master/LICENSE"><img alt="license" src="https://img.shields.io/pypi/l/thunderlab.svg" /></a>
+<a href="https://github.com/bendalab/thunderlab/actions"><img alt="tests" src="https://github.com/bendalab/thunderlab/workflows/tests/badge.svg?dummy=42" /></a>
+<a href="https://bendalab.github.io/thunderlab/cover"><img alt="codecov" src="https://bendalab.github.io/thunderlab/coverage.svg?dummy=42" /></a>
+<a href="https://pypi.python.org/pypi/thunderlab/"><img alt="PyPI version" src="https://img.shields.io/pypi/v/thunderlab.svg" /></a>
+<img alt="downloads" src="https://img.shields.io/pypi/dm/thunderlab.svg" />
+<a href="https://github.com/bendalab/thunderlab/graphs/contributors"><img alt="contributors" src="https://img.shields.io/github/contributors/bendalab/thunderlab" /></a>
+<a href="https://github.com/bendalab/thunderlab/pulse"><img alt="commits" src="https://img.shields.io/github/commit-activity/m/bendalab/thunderlab" /></a></p>
+<!--
+![python](https://img.shields.io/pypi/pyversions/thunderlab.svg)
+![issues open](https://img.shields.io/github/issues/bendalab/thunderlab.svg)
+![issues closed](https://img.shields.io/github/issues-closed/bendalab/thunderlab.svg)
+![pullrequests open](https://img.shields.io/github/issues-pr/bendalab/thunderlab.svg)
+![pullrequests closed](https://img.shields.io/github/issues-pr-closed/bendalab/thunderlab.svg)
+-->
+
+<h1 id="thunderlab">ThunderLab</h1>
+<p>Load, write, and preprocess time series data.</p>
+<h2 id="installation">Installation</h2>
+<p>ThunderLab is available from
+<a href="https://pypi.org/project/thunderlab/">PyPi</a>. Simply run:</p>
+<pre><code>pip install thunderlab
+</code></pre>
+<p>If you have problems loading specific audio files with ThunderLab,
+then you need to install further packages. Follow the <a href="https://bendalab.github.io/audioio/installation/">installation
+instructions</a> of the
+<a href="https://bendalab.github.io/audioio/">AudioIO</a> package.</p>
+<h2 id="software">Software</h2>
+<p>The ThunderLab package provides the following software:</p>
+<ul>
+<li><a href="https://bendalab.github.io/thunderlab/api/convertdata/"><code>convertdata</code></a>: Convert data between various file formats, inclusively audio file formats.</li>
+<li><a href="https://bendalab.github.io/thunderlab/api/multivariateexplorer.html"><code>multivariateexplorer</code></a>: Simple GUI for viewing and exploring multivariate data. <a href="multivariateexplorer/index.html">More</a></li>
+</ul>
+<h2 id="algorithms">Algorithms</h2>
+<p>Click on the modules for more information.</p>
+<h3 id="inputoutput">Input/output</h3>
+<ul>
+<li><a href="https://bendalab.github.io/thunderlab/api/dataloader.html"><code>dataloader</code></a>: Load time-series data from files.</li>
+<li><a href="https://bendalab.github.io/thunderlab/api/datawriter.html"><code>datawriter</code></a>: Write time-series data to files.</li>
+<li><a href="https://bendalab.github.io/thunderlab/api/tabledata.html"><code>tabledata</code></a>:
+  Tables with hierarchical header including units and column-specific
+  formats. Kind of similar to a pandas data frame, but without index
+  column and with intuitive numpy-style indexing and nicely formatted
+  output to csv, markdown, html, and latex.</li>
+<li><a href="https://bendalab.github.io/thunderlab/api/configfile.html"><code>configfile</code></a>: Configuration file with help texts for analysis parameter.</li>
+<li><a href="https://bendalab.github.io/thunderlab/api/consoleinput.html"><code>consoleinput</code></a>: User input from console.</li>
+</ul>
+<h3 id="basic-data-analysis">Basic data analysis</h3>
+<ul>
+<li><a href="https://bendalab.github.io/thunderlab/api/eventdetection.html"><code>eventdetection</code></a>: Detect and handle peaks and troughs as well as threshold crossings in data arrays.</li>
+<li><a href="https://bendalab.github.io/thunderlab/api/fourier.html"><code>fourier</code></a>: Extract Fourier coefficients and synthesize periodic functions.</li>
+<li><a href="https://bendalab.github.io/thunderlab/api/powerspectrum.html"><code>powerspectrum</code></a>: Compute and plot powerspectra and spectrograms for a given minimum frequency resolution.</li>
+<li><a href="https://bendalab.github.io/thunderlab/api/voronoi.html"><code>voronoi</code></a>: Analyse Voronoi diagrams based on scipy.spatial.</li>
+</ul>
+<h2 id="used-by">Used by</h2>
+<ul>
+<li><a href="https://github.com/bendalab/thunderfish">thunderfish</a>: Algorithms and programs for analysing electric field recordings of weakly electric fish.</li>
+<li><a href="https://github.com/bendalab/audian">audian</a> Python-based GUI for
+viewing and analyzing recordings of animal vocalizations.</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="multivariateexplorer/" class="btn btn-neutral float-right" title="Multivariate explorer">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/bendalab/thunderlab/" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+    
+      <span><a href="multivariateexplorer/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = ".";</script>
+    <script src="js/theme_extra.js"></script>
+    <script src="js/theme.js"></script>
+      <script src="search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
+
+<!--
+MkDocs version : 1.6.1
+Build Date UTC : 2026-02-28 21:51:48.233563+00:00
+-->

@@ -1,0 +1,1099 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>thunderlab.configfile API documentation</title>
+<meta name="description" content="configfile …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\(","\\)"] ], processEscapes: true } });</script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>thunderlab.configfile</code></h1>
+</header>
+<section id="section-intro">
+<p>configfile</p>
+<p>class <code><a title="thunderlab.configfile.ConfigFile" href="#thunderlab.configfile.ConfigFile">ConfigFile</a></code>: handling of configuration parameter.</p>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="thunderlab.configfile.main"><code class="name flex">
+<span>def <span class="ident">main</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def main():
+    cfg = ConfigFile()
+    cfg.add_section(&#39;Power spectrum:&#39;)
+    cfg.add(&#39;nfft&#39;, 256, &#39;&#39;, &#39;Number of data poinst for fourier transform.&#39;)
+    cfg.add(&#39;windows&#39;, 4, &#39;&#39;, &#39;Number of windows on which power spectra are computed.&#39;)
+    cfg.add_section(&#39;Peaks:&#39;)
+    cfg.add(&#39;threshold&#39;, 20.0, &#39;dB&#39;, &#39;Threshold for peak detection.&#39;)
+    cfg.add(&#39;deltaf&#39;, 10.0, &#39;Hz&#39;, &#39;Minimum distance between peaks.&#39;)
+    cfg.add(&#39;flip&#39;, True, &#39;&#39;, &#39;Flip peaks.&#39;)
+    cfg.write()
+    print()
+    print(&#39;set values:&#39;)
+    s = cfg.set_values([&#39;nfft: 1024, windows: 2&#39;, &#39;threshold: donkey&#39;, &#39;flip: false&#39;, &#39;something: blue&#39;])
+    if s is not None:
+        print(&#39;errors:&#39;)
+        for es in s:
+            print(&#39;   &#39;, es)
+    cfg.write()
+    print()
+    print()
+
+    print(&#39;delete nfft and windows:&#39;)
+    del cfg[&#39;nfft&#39;]
+    del cfg[&#39;windows&#39;]
+    cfg.write()</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="thunderlab.configfile.ConfigFile"><code class="flex name class">
+<span>class <span class="ident">ConfigFile</span></span>
+<span>(</span><span>orig=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ConfigFile(dict):
+    &#34;&#34;&#34;Handling of configuration parameter.
+
+    Configuration parameter have a name (key), a value, a unit, a
+    description and a default value. ConfigFile is a dictionary with
+    the parameter names as keys and the tuple (value, unit,
+    description, default) as value.
+    
+    New parameter can be added with the add() function.
+
+    Configuration parameter can be further structured in the
+    configuration file by inserting section titles via add_section().
+
+    The tuple (value, unit, description, default) can be retrieved via
+    the name of a parameter using the [] operator.
+
+    The value of a configuration parameter is retrieved by value()
+    and set by set().
+
+    Values of several configuration parameter can be mapped to
+    new names with the map() function. The resulting dictionary can be
+    passed as key-word arguments to a function.
+
+    The configuration parameter can be written to a configuration file
+    with dump() and loaded from a file with load() and load_files().
+    
+    Methods
+    -------
+
+    - `add()`: add a new parameter to the configuration.
+    - `add_section()`: add a new section to the configuration.
+    - `value()`: returns the value of the configuration parameter defined by key.
+    - `set(): set the value of the configuration parameter defined by key.
+    - `set_values(): set values of configuration parameters from list of str.
+    - `map()`: map the values of the configuration onto new names.
+    - `write()`: pretty print configuration into file or stream.
+    - `load()`: set values of configuration to values from key-value pairs read in from file.
+    - `load_files()`: load configuration from current working directory as well as from several levels of a file path.
+
+    &#34;&#34;&#34;
+
+    def __init__(self, orig=None):
+        super().__init__(dict())
+        self.sections = dict()
+        self.new_section = None
+        if not orig is None:
+            for k, v in orig.items():
+                self[k] = list(v)
+            for k, v in orig.sections.items():
+                self.sections[k] = v
+            self.new_section = None
+    
+    def add(self, key, value, unit, description):
+        &#34;&#34;&#34;Add a new parameter to the configuration.
+
+        The description of the parameter is a single string. Newline
+        characters are intepreted as new paragraphs.
+
+        Parameters
+        ----------
+        key: str
+            Key (name) of the parameter.
+        value: any type
+            Value of the parameter.
+        unit: str
+            Unit of the parameter value.
+        description: str
+            Textual description of the parameter.
+        &#34;&#34;&#34;
+        # add a pending section:
+        if self.new_section is not None:
+            self.sections[key] = self.new_section
+            self.new_section = None
+        # add configuration parameter (4th element is default value):
+        self[key] = [value, unit, description, value]
+
+    def add_section(self, description):
+        &#34;&#34;&#34;Add a new section to the configuration.
+
+        Parameters
+        ----------
+        description: str
+            Textual description of the section
+        &#34;&#34;&#34;
+        self.new_section = description
+    
+    def value(self, key):
+        &#34;&#34;&#34;Returns the value of the configuration parameter defined by key.
+
+        Parameters
+        ----------
+        key: str
+            Key of the configuration parameter.
+
+        Returns
+        -------
+        value: any type
+            Value of the configuraion parameter.
+        &#34;&#34;&#34;
+        return self[key][0]
+
+    def set(self, key, value):
+        &#34;&#34;&#34;Set the value of the configuration parameter defined by key.
+
+        Parameters
+        ----------
+        key: str
+            Key of the configuration parameter.
+        value: any type
+            The new value.
+
+        Raises
+        ------
+        IndexError:
+            If key does not exist.
+        &#34;&#34;&#34;
+        if not key in self:
+            raise IndexError(f&#39;Key {key} does not exist&#39;)
+        self[key][0] = value
+
+    def set_values(self, values):
+        &#34;&#34;&#34;Set values of configuration parameters from list of str.
+        
+        Parameters
+        ----------
+        values: list of str
+            Each string can be one or several key-value pairs
+            separated by commas.
+            A key-value pair is separated by colons.
+
+        Returns
+        -------
+        errors: list of str
+            Error messages.
+
+        &#34;&#34;&#34;
+        errors = []
+        for kvs in values:
+            for kv in kvs.strip().split(&#39;,&#39;):
+                if &#39;:&#39; in kv:
+                    ss = kv.split(&#39;:&#39;)
+                    key = ss[0].strip()
+                    val = &#39;:&#39;.join(ss[1:]).strip()
+                    if key in self:
+                        vt = type(self[key][0])
+                        if vt is bool:
+                            if val.lower() in [&#39;true&#39;, &#39;on&#39;, &#39;yes&#39;, &#39;t&#39;, &#39;y&#39;]:
+                                self[key][0] = True
+                            elif val.lower() in [&#39;false&#39;, &#39;off&#39;, &#39;no&#39;, &#39;f&#39;, &#39;n&#39;]:
+                                self[key][0] = False
+                            else:
+                                errors.append(f&#39;configuration parameter &#34;{key}&#34;: cannot convert &#34;{val}&#34; to bool&#39;)
+                        else:
+                            try:
+                                self[key][0] = vt(val)
+                            except ValueError:
+                                errors.append(f&#39;configuration parameter &#34;{key}&#34;: cannot convert &#34;{val}&#34; to {vt}&#39;)
+                    else:
+                        errors.append(f&#39;configuration parameter &#34;{key}:{val}&#34; not found in configuration parameters&#39;)
+        return errors if len(errors) &gt; 0 else None
+
+    def __delitem__(self, key):
+        &#34;&#34;&#34;Remove an entry from the configuration.
+
+        Parameters
+        ----------
+        key: str
+            Key of the configuration parameter to be removed.
+        &#34;&#34;&#34;
+        if key in self.sections:
+            sec = self.sections.pop(key)
+            keys = list(self.keys())
+            inx = keys.index(key)+1
+            if inx &lt; len(keys):
+                next_key = keys[inx]
+                if not next_key in self.sections:
+                    self.sections[next_key] = sec
+        super().__delitem__(key)
+        
+    def map(self, *args, **kwargs):
+        &#34;&#34;&#34;Map the values of the configuration onto new names.
+
+        Use this function to generate key-word arguments
+        that can be passed on to functions.
+
+        Parameters
+        ----------
+        mapping: dict
+            If provided as the first argument, then
+            dictionary with keys being the new names
+            and corresponding values being the parameter names
+            of the configuration.
+        kwargs: dict
+            Further key-word arguments with keys being the new names
+            and corresponding values being the parameter names
+            of the configuration
+
+        Returns
+        -------
+        a: dict
+            A dictionary with the keys of mapping
+            and the corresponding values retrieved from the configuration
+            using the values from mapping.
+        &#34;&#34;&#34;
+        mapping = {}
+        for a in args:
+            mapping.update(**a)
+        mapping.update(**kwargs)
+        a = {}
+        for dest, src in mapping.items():
+            if src in self:
+                a[dest] = self.value(src)
+        return a
+    
+    def write(self, fh=sys.stdout, header=None,
+              diff_only=False, maxline=60, comments=True):
+        &#34;&#34;&#34;Pretty print configuration into file or stream.
+
+        The description of a configuration parameter is printed out
+        right before its key-value pair with an initial comment
+        character (&#39;#&#39;).  
+
+        Section titles get two comment characters prependend (&#39;##&#39;).
+
+        Lines are folded if the character count of parameter
+        descriptions or section title exceeds maxline.
+        
+        A header can be printed initially. This is a simple string that is
+        formatted like the section titles.
+
+        Parameters
+        ----------
+        fh: str or Path or file object
+            Stream or file name for writing the configuration.
+        header: str
+            A string that is written as an introductory comment into the file.
+        diff_only: bool
+            If true write out only those parameters whose value differs from their default.
+        maxline: int
+            Maximum number of characters that fit into a line.
+        comments: boolean
+            Print out descriptions as comments if True.
+        &#34;&#34;&#34;
+
+        def write_comment(fh, comment, maxline, cs):
+            # format comment:
+            if len(comment) &gt; 0:
+                for line in comment.split(&#39;\n&#39;):
+                    fh.write(cs + &#39; &#39;)
+                    cc = len(cs) + 1  # character count
+                    for w in line.strip().split(&#39; &#39;):
+                        # line too long?
+                        if cc + len(w) &gt; maxline:
+                            fh.write(&#39;\n&#39; + cs + &#39; &#39;)
+                            cc = len(cs) + 1
+                        fh.write(w + &#39; &#39;)
+                        cc += len(w) + 1
+                    fh.write(&#39;\n&#39;)
+
+        # open file:
+        own_file = False
+        if not hasattr(fh, &#39;write&#39;):
+            fh = open(fh, &#39;w&#39;)
+            own_file = True
+        # write header:
+        First = True
+        if comments and not header is None:
+            write_comment(fh, header, maxline, &#39;##&#39;)
+            First = False
+        # get length of longest key:
+        maxkey = 0
+        for key in self.keys():
+            if maxkey &lt; len(key):
+                maxkey = len(key)
+        # write out parameter:
+        section = &#39;&#39;
+        for key, v in self.items():
+            # possible section entry:
+            if comments and key in self.sections:
+                section = self.sections[key]
+            # get value, unit, and comment from v:
+            val = None
+            unit = &#39;&#39;
+            comment = &#39;&#39;
+            differs = False
+            if hasattr(v, &#39;__len__&#39;) and (not isinstance(v, str)):
+                val = v[0]
+                if len(v) &gt; 1 and len(v[1]) &gt; 0:
+                    unit = &#39; &#39; + v[1]
+                if len(v) &gt; 2:
+                    comment = v[2]
+                if len(v) &gt; 3:
+                    differs = (val != v[3])
+            else:
+                val = v
+            # only write parameter whose value differs:
+            if diff_only and not differs:
+                continue
+            # write out section
+            if len(section) &gt; 0:
+                if not First:
+                    fh.write(&#39;\n\n&#39;)
+                write_comment(fh, section, maxline, &#39;##&#39;)
+                section = &#39;&#39;
+                First = False
+            # write key-value pair:
+            if comments :
+                fh.write(&#39;\n&#39;)
+                write_comment(fh, comment, maxline, &#39;#&#39;)
+            fh.write(&#39;{key:&lt;{width}s}: {val}{unit:s}\n&#39;.format(
+                key=key, width=maxkey, val=val, unit=unit))
+            First = False
+        # close file:
+        if own_file:
+            fh.close()
+            
+    def load(self, filename):
+        &#34;&#34;&#34;Set values of configuration to values from key-value pairs read in from file.
+
+        Parameters
+        ----------
+        filename: str or Path
+            Name of the file from which to read the configuration.
+
+        &#34;&#34;&#34;
+        with open(filename, &#39;r&#39;) as f:
+            for line in f:
+                # do not process empty lines and comments:
+                if len(line.strip()) == 0 or line[0] == &#39;#&#39; or not &#39;:&#39; in line:
+                    continue
+                # parse key value pair:
+                key, val = line.split(&#39;:&#39;, 1)
+                key = key.strip()
+                # only read values of existing keys:
+                if not key in self:
+                    continue
+                cv = self[key]
+                vals = val.strip().split(&#39; &#39;)
+                if hasattr(cv, &#39;__len__&#39;) and (not isinstance(cv, str)):
+                    unit = &#39;&#39;
+                    if len(vals) &gt; 1:
+                        unit = vals[1]
+                    if unit != cv[1]:
+                        print(f&#39;unit for {key} is {unit} but should be {cv[1]}&#39;)
+                    if type(cv[0]) == bool:
+                        cv[0] = (vals[0].lower() == &#39;true&#39;
+                                 or vals[0].lower() == &#39;yes&#39;)
+                    else:
+                        try:
+                            cv[0] = type(cv[0])(vals[0])
+                        except ValueError:
+                            cv[0] = vals[0]
+                else:
+                    if type(cv[0]) == bool:
+                        self[key] = (vals[0].lower() == &#39;true&#39;
+                                     or vals[0].lower() == &#39;yes&#39;)
+                    else:
+                        try:
+                            self[key] = type(cv)(vals[0])
+                        except ValueError:
+                            self[key] = vals[0]
+                        
+    def load_files(self, cfgfile, filepath, maxlevel=3, verbose=0):
+        &#34;&#34;&#34;Load configuration from current working directory as well as from several levels of a file path.
+
+        Parameters
+        ----------
+        cfgfile: str or Path
+            Name of the configuration file (without any path).
+        filepath: str or Path
+            Path of a file. Configuration files are read in from different levels
+            of the expanded path.
+        maxlevel: int
+            Read configuration files from up to maxlevel parent directories.
+        verbose: int
+            If greater than zero, print out from which files configuration has been loaded.
+        &#34;&#34;&#34;
+        # load configuration from the current directory:
+        cfgfile = Path(cfgfile)
+        if cfgfile.is_file():
+            if verbose &gt; 0:
+                print(f&#39;load configuration {cfgfile}&#39;)
+            self.load(cfgfile)
+
+        # load configuration files from higher directories:
+        filepath = Path(filepath)
+        parents = filepath.resolve().parents
+        for k in range(min(maxlevel, len(parents))):
+            path = parents[k] / cfgfile
+            if path.is_file():
+                if verbose &gt; 0:
+                    print(f&#39;load configuration {path}&#39;)
+                self.load(path)</code></pre>
+</details>
+<div class="desc"><p>Handling of configuration parameter.</p>
+<p>Configuration parameter have a name (key), a value, a unit, a
+description and a default value. ConfigFile is a dictionary with
+the parameter names as keys and the tuple (value, unit,
+description, default) as value.</p>
+<p>New parameter can be added with the add() function.</p>
+<p>Configuration parameter can be further structured in the
+configuration file by inserting section titles via add_section().</p>
+<p>The tuple (value, unit, description, default) can be retrieved via
+the name of a parameter using the [] operator.</p>
+<p>The value of a configuration parameter is retrieved by value()
+and set by set().</p>
+<p>Values of several configuration parameter can be mapped to
+new names with the map() function. The resulting dictionary can be
+passed as key-word arguments to a function.</p>
+<p>The configuration parameter can be written to a configuration file
+with dump() and loaded from a file with load() and load_files().</p>
+<h2 id="methods">Methods</h2>
+<ul>
+<li><code>add()</code>: add a new parameter to the configuration.</li>
+<li><code>add_section()</code>: add a new section to the configuration.</li>
+<li><code>value()</code>: returns the value of the configuration parameter defined by key.</li>
+<li>`set(): set the value of the configuration parameter defined by key.</li>
+<li>`set_values(): set values of configuration parameters from list of str.</li>
+<li><code>map()</code>: map the values of the configuration onto new names.</li>
+<li><code>write()</code>: pretty print configuration into file or stream.</li>
+<li><code>load()</code>: set values of configuration to values from key-value pairs read in from file.</li>
+<li><code>load_files()</code>: load configuration from current working directory as well as from several levels of a file path.</li>
+</ul></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="thunderlab.configfile.ConfigFile.add"><code class="name flex">
+<span>def <span class="ident">add</span></span>(<span>self, key, value, unit, description)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add(self, key, value, unit, description):
+    &#34;&#34;&#34;Add a new parameter to the configuration.
+
+    The description of the parameter is a single string. Newline
+    characters are intepreted as new paragraphs.
+
+    Parameters
+    ----------
+    key: str
+        Key (name) of the parameter.
+    value: any type
+        Value of the parameter.
+    unit: str
+        Unit of the parameter value.
+    description: str
+        Textual description of the parameter.
+    &#34;&#34;&#34;
+    # add a pending section:
+    if self.new_section is not None:
+        self.sections[key] = self.new_section
+        self.new_section = None
+    # add configuration parameter (4th element is default value):
+    self[key] = [value, unit, description, value]</code></pre>
+</details>
+<div class="desc"><p>Add a new parameter to the configuration.</p>
+<p>The description of the parameter is a single string. Newline
+characters are intepreted as new paragraphs.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>key</code></strong> :&ensp;<code>str</code></dt>
+<dd>Key (name) of the parameter.</dd>
+<dt><strong><code>value</code></strong> :&ensp;<code>any type</code></dt>
+<dd>Value of the parameter.</dd>
+<dt><strong><code>unit</code></strong> :&ensp;<code>str</code></dt>
+<dd>Unit of the parameter value.</dd>
+<dt><strong><code>description</code></strong> :&ensp;<code>str</code></dt>
+<dd>Textual description of the parameter.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.configfile.ConfigFile.add_section"><code class="name flex">
+<span>def <span class="ident">add_section</span></span>(<span>self, description)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_section(self, description):
+    &#34;&#34;&#34;Add a new section to the configuration.
+
+    Parameters
+    ----------
+    description: str
+        Textual description of the section
+    &#34;&#34;&#34;
+    self.new_section = description</code></pre>
+</details>
+<div class="desc"><p>Add a new section to the configuration.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>description</code></strong> :&ensp;<code>str</code></dt>
+<dd>Textual description of the section</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.configfile.ConfigFile.value"><code class="name flex">
+<span>def <span class="ident">value</span></span>(<span>self, key)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def value(self, key):
+    &#34;&#34;&#34;Returns the value of the configuration parameter defined by key.
+
+    Parameters
+    ----------
+    key: str
+        Key of the configuration parameter.
+
+    Returns
+    -------
+    value: any type
+        Value of the configuraion parameter.
+    &#34;&#34;&#34;
+    return self[key][0]</code></pre>
+</details>
+<div class="desc"><p>Returns the value of the configuration parameter defined by key.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>key</code></strong> :&ensp;<code>str</code></dt>
+<dd>Key of the configuration parameter.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>value</code></strong> :&ensp;<code>any type</code></dt>
+<dd>Value of the configuraion parameter.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.configfile.ConfigFile.set"><code class="name flex">
+<span>def <span class="ident">set</span></span>(<span>self, key, value)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set(self, key, value):
+    &#34;&#34;&#34;Set the value of the configuration parameter defined by key.
+
+    Parameters
+    ----------
+    key: str
+        Key of the configuration parameter.
+    value: any type
+        The new value.
+
+    Raises
+    ------
+    IndexError:
+        If key does not exist.
+    &#34;&#34;&#34;
+    if not key in self:
+        raise IndexError(f&#39;Key {key} does not exist&#39;)
+    self[key][0] = value</code></pre>
+</details>
+<div class="desc"><p>Set the value of the configuration parameter defined by key.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>key</code></strong> :&ensp;<code>str</code></dt>
+<dd>Key of the configuration parameter.</dd>
+<dt><strong><code>value</code></strong> :&ensp;<code>any type</code></dt>
+<dd>The new value.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<h2 id="indexerror">Indexerror</h2>
+<p>If key does not exist.</p></div>
+</dd>
+<dt id="thunderlab.configfile.ConfigFile.set_values"><code class="name flex">
+<span>def <span class="ident">set_values</span></span>(<span>self, values)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_values(self, values):
+    &#34;&#34;&#34;Set values of configuration parameters from list of str.
+    
+    Parameters
+    ----------
+    values: list of str
+        Each string can be one or several key-value pairs
+        separated by commas.
+        A key-value pair is separated by colons.
+
+    Returns
+    -------
+    errors: list of str
+        Error messages.
+
+    &#34;&#34;&#34;
+    errors = []
+    for kvs in values:
+        for kv in kvs.strip().split(&#39;,&#39;):
+            if &#39;:&#39; in kv:
+                ss = kv.split(&#39;:&#39;)
+                key = ss[0].strip()
+                val = &#39;:&#39;.join(ss[1:]).strip()
+                if key in self:
+                    vt = type(self[key][0])
+                    if vt is bool:
+                        if val.lower() in [&#39;true&#39;, &#39;on&#39;, &#39;yes&#39;, &#39;t&#39;, &#39;y&#39;]:
+                            self[key][0] = True
+                        elif val.lower() in [&#39;false&#39;, &#39;off&#39;, &#39;no&#39;, &#39;f&#39;, &#39;n&#39;]:
+                            self[key][0] = False
+                        else:
+                            errors.append(f&#39;configuration parameter &#34;{key}&#34;: cannot convert &#34;{val}&#34; to bool&#39;)
+                    else:
+                        try:
+                            self[key][0] = vt(val)
+                        except ValueError:
+                            errors.append(f&#39;configuration parameter &#34;{key}&#34;: cannot convert &#34;{val}&#34; to {vt}&#39;)
+                else:
+                    errors.append(f&#39;configuration parameter &#34;{key}:{val}&#34; not found in configuration parameters&#39;)
+    return errors if len(errors) &gt; 0 else None</code></pre>
+</details>
+<div class="desc"><p>Set values of configuration parameters from list of str.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>values</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>Each string can be one or several key-value pairs
+separated by commas.
+A key-value pair is separated by colons.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>errors</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
+<dd>Error messages.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.configfile.ConfigFile.map"><code class="name flex">
+<span>def <span class="ident">map</span></span>(<span>self, *args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def map(self, *args, **kwargs):
+    &#34;&#34;&#34;Map the values of the configuration onto new names.
+
+    Use this function to generate key-word arguments
+    that can be passed on to functions.
+
+    Parameters
+    ----------
+    mapping: dict
+        If provided as the first argument, then
+        dictionary with keys being the new names
+        and corresponding values being the parameter names
+        of the configuration.
+    kwargs: dict
+        Further key-word arguments with keys being the new names
+        and corresponding values being the parameter names
+        of the configuration
+
+    Returns
+    -------
+    a: dict
+        A dictionary with the keys of mapping
+        and the corresponding values retrieved from the configuration
+        using the values from mapping.
+    &#34;&#34;&#34;
+    mapping = {}
+    for a in args:
+        mapping.update(**a)
+    mapping.update(**kwargs)
+    a = {}
+    for dest, src in mapping.items():
+        if src in self:
+            a[dest] = self.value(src)
+    return a</code></pre>
+</details>
+<div class="desc"><p>Map the values of the configuration onto new names.</p>
+<p>Use this function to generate key-word arguments
+that can be passed on to functions.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>mapping</code></strong> :&ensp;<code>dict</code></dt>
+<dd>If provided as the first argument, then
+dictionary with keys being the new names
+and corresponding values being the parameter names
+of the configuration.</dd>
+<dt><strong><code>kwargs</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Further key-word arguments with keys being the new names
+and corresponding values being the parameter names
+of the configuration</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>a</code></strong> :&ensp;<code>dict</code></dt>
+<dd>A dictionary with the keys of mapping
+and the corresponding values retrieved from the configuration
+using the values from mapping.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.configfile.ConfigFile.write"><code class="name flex">
+<span>def <span class="ident">write</span></span>(<span>self, fh=sys.stdout, header=None, diff_only=False, maxline=60, comments=True)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write(self, fh=sys.stdout, header=None,
+          diff_only=False, maxline=60, comments=True):
+    &#34;&#34;&#34;Pretty print configuration into file or stream.
+
+    The description of a configuration parameter is printed out
+    right before its key-value pair with an initial comment
+    character (&#39;#&#39;).  
+
+    Section titles get two comment characters prependend (&#39;##&#39;).
+
+    Lines are folded if the character count of parameter
+    descriptions or section title exceeds maxline.
+    
+    A header can be printed initially. This is a simple string that is
+    formatted like the section titles.
+
+    Parameters
+    ----------
+    fh: str or Path or file object
+        Stream or file name for writing the configuration.
+    header: str
+        A string that is written as an introductory comment into the file.
+    diff_only: bool
+        If true write out only those parameters whose value differs from their default.
+    maxline: int
+        Maximum number of characters that fit into a line.
+    comments: boolean
+        Print out descriptions as comments if True.
+    &#34;&#34;&#34;
+
+    def write_comment(fh, comment, maxline, cs):
+        # format comment:
+        if len(comment) &gt; 0:
+            for line in comment.split(&#39;\n&#39;):
+                fh.write(cs + &#39; &#39;)
+                cc = len(cs) + 1  # character count
+                for w in line.strip().split(&#39; &#39;):
+                    # line too long?
+                    if cc + len(w) &gt; maxline:
+                        fh.write(&#39;\n&#39; + cs + &#39; &#39;)
+                        cc = len(cs) + 1
+                    fh.write(w + &#39; &#39;)
+                    cc += len(w) + 1
+                fh.write(&#39;\n&#39;)
+
+    # open file:
+    own_file = False
+    if not hasattr(fh, &#39;write&#39;):
+        fh = open(fh, &#39;w&#39;)
+        own_file = True
+    # write header:
+    First = True
+    if comments and not header is None:
+        write_comment(fh, header, maxline, &#39;##&#39;)
+        First = False
+    # get length of longest key:
+    maxkey = 0
+    for key in self.keys():
+        if maxkey &lt; len(key):
+            maxkey = len(key)
+    # write out parameter:
+    section = &#39;&#39;
+    for key, v in self.items():
+        # possible section entry:
+        if comments and key in self.sections:
+            section = self.sections[key]
+        # get value, unit, and comment from v:
+        val = None
+        unit = &#39;&#39;
+        comment = &#39;&#39;
+        differs = False
+        if hasattr(v, &#39;__len__&#39;) and (not isinstance(v, str)):
+            val = v[0]
+            if len(v) &gt; 1 and len(v[1]) &gt; 0:
+                unit = &#39; &#39; + v[1]
+            if len(v) &gt; 2:
+                comment = v[2]
+            if len(v) &gt; 3:
+                differs = (val != v[3])
+        else:
+            val = v
+        # only write parameter whose value differs:
+        if diff_only and not differs:
+            continue
+        # write out section
+        if len(section) &gt; 0:
+            if not First:
+                fh.write(&#39;\n\n&#39;)
+            write_comment(fh, section, maxline, &#39;##&#39;)
+            section = &#39;&#39;
+            First = False
+        # write key-value pair:
+        if comments :
+            fh.write(&#39;\n&#39;)
+            write_comment(fh, comment, maxline, &#39;#&#39;)
+        fh.write(&#39;{key:&lt;{width}s}: {val}{unit:s}\n&#39;.format(
+            key=key, width=maxkey, val=val, unit=unit))
+        First = False
+    # close file:
+    if own_file:
+        fh.close()</code></pre>
+</details>
+<div class="desc"><p>Pretty print configuration into file or stream.</p>
+<p>The description of a configuration parameter is printed out
+right before its key-value pair with an initial comment
+character ('#').
+</p>
+<p>Section titles get two comment characters prependend ('##').</p>
+<p>Lines are folded if the character count of parameter
+descriptions or section title exceeds maxline.</p>
+<p>A header can be printed initially. This is a simple string that is
+formatted like the section titles.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>fh</code></strong> :&ensp;<code>str</code> or <code>Path</code> or <code>file object</code></dt>
+<dd>Stream or file name for writing the configuration.</dd>
+<dt><strong><code>header</code></strong> :&ensp;<code>str</code></dt>
+<dd>A string that is written as an introductory comment into the file.</dd>
+<dt><strong><code>diff_only</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If true write out only those parameters whose value differs from their default.</dd>
+<dt><strong><code>maxline</code></strong> :&ensp;<code>int</code></dt>
+<dd>Maximum number of characters that fit into a line.</dd>
+<dt><strong><code>comments</code></strong> :&ensp;<code>boolean</code></dt>
+<dd>Print out descriptions as comments if True.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.configfile.ConfigFile.load"><code class="name flex">
+<span>def <span class="ident">load</span></span>(<span>self, filename)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load(self, filename):
+    &#34;&#34;&#34;Set values of configuration to values from key-value pairs read in from file.
+
+    Parameters
+    ----------
+    filename: str or Path
+        Name of the file from which to read the configuration.
+
+    &#34;&#34;&#34;
+    with open(filename, &#39;r&#39;) as f:
+        for line in f:
+            # do not process empty lines and comments:
+            if len(line.strip()) == 0 or line[0] == &#39;#&#39; or not &#39;:&#39; in line:
+                continue
+            # parse key value pair:
+            key, val = line.split(&#39;:&#39;, 1)
+            key = key.strip()
+            # only read values of existing keys:
+            if not key in self:
+                continue
+            cv = self[key]
+            vals = val.strip().split(&#39; &#39;)
+            if hasattr(cv, &#39;__len__&#39;) and (not isinstance(cv, str)):
+                unit = &#39;&#39;
+                if len(vals) &gt; 1:
+                    unit = vals[1]
+                if unit != cv[1]:
+                    print(f&#39;unit for {key} is {unit} but should be {cv[1]}&#39;)
+                if type(cv[0]) == bool:
+                    cv[0] = (vals[0].lower() == &#39;true&#39;
+                             or vals[0].lower() == &#39;yes&#39;)
+                else:
+                    try:
+                        cv[0] = type(cv[0])(vals[0])
+                    except ValueError:
+                        cv[0] = vals[0]
+            else:
+                if type(cv[0]) == bool:
+                    self[key] = (vals[0].lower() == &#39;true&#39;
+                                 or vals[0].lower() == &#39;yes&#39;)
+                else:
+                    try:
+                        self[key] = type(cv)(vals[0])
+                    except ValueError:
+                        self[key] = vals[0]</code></pre>
+</details>
+<div class="desc"><p>Set values of configuration to values from key-value pairs read in from file.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filename</code></strong> :&ensp;<code>str</code> or <code>Path</code></dt>
+<dd>Name of the file from which to read the configuration.</dd>
+</dl></div>
+</dd>
+<dt id="thunderlab.configfile.ConfigFile.load_files"><code class="name flex">
+<span>def <span class="ident">load_files</span></span>(<span>self, cfgfile, filepath, maxlevel=3, verbose=0)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_files(self, cfgfile, filepath, maxlevel=3, verbose=0):
+    &#34;&#34;&#34;Load configuration from current working directory as well as from several levels of a file path.
+
+    Parameters
+    ----------
+    cfgfile: str or Path
+        Name of the configuration file (without any path).
+    filepath: str or Path
+        Path of a file. Configuration files are read in from different levels
+        of the expanded path.
+    maxlevel: int
+        Read configuration files from up to maxlevel parent directories.
+    verbose: int
+        If greater than zero, print out from which files configuration has been loaded.
+    &#34;&#34;&#34;
+    # load configuration from the current directory:
+    cfgfile = Path(cfgfile)
+    if cfgfile.is_file():
+        if verbose &gt; 0:
+            print(f&#39;load configuration {cfgfile}&#39;)
+        self.load(cfgfile)
+
+    # load configuration files from higher directories:
+    filepath = Path(filepath)
+    parents = filepath.resolve().parents
+    for k in range(min(maxlevel, len(parents))):
+        path = parents[k] / cfgfile
+        if path.is_file():
+            if verbose &gt; 0:
+                print(f&#39;load configuration {path}&#39;)
+            self.load(path)</code></pre>
+</details>
+<div class="desc"><p>Load configuration from current working directory as well as from several levels of a file path.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>cfgfile</code></strong> :&ensp;<code>str</code> or <code>Path</code></dt>
+<dd>Name of the configuration file (without any path).</dd>
+<dt><strong><code>filepath</code></strong> :&ensp;<code>str</code> or <code>Path</code></dt>
+<dd>Path of a file. Configuration files are read in from different levels
+of the expanded path.</dd>
+<dt><strong><code>maxlevel</code></strong> :&ensp;<code>int</code></dt>
+<dd>Read configuration files from up to maxlevel parent directories.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>int</code></dt>
+<dd>If greater than zero, print out from which files configuration has been loaded.</dd>
+</dl></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="thunderlab" href="index.html">thunderlab</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="thunderlab.configfile.main" href="#thunderlab.configfile.main">main</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="thunderlab.configfile.ConfigFile" href="#thunderlab.configfile.ConfigFile">ConfigFile</a></code></h4>
+<ul class="two-column">
+<li><code><a title="thunderlab.configfile.ConfigFile.add" href="#thunderlab.configfile.ConfigFile.add">add</a></code></li>
+<li><code><a title="thunderlab.configfile.ConfigFile.add_section" href="#thunderlab.configfile.ConfigFile.add_section">add_section</a></code></li>
+<li><code><a title="thunderlab.configfile.ConfigFile.value" href="#thunderlab.configfile.ConfigFile.value">value</a></code></li>
+<li><code><a title="thunderlab.configfile.ConfigFile.set" href="#thunderlab.configfile.ConfigFile.set">set</a></code></li>
+<li><code><a title="thunderlab.configfile.ConfigFile.set_values" href="#thunderlab.configfile.ConfigFile.set_values">set_values</a></code></li>
+<li><code><a title="thunderlab.configfile.ConfigFile.map" href="#thunderlab.configfile.ConfigFile.map">map</a></code></li>
+<li><code><a title="thunderlab.configfile.ConfigFile.write" href="#thunderlab.configfile.ConfigFile.write">write</a></code></li>
+<li><code><a title="thunderlab.configfile.ConfigFile.load" href="#thunderlab.configfile.ConfigFile.load">load</a></code></li>
+<li><code><a title="thunderlab.configfile.ConfigFile.load_files" href="#thunderlab.configfile.ConfigFile.load_files">load_files</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>
