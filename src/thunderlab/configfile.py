@@ -395,7 +395,7 @@ class ConfigFile(dict):
         # load configuration files from higher directories:
         filepath = Path(filepath)
         parents = filepath.resolve().parents
-        for k in range(min(maxlevel, len(parents))):
+        for k in reversed(range(min(maxlevel, len(parents)))):
             path = parents[k] / cfgfile
             if path.is_file():
                 if verbose > 0:
