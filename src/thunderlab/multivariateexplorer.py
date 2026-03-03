@@ -1270,10 +1270,18 @@ class MultivariateExplorer(object):
         for ax in self.wave_ax:
             for k, l in enumerate(ax.lines):
                 if l is event.artist:
-                    self.mark_data = [self.mark_data[k]]
+                    if event.mouseevent.key == 'control':
+                        self.mark_data.remove(self.mark_data[k])
+                    else:
+                        self.mark_data = [self.mark_data[k]]
         for ax in self.scatter_ax:
             if ax.collections[0] is event.artist:
-                self.mark_data = event.ind
+                if event.mouseevent.key == 'shift':
+                    self.mark_data.append(event.ind)
+                elif event.mouseevent.key == 'control':
+                    self.mark_data.remove(event.ind)
+                else:
+                    self.mark_data = event.ind
         self._update_selection()
         if event.mouseevent.dblclick:
             if len(self.mark_data) > 0:
