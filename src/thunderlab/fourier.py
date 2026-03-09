@@ -15,7 +15,7 @@ coefficients.
 import numpy as np
 
 
-def fourier_coeffs(data, ratetime, freq, n_harmonics):
+def fourier_coeffs(data, ratetime, freq, max_harmonics):
     """ Extract Fourier coefficients from data.
 
     Decompose a periodic signal \\(x(t)\\) with known fundamental frequency
@@ -34,11 +34,13 @@ def fourier_coeffs(data, ratetime, freq, n_harmonics):
         If single float, then sampling rate of the data.
     freq: float
         Fundamental frequency of Fourier series.
-    n_harmonics: int
-        Number of harmonics inclusively the zeroth one.
-        That is, if `n_harmonics` is set to two,
-        then the zeroth harmonics (offset) and the fundamental
-        frequency (first harmonics) are returned.
+    max_harmonics: int
+        The highest harmonics for which to compute the Fourier coefficient.
+        The number of coefficients returned is one more than `max_harmonics`,
+        because the first coefficient is the zeroth harmonics.
+        For example, if `max_harmonics` is set to three,
+        then the zeroth harmonics (offset), the fundamental
+        frequency (first harmonics), and the second harmonics are returned.
 
     Returns
     -------
@@ -62,8 +64,8 @@ def fourier_coeffs(data, ratetime, freq, n_harmonics):
     # Fourier projections:
     iomega = -2j*np.pi*freq*time
     fac = 2/len(data)       # = 2*deltat/T
-    coeffs = np.zeros(n_harmonics, dtype=complex)
-    for k in range(n_harmonics):
+    coeffs = np.zeros(max_harmonics + 1, dtype=complex)
+    for k in range(max_harmonics + 1):
         coeffs[k] = np.sum(data*np.exp(iomega*k))*fac
     return coeffs
 
