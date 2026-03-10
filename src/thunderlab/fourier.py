@@ -18,11 +18,13 @@ import numpy as np
 def fourier_coeffs(data, ratetime, freq, max_harmonics):
     """ Extract Fourier coefficients from data.
 
-    Decompose a periodic signal \\(x(t)\\) with known fundamental frequency
+    Decompose a periodic, real-valued signal \\(x(t)\\) with known fundamental frequency
     \\(f_1\\) into a Fourier series:
     \\[ x(t) \\approx \\Re \\sum_{k=0}^n c_k e^{i 2 \\pi k f_1 t} \\]
     with the Fourier coefficients
-    \\[ c_k = \\frac{2}{jT} \\int_{0}^{jT} x(t) e^{-i 2 \\pi k f_1 t} \\, dt \\]
+    \\[ c_0 = \\frac{1}{jT} \\int_{0}^{jT} x(t) \\, dt , \\quad k = 0 \\]
+    and
+    \\[ c_k = \\frac{2}{jT} \\int_{0}^{jT} x(t) e^{-i 2 \\pi k f_1 t} \\, dt , \\quad k > 0 \\]
     integrated over integer multiples of the period \\(T=1/f_1\\).
 
     Parameters
@@ -47,7 +49,7 @@ def fourier_coeffs(data, ratetime, freq, max_harmonics):
     coeffs: 1D array of complex
         For each harmonics the complex valued Fourier coefficient.
         The first one is the offset and the second one is the coefficient
-        of the fundamental. If the number ofdata samples is less than
+        of the fundamental. If the number of data samples is less than
         a single period, then a zero-sized array is returned.
     """
     if isinstance(ratetime, (list, tuple, np.ndarray)):
@@ -56,16 +58,17 @@ def fourier_coeffs(data, ratetime, freq, max_harmonics):
         time = np.arange(len(data))/ratetime
     # integrate over full periods:
     n_periods = int(np.floor((time[-1] - time[0])*freq))
-    if n_periods < 1:
+    if n_periods < 1 or max_harmonics < 0:
         return np.zeros(0, dtype=complex)
-    n_max = np.argmax(time > time[0] + n_periods/freq)
+    n_max = np.argmax(time >= time[0] + n_periods/freq)
     data = data[:n_max]
     time = time[:n_max]
     # Fourier projections:
     iomega = -2j*np.pi*freq*time
     fac = 2/len(data)       # = 2*deltat/T
     coeffs = np.zeros(max_harmonics + 1, dtype=complex)
-    for k in range(max_harmonics + 1):
+    coeffs[0] = np.sum(data)*fac/2
+    for k in range(1, max_harmonics + 1):
         coeffs[k] = np.sum(data*np.exp(iomega*k))*fac
     return coeffs
 
@@ -97,10 +100,12 @@ def fourier_synthesis(freq, coeffs, ratetime, n=None):
     """ Compute periodic waveform from Fourier coefficients.
 
     Given the Fourier coefficients
-    \\[ c_k = \\frac{2}{jT} \\int_{0}^{jT} x(t) e^{-i 2 \\pi k f_1 t} \\, dt \\]
-    integrated over integer multiples of the period \\(T=1/f_1\\) of a signal
-    \\(x(t)\\) with fundamental frequency \\(f_1\\), compute
-    the Fourier series
+    \\[ c_0 = \\frac{1}{jT} \\int_{0}^{jT} x(t) \\, dt , \\quad k = 0 \\]
+    and
+    \\[ c_k = \\frac{2}{jT} \\int_{0}^{jT} x(t) e^{-i 2 \\pi k f_1 t} \\, dt , \\quad k > 0 \\]
+    integrated over integer multiples of the period \\(T=1/f_1\\) of a
+    periodic,  real-valued signal \\(x(t)\\) with fundamental frequency \\(f_1\\),
+    compute the Fourier series
     \\[ x(t) \\approx \\Re \\sum_{k=0}^n c_k e^{i 2 \\pi k f_1 t} \\]
 
     Parameters
@@ -120,7 +125,7 @@ def fourier_synthesis(freq, coeffs, ratetime, n=None):
     Returns
     -------
     wave: 1D array of float
-        Waveform computed from Fourier series with fundamental frequency
+        Real-valued waveform computed from Fourier series with fundamental frequency
         `freq` and Fourier coefficients `coeffs` for each harmonic.
         The waveform is computed for a sampling rate `rate` and contains
         `n` samples.
@@ -131,7 +136,27 @@ def fourier_synthesis(freq, coeffs, ratetime, n=None):
         time = np.arange(n)/ratetime
     iomega = 2j*np.pi*freq*time
     wave = np.zeros(len(time))
-    for k in range(len(coeffs)):
+    if len(coeffs) == 0:
+        return wave
+    for k, c in enumerate(coeffs):
         wave += np.real(coeffs[k]*np.exp(iomega*k))
     return wave
+
+
+if __name__ == '__main__':
+    import matplotlib.pyplot as plt
+    
+    f = 1/1.5
+    t = np.linspace(0, 3.0, 200)
+    x = 1.7 + 2.3*np.cos(2*np.pi*f*t) + 0.8*np.cos(2*np.pi*2*f*t + 0.5*np.pi) + 0.4*np.cos(2*np.pi*3*f*t - 1.6*np.pi)
+    coeffs = fourier_coeffs(x, t, f, 6)
+    y = fourier_synthesis(f, coeffs, t)
+    fig, (axt, axc) = plt.subplots(1, 2, layout='constrained')
+    axt.plot(t, x, label='original', lw=6)
+    axt.plot(t, y, label='synthesized', lw=2)
+    axt.legend()
+    axc.plot(np.real(coeffs), '-o', label='real')
+    axc.plot(np.imag(coeffs), '-o', label='imag')
+    axc.legend()
+    plt.show()
 
