@@ -143,7 +143,9 @@ def fourier_synthesis(freq, coeffs, ratetime, n=None):
     return wave
 
 
-if __name__ == '__main__':
+def main():
+    """Demonstrate the fourier module.
+    """
     import matplotlib.pyplot as plt
     
     f = 1/1.5
@@ -160,3 +162,6 @@ if __name__ == '__main__':
     axc.legend()
     plt.show()
 
+
+if __name__ == '__main__':
+    main()

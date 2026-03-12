@@ -17,8 +17,13 @@ def test_fourier():
     data1 = f.fourier_synthesis(freq, acoeffs, rate, n)
     time = np.arange(n)/rate
     data = f.fourier_synthesis(freq, acoeffs, time)
-    assert np.all(np.abs(data1-data) < 1e-8), 'synthesized waveforms differ'
+    assert np.all(np.abs(data1 - data) < 1e-8), 'synthesized waveforms differ'
 
+    bcoeffs = f.fourier_coeffs(data[:10], rate, freq, len(acoeffs) - 1)
+    assert len(bcoeffs) == 0, 'no coefficients for too little data failed'
+    data1 = f.fourier_synthesis(freq, bcoeffs, rate, n)
+    assert np.all(np.abs(data1) < 1e-8), 'not a zero waveform for no coefficients'
+    
     bcoeffs = f.fourier_coeffs(data, rate, freq, len(acoeffs) - 1)
     assert len(acoeffs) == len(bcoeffs), 'different number of coefficients'
     assert np.all(np.abs(np.abs(acoeffs) - np.abs(bcoeffs)) < 1e-2), 'magnitudes differ'
@@ -34,3 +39,6 @@ def test_fourier():
     assert np.abs(np.angle(ncoeffs[1])) < 1e-8, 'phase of fundamental not null'
 
         
+def test_main():
+    f.main()
+
