@@ -99,7 +99,7 @@ def detect_peaks(data, threshold):
 
 
 @jit(nopython=True)
-def detect_peaks_fixed(data, threshold):
+def detect_peaks_fixed(data, threshold): # pragma: no cover
     """Detect peaks and troughs using a fixed, relative threshold.
 
     Helper function for detect_peaks().
@@ -186,7 +186,7 @@ def detect_peaks_fixed(data, threshold):
 
 
 @jit(nopython=True)
-def detect_peaks_array(data, threshold):
+def detect_peaks_array(data, threshold): # pragma: no cover
     """Detect peaks and troughs using a variable relative threshold.
 
     Helper function for detect_peaks().
@@ -829,7 +829,7 @@ def std_threshold(data, win_size=None, thresh_fac=5.0):
 
     
 @jit(nopython=True)
-def median_std_threshold(data, win_size=100, thresh_fac=6.0, n_snippets=1000):
+def median_std_threshold(data, win_size=100, thresh_fac=6.0, n_snippets=1000): # pragma: no cover
     """Estimate a threshold for peak detection based on the median standard deviation of data snippets.
 
     On `n_snippets` snippets of `win_size` size the standard
