@@ -19,12 +19,12 @@ def test_fourier():
     data = f.fourier_synthesis(freq, acoeffs, time)
     assert np.all(np.abs(data1-data) < 1e-8), 'synthesized waveforms differ'
 
-    bcoeffs = f.fourier_coeffs(data, rate, freq, len(acoeffs))
+    bcoeffs = f.fourier_coeffs(data, rate, freq, len(acoeffs) - 1)
     assert len(acoeffs) == len(bcoeffs), 'different number of coefficients'
     assert np.all(np.abs(np.abs(acoeffs) - np.abs(bcoeffs)) < 1e-2), 'magnitudes differ'
     assert np.all(np.abs(np.angle(acoeffs[1:]) - np.angle(bcoeffs[1:])) < 1e-2), 'phases differ'
     
-    bcoeffs = f.fourier_coeffs(data, time, freq, len(acoeffs))
+    bcoeffs = f.fourier_coeffs(data, time, freq, len(acoeffs) - 1)
     assert len(acoeffs) == len(bcoeffs), 'different number of coefficients'
     assert np.all(np.abs(np.abs(acoeffs) - np.abs(bcoeffs)) < 1e-2), 'magnitudes differ'
     assert np.all(np.abs(np.angle(acoeffs[1:]) - np.angle(bcoeffs[1:])) < 1e-2), 'phases differ'
