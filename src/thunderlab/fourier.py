@@ -1,6 +1,4 @@
-"""Fourier series
-
-Extract and normalize Fourier coefficients of a Fourier series of
+"""Extract and normalize Fourier coefficients of a Fourier series of
 periodic functions, or synthesize periodic functions from Fourier
 coefficients.
 
@@ -40,7 +38,7 @@ def fourier_coeffs(data, ratetime, freq, max_harmonics):
         The highest harmonics for which to compute the Fourier coefficient.
         The number of coefficients returned is one more than `max_harmonics`,
         because the first coefficient is the zeroth harmonics.
-        For example, if `max_harmonics` is set to three,
+        For example, if `max_harmonics` is set to two,
         then the zeroth harmonics (offset), the fundamental
         frequency (first harmonics), and the second harmonics are returned.
 
@@ -74,7 +72,7 @@ def fourier_coeffs(data, ratetime, freq, max_harmonics):
 
 
 def normalize_fourier_coeffs(coeffs):
-    """Set phase of first harmonics and offset to zero.
+    """Set phase of first harmonic and offset to zero.
 
     Parameters
     ----------
@@ -115,7 +113,7 @@ def fourier_synthesis(freq, coeffs, ratetime, n=None):
     coeffs: 1D array of complex
         For each harmonics the complex valued Fourier coefficient
         as, for example, returned by `fourier_coeffs()`.
-        The first one is the offset.
+        The first element is the offset, the second the fundamental.
     ratetime: float or 1-D array of float
         Time points for which the waveform is calculated.
         If single float, then sampling rate of the computed waveform.
@@ -126,9 +124,9 @@ def fourier_synthesis(freq, coeffs, ratetime, n=None):
     -------
     wave: 1D array of float
         Real-valued waveform computed from Fourier series with fundamental frequency
-        `freq` and Fourier coefficients `coeffs` for each harmonic.
-        The waveform is computed for a sampling rate `rate` and contains
-        `n` samples.
+        `freq` and Fourier coefficients `coeffs`.
+        The waveform is computed for `ratetime` time points or
+        a `n` samples with a sampling rate `ratetime`.
     """
     if isinstance(ratetime, (list, tuple, np.ndarray)):
         time = ratetime

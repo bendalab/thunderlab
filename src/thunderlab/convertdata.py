@@ -83,14 +83,14 @@ from .version import __version__, __year__
 
 def check_format(format):
     """
-    Check whether requested audio format is valid and supported.
+    Check whether requested data format is valid and supported.
 
     If the format is not available print an error message on console.
 
     Parameters
     ----------
     format: string
-        Audio format to be checked.
+        Data format to be checked.
 
     Returns
     -------

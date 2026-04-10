@@ -1,5 +1,4 @@
-"""configfile
-
+"""
 class `ConfigFile`: handling of configuration parameter.
 """
 
@@ -32,7 +31,7 @@ class ConfigFile(dict):
     passed as key-word arguments to a function.
 
     The configuration parameter can be written to a configuration file
-    with dump() and loaded from a file with load() and load_files().
+    with write() and loaded from a file with load() and load_files().
     
     Methods
     -------
