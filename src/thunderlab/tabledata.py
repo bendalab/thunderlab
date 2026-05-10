@@ -3811,7 +3811,7 @@ class TableData(object):
                 labels = []
                 units = []
                 for c in key_cols[kr]:
-                    if c[-1] == ')':
+                    if len(c) > 0 and c[-1] == ')':
                         lu = c[:-1].split('(')
                         if len(lu) >= 2:
                             labels.append(lu[0].strip())
