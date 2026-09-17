@@ -1836,8 +1836,9 @@ class DataLoader(AudioLoader):
     # container interface:
     def open_container(self, filepath, buffersize=10.0,
                        backsize=0.0, verbose=0, datakey=None,
-                       samplekey=['rate', 'Fs', 'fs'],
-                       timekey=['time'], amplkey=['amax'], unitkey='unit',
+                       samplekey=['rate', 'Fs', 'fs', ''],
+                       timekey=['time', 'timescale'],
+                       amplkey=['amax'], unitkey='unit',
                        metadatakey=['metadata', 'info'],
                        poskey=['positions'],
                        spanskey=['spans'], labelskey=['labels'],
