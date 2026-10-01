@@ -770,7 +770,35 @@ def markers_fishgrid(filepath):
         return np.array(locs[1:-1]), np.array(labels[1:-1])
     else:
         return np.zeros((0, 2), dtype=int), np.zeros((0, 2), dtype=object)
-        
+
+    
+default_container_samplekeys = ['rate', 'fs', 'samplerate', 'samplingrate']
+""" Lower-case keys that specify a sampling rate in a data container. """
+
+default_container_timekeys = ['time', 'timescale']
+""" Lower-case keys that specify a time axis in a data container. """
+
+default_container_amplkeys = ['amax', 'ampl_max', 'ampl', 'amplitude']
+""" Lower-case keys that specify a maximum amplitude in a data container. """
+
+default_container_unitkeys = ['unit']
+""" Lower-case keys that specify a unit in a data container. """
+
+default_container_metadatakeys = ['metadata', 'info']
+""" Lower-case keys that specify metadata in a data container. """
+
+default_container_poskeys = ['positions']
+""" Lower-case keys that specify event positions in a data container. """
+
+default_container_spankeys = ['spans']
+""" Lower-case keys that specify event spans in a data container. """
+
+default_container_labelkeys = ['labels']
+""" Lower-case keys that specify labels in a data container. """
+
+default_container_descrkeys = ['descriptions']
+""" Lower-case keys that specify descriptions in a data container. """
+
 
 def check_container(filepath):
     """Check if file is a generic container file.
@@ -796,8 +824,10 @@ def check_container(filepath):
 
 
 def extract_container_data(data_dict, datakey=None,
-                           samplekey=['rate', 'Fs', 'fs'],
-                           timekey=['time'], amplkey=['amax'], unitkey='unit',
+                           samplekey=default_container_samplekeys,
+                           timekey=default_container_timekeys,
+                           amplkey=default_container_amplkeys,
+                           unitkey=default_container_unitkeys,
                            amax=1.0, unit='a.u.'):
     """Extract data from dictionary loaded from a container file.
 
@@ -817,7 +847,7 @@ def extract_container_data(data_dict, datakey=None,
         from the sampling times.
     amplkey: str or list of str
         Name of the variable holding the amplitude range of the data.
-    unitkey: str
+    unitkey: str or list of str
         Name of the variable holding the unit of the data.
     amax: None or float
         If specified and no amplitude range has been found in `data_dict`,
@@ -850,24 +880,30 @@ def extract_container_data(data_dict, datakey=None,
         timekey = (timekey,)
     if not isinstance(amplkey, (list, tuple, np.ndarray)):
         amplkey = (amplkey,)
+    if not isinstance(unitkey, (list, tuple, np.ndarray)):
+        unitkey = (unitkey,)
+    lower_keys = {k.lower():k for k in data_dict}
     rate = 0.0
     for skey in samplekey:
-        if skey in data_dict:
-            rate = float(data_dict[skey])
+        if skey in lower_keys:
+            rate = float(data_dict[lower_keys[skey]])
             break
     if rate == 0.0:
         for tkey in timekey:
-            if tkey in data_dict:
-                rate = 1.0/(data_dict[tkey][1] - data_dict[tkey][0])
+            if tkey in lower_keys:
+                time = data_dict[lower_keys[tkey]]
+                rate = 1.0/(time[1] - time[0])
                 break
     if rate == 0.0:
-        raise ValueError(f"invalid keys {', '.join(samplekey)} and {', '.join(timekey)} for requesting sampling rate or sampling times")
+        raise ValueError(f"invalid keys {', '.join(samplekey)} and {', '.join(timekey)} for requesting sampling rate or sampling times! Available keys in container: {', '.join(lower_keys)}")
     for akey in amplkey:
-        if akey in data_dict:
-            amax = float(data_dict[akey])
+        if akey in lower_keys:
+            amax = float(data_dict[lower_keys[akey]])
             break
-    if unitkey in data_dict:
-        unit = data_dict[unitkey]
+    for ukey in unitkey:
+        if ukey in lower_keys:
+            unit = data_dict[lower_keys[unitkey]]
+            break
     # get data array:
     raw_data = np.array([])
     if datakey:
@@ -875,11 +911,11 @@ def extract_container_data(data_dict, datakey=None,
         if not isinstance(datakey, (list, tuple, np.ndarray)):
             datakey = (datakey,)
         for dkey in datakey:
-            if dkey in data_dict:
-                raw_data = data_dict[dkey]
+            if dkey in lower_keys:
+                raw_data = data_dict[lower_keys[dkey]]
                 break
         if len(raw_data) == 0:
-            raise ValueError(f"invalid key(s) {', '.join(datakey)} for requesting data")
+            raise ValueError(f"invalid key(s) {', '.join(datakey)} for requesting data! Available keys in container: {', '.join(lower_keys)}")
     else:
         # find largest 2D array:
         for d in data_dict:
@@ -888,7 +924,7 @@ def extract_container_data(data_dict, datakey=None,
                    np.max(data_dict[d].shape) > np.max(raw_data.shape):
                     raw_data = data_dict[d]
     if len(raw_data) == 0:
-        raise ValueError('no data found')
+        raise ValueError('no data found in container')
     # make 2D:
     if len(raw_data.shape) == 1:
         raw_data = raw_data.reshape(-1, 1)
@@ -911,8 +947,10 @@ def extract_container_data(data_dict, datakey=None,
 
 
 def load_container(filepath, datakey=None,
-                   samplekey=['rate', 'Fs', 'fs'],
-                   timekey=['time'], amplkey=['amax'], unitkey='unit',
+                   samplekey=default_container_samplekeys,
+                   timekey=default_container_timekeys,
+                   amplkey=default_container_amplkeys,
+                   unitkey=default_container_unitkeys,
                    amax=1.0, unit='a.u.'):
     """Load data from a generic container file.
 
@@ -938,9 +976,8 @@ def load_container(filepath, datakey=None,
         from the sampling times.
     amplkey: str
         Name of the variable holding the amplitude range of the data.
-    unitkey: str
+    unitkey: str or list of str
         Name of the variable holding the unit of the data.
-        If `unitkey` is not a valid key, then return `unitkey` as the `unit`.
     amax: None or float
         If specified and no amplitude range has been found in the data
         container, then this is the amplitude range of the data.
@@ -981,7 +1018,8 @@ def load_container(filepath, datakey=None,
                                   timekey, amplkey, unitkey, amax, unit)
 
 
-def extract_container_metadata(data_dict, metadatakey=['metadata', 'info']):
+def extract_container_metadata(data_dict,
+                               metadatakey=default_container_metadatakeys):
     """ Extract metadata from dictionary loaded from a container file.
 
     Parameters
@@ -998,16 +1036,17 @@ def extract_container_metadata(data_dict, metadatakey=['metadata', 'info']):
     """
     if not isinstance(metadatakey, (list, tuple, np.ndarray)):
         metadatakey = (metadatakey,)
+    lower_keys = {k.lower():k for k in data_dict}
     # get single metadata dictionary:
     for mkey in metadatakey:
-        if mkey in data_dict:
-            return data_dict[mkey]
+        if mkey in lower_keys:
+            return data_dict[lower_keys[mkey]]
     # collect all keys starting with metadatakey:
     metadata = {}
     for mkey in metadatakey:
         mkey += '__'
         for dkey in data_dict:
-            if dkey[:len(mkey)] == mkey:
+            if dkey[:len(mkey)].lower() == mkey:
                 v = data_dict[dkey]
                 if hasattr(v, 'size') and v.ndim == 0:
                     v = v.item()
@@ -1017,7 +1056,7 @@ def extract_container_metadata(data_dict, metadatakey=['metadata', 'info']):
     return metadata
 
 
-def metadata_container(filepath, metadatakey=['metadata', 'info']):
+def metadata_container(filepath, metadatakey=default_container_metadatakeys):
     """ Read meta-data of a container file.
 
     Parameters
@@ -1046,9 +1085,10 @@ def metadata_container(filepath, metadatakey=['metadata', 'info']):
     return extract_container_metadata(data_dict, metadatakey)
 
 
-def extract_container_markers(data_dict, poskey=['positions'],
-                              spanskey=['spans'], labelskey=['labels'],
-                              descrkey=['descriptions']):
+def extract_container_markers(data_dict, poskey=default_container_poskeys,
+                              spankey=default_container_spankeys,
+                              labelkey=default_container_labelkeys,
+                              descrkey=default_container_descrkeys):
     """ Extract markers from dictionary loaded from a container file.
 
     Parameters
@@ -1057,9 +1097,9 @@ def extract_container_markers(data_dict, poskey=['positions'],
         Dictionary of the data items contained in the container.
     poskey: str or list of str
         Name of the variable holding positions of markers.
-    spanskey: str or list of str
+    spankey: str or list of str
         Name of the variable holding spans of markers.
-    labelskey: str or list of str
+    labelkey: str or list of str
         Name of the variable holding labels of markers.
     descrkey: str or list of str
         Name of the variable holding descriptions of markers.
@@ -1075,38 +1115,42 @@ def extract_container_markers(data_dict, poskey=['positions'],
     """
     if not isinstance(poskey, (list, tuple, np.ndarray)):
         poskey = (poskey,)
-    if not isinstance(spanskey, (list, tuple, np.ndarray)):
-        spanskey = (spanskey,)
-    if not isinstance(labelskey, (list, tuple, np.ndarray)):
-        labelskey = (labelskey,)
+    if not isinstance(spankey, (list, tuple, np.ndarray)):
+        spankey = (spankey,)
+    if not isinstance(labelkey, (list, tuple, np.ndarray)):
+        labelkey = (labelkey,)
     if not isinstance(descrkey, (list, tuple, np.ndarray)):
         descrkey = (descrkey,)
+    lower_keys = {k.lower():k for k in data_dict}
     locs = np.zeros((0, 2), dtype=int)
     for pkey in poskey:
-        if pkey in data_dict:
-            locs = np.zeros((len(data_dict[pkey]), 2), dtype=int)
-            locs[:,0] = data_dict[pkey]
+        if pkey in lower_keys:
+            loc_data = data_dict[lower_keys[pkey]]
+            locs = np.zeros((len(loc_data), 2), dtype=int)
+            locs[:, 0] = loc_data
             break
-    for skey in spanskey:
-        if skey in data_dict:
-            locs[:,1] = data_dict[skey]
+    for skey in spankey:
+        if skey in lower_keys:
+            locs[:,1] = data_dict[lower_keys[skey]]
             break
     labels = np.zeros((0, 2), dtype=object)
-    for lkey in labelskey:
-        if lkey in data_dict:
-            labels = np.zeros((len(data_dict[lkey]), 2), dtype=object)
-            labels[:,0] = data_dict[lkey]
+    for lkey in labelkey:
+        if lkey in lower_keys:
+            label_data = data_dict[lower_keys[lkey]]
+            labels = np.zeros((len(label_data), 2), dtype=object)
+            labels[:,0] = label_data
             break
     for dkey in descrkey:
-        if dkey in data_dict:
-            labels[:,1] = data_dict[dkey]
+        if dkey in lower_keys:
+            labels[:,1] = data_dict[lower_keys[dkey]]
             break
     return locs, labels
 
 
-def markers_container(filepath, poskey=['positions'],
-                      spanskey=['spans'], labelskey=['labels'],
-                      descrkey=['descriptions']):
+def markers_container(filepath, poskey=default_container_poskeys,
+                      spankey=default_container_spankeys,
+                      labelkey=default_container_labelkeys,
+                      descrkey=default_container_descrkeys):
     """ Read markers of a container file.
 
     Parameters
@@ -1115,9 +1159,9 @@ def markers_container(filepath, poskey=['positions'],
         A container file.
     poskey: str or list of str
         Name of the variable holding positions of markers.
-    spanskey: str or list of str
+    spankey: str or list of str
         Name of the variable holding spans of markers.
-    labelskey: str or list of str
+    labelkey: str or list of str
         Name of the variable holding labels of markers.
     descrkey: str or list of str
         Name of the variable holding descriptions of markers.
@@ -1142,8 +1186,8 @@ def markers_container(filepath, poskey=['positions'],
     elif ext == '.mat':
         from scipy.io import loadmat
         data_dict = loadmat(filepath, squeeze_me=True)
-    return extract_container_markers(data_dict, poskey, spanskey,
-                                     labelskey, descrkey)
+    return extract_container_markers(data_dict, poskey, spankey,
+                                     labelkey, descrkey)
 
 
 def check_raw(filepath):
@@ -1836,13 +1880,15 @@ class DataLoader(AudioLoader):
     # container interface:
     def open_container(self, filepath, buffersize=10.0,
                        backsize=0.0, verbose=0, datakey=None,
-                       samplekey=['rate', 'Fs', 'fs', ''],
-                       timekey=['time', 'timescale'],
-                       amplkey=['amax'], unitkey='unit',
-                       metadatakey=['metadata', 'info'],
-                       poskey=['positions'],
-                       spanskey=['spans'], labelskey=['labels'],
-                       descrkey=['descriptions'],
+                       samplekey=default_container_samplekeys,
+                       timekey=default_container_timekeys,
+                       amplkey=default_container_amplkeys,
+                       unitkey=default_container_unitkeys,
+                       metadatakey=default_container_metadatakeys,
+                       poskey=default_container_poskeys,
+                       spankey=default_container_spankeys,
+                       labelkey=default_container_labelkeys,
+                       descrkey=default_container_descrkeys,
                        amax=1.0, unit='a.u.'):
         """Open generic container file.
 
@@ -1874,15 +1920,15 @@ class DataLoader(AudioLoader):
             from the sampling times.
         amplkey: str or list of str
             Name of the variable holding the amplitude range of the data.
-        unitkey: str
+        unitkey: str or list of str
             Name of the variable holding the unit of the data.
         metadatakey: str or list of str
             Name of the variable holding the metadata.
         poskey: str or list of str
             Name of the variable holding positions of markers.
-        spanskey: str or list of str
+        spankey: str or list of str
             Name of the variable holding spans of markers.
-        labelskey: str or list of str
+        labelkey: str or list of str
             Name of the variable holding labels of markers.
         descrkey: str or list of str
             Name of the variable holding descriptions of markers.
@@ -1939,8 +1985,8 @@ class DataLoader(AudioLoader):
         self._load_metadata = None
         self._locs, self._labels = extract_container_markers(data_dict,
                                                              poskey,
-                                                             spanskey,
-                                                             labelskey,
+                                                             spankey,
+                                                             labelkey,
                                                              descrkey)
         self._load_markers = None
 
