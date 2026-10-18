@@ -902,7 +902,7 @@ def extract_container_data(data_dict, datakey=None,
             break
     for ukey in unitkey:
         if ukey in lower_keys:
-            unit = data_dict[lower_keys[unitkey]]
+            unit = data_dict[lower_keys[ukey]]
             break
     # get data array:
     raw_data = np.array([])
