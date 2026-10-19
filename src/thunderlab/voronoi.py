@@ -14,6 +14,11 @@ except ImportError:
     pass
 
 
+def cross2d(x, y):
+    # numpy version 2.5 up require 3-dim vectors for np.cross()...
+    return x[..., 0] * y[..., 1] - x[..., 1] * y[..., 0]
+
+
 class Voronoi(object):
     """
     Parameters
@@ -542,7 +547,7 @@ class Voronoi(object):
         ab = self.hull.points[self.hull.simplices[:,0],:] - self.hull.points[self.hull.simplices[:,1],:]
         cb = self.hull.points[self.hull.simplices[:,2],:] - self.hull.points[self.hull.simplices[:,1],:]
         # area of each simplex is half of the absolute value of the cross product:
-        area = 0.5*np.sum(np.abs(np.cross(ab, cb)))
+        area = 0.5*np.sum(np.abs(cross2d(ab, cb)))
         return area
 
     def outer_hull_area(self):
@@ -557,7 +562,7 @@ class Voronoi(object):
         ab = self.outer_hull.points[self.outer_hull.simplices[:,0],:] - self.outer_hull.points[self.outer_hull.simplices[:,1],:]
         cb = self.outer_hull.points[self.outer_hull.simplices[:,2],:] - self.outer_hull.points[self.outer_hull.simplices[:,1],:]
         # area of each simplex is half of the absolute value of the cross product:
-        area = 0.5*np.sum(np.abs(np.cross(ab, cb)))
+        area = 0.5*np.sum(np.abs(cross2d(ab, cb)))
         return area
 
     def random_points(self, n=None, poisson=True, mode='outer'):

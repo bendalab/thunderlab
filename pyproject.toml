@@ -11,7 +11,7 @@ dependencies = [
   "numpy",
   "numba",
   "matplotlib",
-  "audioio>=2.6"
+  "audioio>=2.9"
 ]
 requires-python = ">=3.6"
 authors = [
