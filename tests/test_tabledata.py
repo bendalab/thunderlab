@@ -5,7 +5,7 @@ import numpy as np
 from thunderlab.configfile import ConfigFile
 import thunderlab.tabledata as td
 
-def setup_table(nanvalue=True):
+def setup_table(nanvalue=True, descriptions=True):
     df = td.TableData()
     df.append(["data", "specimen", "size"], "m", "%6.2f",
               value=[2.34, 56.7, 8.9])
@@ -13,12 +13,13 @@ def setup_table(nanvalue=True):
     df.append_section("all measures")
     df.append("speed", "m/s", "%.3g", value=98.7)
     df.append("median jitter", "mm", "%.1f", value=23)
-    df.append("size", "g", "%.2e", value=1.234)
-    df.set_descriptions({'size': 'The total length of each snake.',
-                         'full weight': 'Weight of each snake',
-                         'speed': 'Maximum speed the snake can climb a tree.',
-                         'median jitter': 'The jitter around a given path the snake should follow.',
-                         'all measures>size': 'Weight of mouse the snake has eaten before.'})
+    df.append("msize", "g", "%.2e", value=1.234)
+    if descriptions:
+        df.set_descriptions({'size': 'The total length of each snake.',
+                             'full weight': 'Weight of each snake',
+                             'speed': 'Maximum speed the snake can climb a tree.',
+                             'median jitter': 'The jitter around a given path the snake should follow.',
+                             'msize': 'Weight of mouse the snake has eaten before.'})
     if nanvalue:
         df.add(float('NaN'), 1)  # single value
     else:
@@ -351,12 +352,17 @@ def test_write_descriptions():
     filename = 'tabletest.dat'
     df = setup_table()
     for tf in ['md', 'tex', 'html']:
-        for sections in [None, 1000]:
-            for section_headings in [None, 0, 1]:
-                df.write_descriptions(table_format=tf,
-                                      sections=sections,
-                                      section_headings=section_headings,
-                                      maxc=30)
+        for sections in [None, 1000, 0, 1, 2]:
+            for section_headings in [None, 1, 0]:
+                fn = df.write_descriptions(filename, table_format=tf,
+                                           sections=sections,
+                                           section_headings=section_headings,
+                                           maxc=30)
+                sf = setup_table(descriptions=False)
+                sf.load_descriptions(fn)
+                if tf == 'md':
+                    assert df.descriptions == sf.descriptions, 'descriptions differ'
+                fn.unlink()
 
     
 def test_config():

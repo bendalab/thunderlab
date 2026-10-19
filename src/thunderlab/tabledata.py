@@ -2552,10 +2552,10 @@ class TableData(object):
             descriptions to a file with the same name as `fh`, but with
             `descriptions_name` appended.
         section_headings: None or int
-            How to write treat header sections in the column descriptions.
+            How to treat header sections in the column descriptions.
             If set, set header sections as headings with the top-level
             section at the level as specified. 0 is the top level.
-            If False, just produce a nested list.
+            If None, just produce a nested list.
         maxc: int
             Maximum character count for each line in the column descriptions.
         
@@ -3357,7 +3357,7 @@ class TableData(object):
             if table_format is None:
                 if len(ext) > 1 and ext[1:] in self.ext_formats:
                     table_format = self.ext_formats[ext[1:]]
-            elif not ext or not ext[1:].lower() in self.ext_formats:
+            else:
                 fh = fh.with_suffix('.' + self.extensions[table_format])
             file_name = fh
             fh = open(fh, 'w')
@@ -3480,7 +3480,7 @@ class TableData(object):
         # return file name:
         return file_name
 
-    def load_descriptions(fh):
+    def load_descriptions(self, fh):
         """Load column descriptions from file or stream.
 
         Parameters
@@ -3488,21 +3488,80 @@ class TableData(object):
         fh: str, Path, or stream
             If not a stream, the file with path `fh` is opened for reading.
         """
+        def set_descr_unit(sections, label, unit, description):
+            secs = '>'.join(sections)
+            if len(secs) > 0:
+                secs += '>'
+            secs += label
+            col = self.index(secs)
+            self.set_unit(col, unit)
+            self.set_description(col, description)
+            
         # open file:
         own_file = False
         if not hasattr(fh, 'readline'):
             fh = open(fh, 'r')
             own_file = True
-        # read file:
-        print('WARNING: load_descriptions() not implemented yet')
+        # read first non-empty line:
         for line in fh:
-            if line[0] == '#':
-                heading_level = len(line.split()[0])
-                section_name = line[heading_level + 1:]
-            elif line[0] == '-':
-                lp = line.split('**')
-                label = lp[1]
-                unit = lp[-1].strip().lstrip('[').rstrip(']')
+            line = line.strip()
+            if len(line) > 0:
+                break
+        if len(line) > 0 and line[0] in '#-':
+            # markdown:
+            description = None
+            nested = line[0] == '-' and not '**' in line
+            if nested:
+                sections = [line[1:].strip()]
+            elif line[0] == '#':
+                top_level = len(line.split()[0])
+                sections = [line[top_level + 1:].strip()]
+            else:
+                top_level = 0
+                sections = []
+                if '**' in line:
+                    lp = line.split('**')
+                    label = lp[1]
+                    unit = None
+                    if len(lp) > 1 and lp[-1].strip()[0] == '[':
+                        unit = lp[-1].strip().lstrip('[').rstrip(']')
+                    description = ''
+            for line in fh:
+                sline = line.strip()
+                if (len(sline) == 0 or sline[0] in '#-') and description:
+                    print(sections, label, unit, description)
+                    set_descr_unit(sections, label, unit, description)
+                    description = None
+                if len(sline) == 0:
+                    continue
+                elif sline[0] == '#':
+                    heading_level = len(line.split()[0])
+                    section_name = line[heading_level + 1:].strip()
+                    heading_level -= top_level
+                    while len(sections) > heading_level:
+                        sections.pop()
+                    sections.append(section_name)
+                elif sline[0] == '-':
+                    if '**' in sline:
+                        lp = sline.split('**')
+                        label = lp[1]
+                        unit = None
+                        if len(lp) > 1 and lp[-1].strip()[0] == '[':
+                            unit = lp[-1].strip().lstrip('[').rstrip(']')
+                        description = ''
+                    elif nested:
+                        heading_level = line.find('-')//2
+                        while len(sections) > heading_level:
+                            sections.pop()
+                        sections.append(sline.lstrip('-').strip())
+                elif description is not None:
+                    if len(description) > 0:
+                        description += ' '
+                    description += sline
+            if description:
+                set_descr_unit(sections, label, unit, description)
+        else:
+            print('unsupported file format for reading descriptions')
         # close file:
         if own_file:
             fh.close()
