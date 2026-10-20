@@ -5,6 +5,7 @@ import numpy as np
 from thunderlab.configfile import ConfigFile
 import thunderlab.tabledata as td
 
+
 def setup_table(nanvalue=True, descriptions=True):
     df = td.TableData()
     df.append(["data", "specimen", "size"], "m", "%6.2f",
@@ -348,7 +349,7 @@ def test_hide_show():
     os.remove('tabletest-description.md')
 
     
-def test_write_descriptions():
+def test_write_load_descriptions():
     filename = 'tabletest.dat'
     df = setup_table()
     for tf in ['md', 'tex', 'html']:
@@ -363,6 +364,18 @@ def test_write_descriptions():
                 if tf == 'md':
                     assert df.descriptions == sf.descriptions, 'descriptions differ'
                 fn.unlink()
+    fn = df.write(filename)
+    sf = td.TableData(fn)
+    assert df.descriptions == sf.descriptions, 'descriptions differ'
+    assert df.header == sf.header, 'header differs'
+    assert df.units == sf.units, 'units differs'
+    #assert df.formats == sf.formats, 'formats differs'
+    for dd, sd in zip(df.data, sf.data):
+        da = np.array(dd, dtype=float)
+        sa = np.array(sd, dtype=float)
+        assert np.all((np.abs(da - sa) < 1.0) | ~np.isfinite(da) | ~np.isfinite(sa)), 'data differs'
+    fn.unlink()
+    fn.with_name(fn.stem + '-description.md').unlink()
 
     
 def test_config():

@@ -2485,7 +2485,7 @@ class TableData(object):
               missing=default_missing_str, center_columns=False,
               latex_unit_package=None, latex_label_command='',
               latex_merge_std=False, descriptions_name='-description',
-              section_headings=None, maxc=80):
+              section_headings=0, maxc=80):
         """Write the table to a file or stream.
 
         Parameters
@@ -3310,7 +3310,7 @@ class TableData(object):
         return stream.getvalue()
                 
     def write_descriptions(self, fh=sys.stdout, table_format=None,
-                           sections=None, section_headings=None,
+                           sections=None, section_headings=0,
                            latex_unit_package=None, maxc=80):
         """Write column descriptions of the table to a file or stream.
 
@@ -3529,7 +3529,6 @@ class TableData(object):
             for line in fh:
                 sline = line.strip()
                 if (len(sline) == 0 or sline[0] in '#-') and description:
-                    print(sections, label, unit, description)
                     set_descr_unit(sections, label, unit, description)
                     description = None
                 if len(sline) == 0:
@@ -3706,8 +3705,10 @@ class TableData(object):
         self.setcol = 0
         self.addcol = 0
         # open file:
+        file_name = None
         own_file = False
         if not hasattr(fh, 'readline'):
+            file_name = Path(fh)
             fh = open(fh, 'r')
             own_file = True
         # read inital lines of file:
@@ -3944,6 +3945,15 @@ class TableData(object):
         # close file:
         if own_file:
             fh.close()
+        # load descriptions:
+        print(file_name)
+        if file_name is not None:
+            descr_path = file_name.parent
+            descr_files = descr_path.glob(file_name.stem + '-*.md')
+            for path in descr_files:
+                if path.is_file():
+                    self.load_descriptions(path)
+                    break
 
     
 def add_write_table_config(cfg, table_format=None, delimiter=None,
@@ -4336,10 +4346,6 @@ def main():
 
     # aggregrate on groups demo:
     print(df.aggregate(np.mean, by='ID'))
-    print()
-
-    # write descriptions:
-    df.write_descriptions(table_format='md', section_headings=0)
     print()
     
         
