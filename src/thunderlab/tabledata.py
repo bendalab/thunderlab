@@ -738,8 +738,9 @@ class TableData(object):
             The level of the section to be set. The column label itself is level=0.
         """
         column = self.index(column)
-        self.header[column][level] = label
-        return column
+        if not column is None:
+            self.header[column][level] = label
+        return self
 
     def append_section(self, label):
         """Add sections to the table header.
@@ -844,7 +845,8 @@ class TableData(object):
             This TableData
         """        
         column = self.index(column)
-        self.header[column][0] = label
+        if not column is None:
+            self.header[column][0] = label
         return self
 
     def set_labels(self, labels):
@@ -925,7 +927,8 @@ class TableData(object):
             This TableData
         """
         column = self.index(column)
-        self.units[column] = unit
+        if not column is None:
+            self.units[column] = unit
         return self
 
     def set_units(self, units):
@@ -1006,7 +1009,8 @@ class TableData(object):
             This TableData
         """
         column = self.index(column)
-        self.formats[column] = format
+        if not column is None:
+            self.formats[column] = format
         return self
 
     def set_formats(self, formats):
@@ -1087,7 +1091,8 @@ class TableData(object):
             This TableData
         """
         column = self.index(column)
-        self.descriptions[column] = description
+        if not column is None:
+            self.descriptions[column] = description
         return self
 
     def set_descriptions(self, descriptions):
