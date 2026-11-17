@@ -3951,7 +3951,6 @@ class TableData(object):
         if own_file:
             fh.close()
         # load descriptions:
-        print(file_name)
         if file_name is not None:
             descr_path = file_name.parent
             descr_files = descr_path.glob(file_name.stem + '-*.md')
